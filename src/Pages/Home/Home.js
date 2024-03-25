@@ -2,7 +2,7 @@ import {createDrawerNavigator} from '@react-navigation/drawer';
 import React from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 import HomeScreen from '../../sidescreens/HomeScreen';
-import Sidebar from '../../sidebar';
+import Sidebar from '../../Sidebar';
 const Drawer = createDrawerNavigator();
 const Home = () => {
   return (

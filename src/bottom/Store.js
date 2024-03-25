@@ -24,7 +24,9 @@ const Store = ({navigation}) => {
   };
   const renderProductItem = ({ item }) => {
     return (
-      <TouchableOpacity style={styles.productItem} onPress={() => console.log(item.id)}>
+      <TouchableOpacity
+        style={styles.productItem}
+        onPress={() => navigation.navigate('Details', { item, name: item.name, image: item.image })}>
         <View style={styles.productImageContainer}>
           <Image style={styles.productImage} source={item.image} />
           <Text style={styles.productName}>{item.name}</Text>
@@ -37,11 +39,11 @@ const Store = ({navigation}) => {
               <Text>Notes: {item.Notes}</Text>
               <View style={styles.buttonsContainer}>
                 <TouchableOpacity style={styles.button}>
-                    <Image style={{height:20,width:20}} source={require('../../assets/heart.png')}/>
+                  <Image style={{ height: 20, width: 20 }} source={require('../../assets/heart.png')} />
                   <Text>WISHLIST</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.buttonqty}>
-                <Image style={{height:20,width:20}} source={require('../../assets/qty.png')}/>
+                  <Image style={{ height: 20, width: 20 }} source={require('../../assets/qty.png')} />
                   <Text>ADD QTY</Text>
                 </TouchableOpacity>
               </View>
@@ -52,6 +54,7 @@ const Store = ({navigation}) => {
     );
   };
   
+
   
   
   
@@ -87,8 +90,8 @@ const Store = ({navigation}) => {
           <TouchableOpacity style={styles.iconWrapper}>
             <Image
               resizeMode="contain"
-              style={styles.locationimg}
-              source={require('../../assets/cart.png')}
+              style={styles.cartimg}
+              source={require('../../assets/cart.jpg')}
             />
           </TouchableOpacity>
         </View>
@@ -203,6 +206,10 @@ const styles = StyleSheet.create({
   msgimg: {
     height: 30,
     width: 35,
+  },
+  cartimg:{
+    height:40,
+    width:40,
   },
   head: {
     flexDirection: 'row',
