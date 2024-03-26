@@ -1,46 +1,46 @@
 export const AllPRODUCT_DETAILS=[
     {
         id:1,
-        name:"Vip",
+        name:"Sustainable",
         price:"10000",
         tags:"null",
         Notes:"Watch out this space for more details",
-        image:require('../../assets/vip.png')
+        image:require('../../assets/img1.jpg')
     },
     {
         id:2,
-        name:"Vip",
+        name:"Cotton",
         price:"10000",
         tags:"null",
         Notes:"Watch out this space for more details",
-        image:require('../../assets/vip.png')
+        image:require('../../assets/img1.jpg')
 
     },
     {
         id:3,
-        name:"Vip",
+        name:"Premium",
         price:"10000",
         tags:"null",
         Notes:"Watch out this space for more details",
-        image:require('../../assets/vip.png')
+        image:require('../../assets/img1.jpg')
 
     },
     {
         id:4,
-        name:"Vip",
+        name:"Premium",
         price:"10000",
         tags:"null",
         Notes:"Watch out this space for more details",
-        image:require('../../assets/vip.png')
+        image:require('../../assets/img1.jpg')
 
     },
     {
         id:5,
-        name:"Vip",
+        name:"Premium",
         price:"10000",
         tags:"null",
         Notes:"Watch out this space for more details",
-        image:require('../../assets/vip.png')
+        image:require('../../assets/img1.jpg')
 
     },
     {
@@ -49,7 +49,7 @@ export const AllPRODUCT_DETAILS=[
         price:"10000",
         tags:"null",
         Notes:"Watch out this space for more details",
-        image:require('../../assets/vip.png')
+        image:require('../../assets/img1.jpg')
 
     },
 ];

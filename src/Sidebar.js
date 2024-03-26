@@ -1,22 +1,73 @@
-import React from 'react';
-import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import React, {useState} from 'react';
+import {
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  Modal,
+} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import ImagePicker from 'react-native-image-crop-picker';
 const Sidebar = ({userName, companyName}) => {
   const navigation = useNavigation();
+  const [modalVisible, setModalVisible] = useState(false);
+  const [image, setImage] = useState(require('../assets/profile.png'));
+
   const goToHome = () => {
     console.log('Navigating to Home');
     navigation.navigate('Home');
   };
+
   const goToCategories = () => {
     console.log('Navigating to Categories');
     navigation.navigate('Categories');
   };
+
   const goToOrder = () => {
     console.log('Navigating to Order');
     navigation.navigate('Order');
   };
-  
+  const goToEditProfile =()=>{
+    navigation.navigate("EditProfile")
+  }
+  const takePhotoFromCamera = () => {
+    ImagePicker.openCamera({
+      width: 300,
+      height: 400,
+      cropping: true,
+      compressImageQuality:0.7
+    })
+      .then(image => {
+        console.log(image);
+        setImage({uri: image.path});
+        setModalVisible(false);
+      })
+      .catch(error => {
+        console.log('Error taking photo from camera:', error);
+        setModalVisible(false);
+      });
+  };
+
+  const choosePhotoFromLibrary = () => {
+    ImagePicker.openPicker({
+      width: 300,
+      height: 300,
+      cropping: true,
+      compressImageQuality:0.7
+    })
+      .then(image => {
+        console.log(image);
+        setImage({uri: image.path});
+        setModalVisible(false);
+      })
+      .catch(error => {
+        console.log('Error choosing photo from library:', error);
+        setModalVisible(false);
+      });
+  };
+
   const handleLogout = async () => {
     try {
       await AsyncStorage.removeItem('userdata');
@@ -25,26 +76,25 @@ const Sidebar = ({userName, companyName}) => {
       console.error('Error clearing user data:', error);
     }
   };
+
   return (
-    <View style={style.container}>
+    <View style={styles.container}>
       <View style={{backgroundColor: '#56994B'}}>
-        <View style={style.header}>
-          <TouchableOpacity>
-            <Image
-              style={[style.img, {tintColor: '#fff'}]}
-              source={require('../assets/profile.png')}
-            />
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => setModalVisible(true)}>
+            <Image style={[styles.img, {borderRadius: 30}]} source={image} />
           </TouchableOpacity>
-          <TouchableOpacity style={style.editbox}>
+
+          <TouchableOpacity onPress={goToEditProfile} style={styles.editbox}>
             <Image
-              style={[style.editimg, {tintColor: '#fff'}]}
+              style={[styles.editimg, {tintColor: '#fff'}]}
               source={require('../assets/edit.png')}
             />
-            <Text style={style.edittxt}>EDIT PROFILE</Text>
+            <Text style={styles.edittxt}>EDIT PROFILE</Text>
           </TouchableOpacity>
         </View>
-        <Text style={style.usertxt}>name:{userName}</Text>
-        <Text style={style.companynametxt}>companyName:{companyName}</Text>
+        <Text style={styles.usertxt}>name:{userName}</Text>
+        <Text style={styles.companynametxt}>companyName:{companyName}</Text>
       </View>
       <TouchableOpacity
         onPress={goToHome}
@@ -88,19 +138,48 @@ const Sidebar = ({userName, companyName}) => {
         <Text style={{fontSize: 16, marginLeft: 10}}>Order</Text>
       </TouchableOpacity>
       <View>
-      <TouchableOpacity onPress={handleLogout} style={style.logoutbox}>
-            <Image
-              style={[style.logoutimg, {tintColor: '#fff'}]}
-              source={require('../assets/logout.png')}
-            />
-            <Text style={style.logouttxt}>Logout</Text>
-          </TouchableOpacity>
+        <TouchableOpacity onPress={handleLogout} style={styles.logoutbox}>
+          <Image
+            style={[styles.logoutimg, {tintColor: '#fff'}]}
+            source={require('../assets/logout.png')}
+          />
+          <Text style={styles.logouttxt}>Logout</Text>
+        </TouchableOpacity>
       </View>
+
+      {/* Profile Image Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => {
+          setModalVisible(!modalVisible);
+        }}>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <TouchableOpacity
+              style={styles.modalButton}
+              onPress={takePhotoFromCamera}>
+              <Text>Take Photo</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.modalButton}
+              onPress={choosePhotoFromLibrary}>
+              <Text>Choose from Gallery</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.modalCancelButton}
+              onPress={() => setModalVisible(false)}>
+              <Text style={{color: 'white'}}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
 
-const style = StyleSheet.create({
+const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
@@ -156,6 +235,7 @@ const style = StyleSheet.create({
     flexDirection: 'row',
     marginHorizontal: 30,
     justifyContent: 'center',
+    marginTop: 350,
   },
   logoutimg: {
     height: 20,
@@ -165,8 +245,32 @@ const style = StyleSheet.create({
   logouttxt: {
     textAlign: 'center',
     color: '#fff',
-    fontSize:15,
-    fontWeight:"bold"
+    fontSize: 15,
+    fontWeight: 'bold',
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    padding: 20,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+  },
+  modalButton: {
+    paddingVertical: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+  },
+  modalCancelButton: {
+    paddingVertical: 15,
+    alignItems: 'center',
+    backgroundColor: 'red',
+    borderRadius: 10,
+    marginTop: 10,
   },
 });
+
 export default Sidebar;

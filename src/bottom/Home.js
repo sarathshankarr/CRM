@@ -242,7 +242,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    color: 'red',
+    color: '#fff',
     fontSize: 20,
     fontWeight: 'bold',
     padding: 10,
