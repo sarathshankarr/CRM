@@ -4,7 +4,7 @@ import {StyleSheet, Text, View} from 'react-native';
 import HomeScreen from '../../sidescreens/HomeScreen';
 import Sidebar from '../../Sidebar';
 const Drawer = createDrawerNavigator();
-const Home = () => {
+const Main = () => {
   return (
     <Drawer.Navigator drawerContent={props => <Sidebar {...props}/>}>
       <Drawer.Screen
@@ -16,4 +16,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default Main;

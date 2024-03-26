@@ -11,7 +11,7 @@ import {
 import {PRODUCT_DETAILS} from '../components/ProductDetails';
 import {AllPRODUCT_DETAILS} from '../components/AllProductDetails';
 
-const Store = ({navigation}) => {
+const Home = ({navigation}) => {
   const [showSearchInput, setShowSearchInput] = useState(false);
   const [selectedDetails, setSelectedDetails] = useState(PRODUCT_DETAILS);
 
@@ -281,4 +281,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Store;
+export default Home;

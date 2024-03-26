@@ -13,7 +13,7 @@ const Splash = props => {
         global.userData = JSON.parse(userToken);
         navigation.reset({
           index: 0,
-          routes: [{name: 'Home'}],
+          routes: [{name: 'Main'}],
         });
       } else {
         navigation.reset({

@@ -70,7 +70,7 @@ const Login = () => {
     const userToken = await AsyncStorage.getItem('userdata');
     console.log(JSON.parse(userToken));
     global.userData = JSON.parse(userToken)
-    navigation.navigate('Home');
+    navigation.navigate('Main');
   };
   const handleForgotPassword = () => {
     Alert.alert('Forgot password clicked');

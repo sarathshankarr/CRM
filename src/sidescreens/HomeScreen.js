@@ -1,10 +1,10 @@
 import React from 'react';
 import {View, TouchableOpacity, Image, StyleSheet} from 'react-native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import Store from '../bottom/Store';
 import Categories from '../bottom/Categories';
 import Order from '../bottom/Order';
 import CommonHeader from '../components/CommonHeader';
+import Home from '../bottom/Home';
 
 const Bottom = createBottomTabNavigator();
 
@@ -12,8 +12,8 @@ const HomeScreen = ({navigation}) => {
   return (
     <Bottom.Navigator>
       <Bottom.Screen
-        name="Store"
-        component={Store}
+        name="Home"
+        component={Home}
         options={{
           tabBarIcon: ({color, size}) => (
             <Image
