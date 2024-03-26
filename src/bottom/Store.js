@@ -61,42 +61,6 @@ const Store = ({navigation}) => {
   
   return (
     <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <TouchableOpacity onPress={() => navigation.openDrawer()}>
-            <Image
-              resizeMode="contain"
-              source={require('../../assets/menuu.png')}
-              style={styles.menuimg}
-            />
-          </TouchableOpacity>
-          <Text style={styles.crmtxt}>CRM</Text>
-        </View>
-        <View style={styles.headerRight}>
-          <TouchableOpacity style={styles.iconWrapper}>
-            <Image
-              resizeMode="contain"
-              style={styles.locationimg}
-              source={require('../../assets/location.png')}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.iconWrapper}>
-            <Image
-              style={styles.msgimg}
-              source={require('../../assets/message.png')}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.iconWrapper}>
-            <Image
-              resizeMode="contain"
-              style={styles.cartimg}
-              source={require('../../assets/cart.jpg')}
-            />
-          </TouchableOpacity>
-        </View>
-      </View>
-
       {/* Category buttons */}
       <View style={styles.head}>
         <TouchableOpacity
