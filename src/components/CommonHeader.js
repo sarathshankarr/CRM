@@ -1,7 +1,12 @@
+import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import { View, TouchableOpacity, Image, Text, StyleSheet } from 'react-native';
 
-const CommonHeader = ({ navigation, title }) => {
+const CommonHeader = ({  title }) => {
+  const navigation=useNavigation();
+  const GoToCart =()=>{
+    navigation.navigate("Cart")
+  }
   return (
     <View style={styles.header}>
       <TouchableOpacity onPress={() => navigation.openDrawer()}>
@@ -26,7 +31,7 @@ const CommonHeader = ({ navigation, title }) => {
             source={require('../../assets/message.png')}
           />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.iconWrapper}>
+        <TouchableOpacity onPress={GoToCart} style={styles.iconWrapper}>
           <Image
             resizeMode="contain"
             style={styles.cartimg}

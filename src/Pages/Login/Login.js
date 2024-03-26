@@ -39,7 +39,8 @@ const Login = () => {
         Authorization: `Basic ${credentials}`,
       };
 
-      axios.post(API.LOGIN, postData.toString(), {headers})
+      axios
+        .post(API.LOGIN, postData.toString(), {headers})
         .then(response => {
           if (isValidString(response.data)) {
             saveToken(response.data);
@@ -69,7 +70,7 @@ const Login = () => {
   const getToken = async () => {
     const userToken = await AsyncStorage.getItem('userdata');
     console.log(JSON.parse(userToken));
-    global.userData = JSON.parse(userToken)
+    global.userData = JSON.parse(userToken);
     navigation.navigate('Main');
   };
   const handleForgotPassword = () => {

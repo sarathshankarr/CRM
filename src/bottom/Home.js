@@ -52,13 +52,7 @@ const Home = ({navigation}) => {
         )}
       </TouchableOpacity>
     );
-  };
-  
-
-  
-  
-  
-  
+  };  
   return (
     <View style={styles.container}>
       {/* Category buttons */}

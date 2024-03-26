@@ -13,7 +13,7 @@ const Details = ({route}) => {
 
   return (
     <ScrollView style={styles.container}>
-      <Image style={styles.img} source={image} />
+      <Image resizeMode="contain" style={styles.img} source={image} />
       <View style={styles.priceContainer}>
         <Text style={styles.priceText}>Price: {item.price}</Text>
         <TouchableOpacity>

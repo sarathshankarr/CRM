@@ -25,13 +25,13 @@ export const PRODUCT_DETAILS=[
     {
         id:5,
         name:"Crewneks",
-        image:require('../../assets/img4.jpg')
+        image:require('../../assets/img2.jpg')
 
     },
     {
         id:6,
         name:"Polos",
-        image:require('../../assets/img5.jpg')
+        image:require('../../assets/img2.jpg')
 
     },
 ];

@@ -1,11 +1,11 @@
 import * as React from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import Home from '../Pages/main/Main';
 import Login from '../Pages/Login/Login';
 import Splash from '../Pages/Splash';
 import Details from '../Pages/details/Details';
 import Main from '../Pages/main/Main';
+import Cart from '../Pages/cart/Cart';
 
 const Stack = createNativeStackNavigator();
 
@@ -31,6 +31,11 @@ const Routes = () => {
          <Stack.Screen
           name="Details"
           component={Details}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="Cart"
+          component={Cart}
           options={{headerShown: false}}
         />
       </Stack.Navigator>
