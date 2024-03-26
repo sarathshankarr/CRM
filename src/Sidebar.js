@@ -30,7 +30,7 @@ const Sidebar = ({userName, companyName}) => {
     navigation.navigate('Order');
   };
   const goToEditProfile =()=>{
-    navigation.navigate("EditProfile")
+    navigation.navigate("Profile")
   }
   const takePhotoFromCamera = () => {
     ImagePicker.openCamera({

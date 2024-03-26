@@ -6,7 +6,7 @@ import Splash from '../Pages/Splash';
 import Details from '../Pages/details/Details';
 import Main from '../Pages/main/Main';
 import Cart from '../Pages/cart/Cart';
-import EditProfile from '../Pages/editprofile/EditProfile';
+import Profile from '../Pages/editprofile/EditProfile';
 
 const Stack = createNativeStackNavigator();
 
@@ -40,9 +40,9 @@ const Routes = () => {
           options={{headerShown: false}}
         />
         <Stack.Screen
-          name="EditProfile"
-          component={EditProfile}
-          options={{headerShown: false}}
+          name="Profile"
+          component={Profile}
+          options={{headerShown: true}}
         />
       </Stack.Navigator>
     </NavigationContainer>
