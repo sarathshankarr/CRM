@@ -7,6 +7,7 @@ import Details from '../Pages/details/Details';
 import Main from '../Pages/main/Main';
 import Cart from '../Pages/cart/Cart';
 import Profile from '../Pages/editprofile/EditProfile';
+import AllCategoriesListed from '../Pages/allcategorieslisted/AllCategoriesListed';
 
 const Stack = createNativeStackNavigator();
 
@@ -44,7 +45,13 @@ const Routes = () => {
           component={Profile}
           options={{headerShown: true}}
         />
+         <Stack.Screen
+          name="AllCategoriesListed"
+          component={AllCategoriesListed}
+          options={{headerShown: true}}
+        />
       </Stack.Navigator>
+      
     </NavigationContainer>
   );
 };
