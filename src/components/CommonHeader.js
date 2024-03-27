@@ -2,20 +2,32 @@ import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import { View, TouchableOpacity, Image, Text, StyleSheet } from 'react-native';
 
-const CommonHeader = ({  title }) => {
-  const navigation=useNavigation();
-  const GoToCart =()=>{
-    navigation.navigate("Cart")
+const CommonHeader = ({ title, showDrawerButton }) => {
+  const navigation = useNavigation();
+
+  const GoToCart = () => {
+    navigation.navigate("Cart");
   }
+
   return (
     <View style={styles.header}>
-      <TouchableOpacity onPress={() => navigation.openDrawer()}>
-        <Image
-          resizeMode="contain"
-          source={require('../../assets/menuu.png')}
-          style={styles.menuimg}
-        />
-      </TouchableOpacity>
+      {showDrawerButton ? (
+        <TouchableOpacity onPress={() => navigation.openDrawer()}>
+          <Image
+            resizeMode="contain"
+            source={require('../../assets/menuu.png')}
+            style={styles.menuimg}
+          />
+        </TouchableOpacity>
+      ) : (
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Image
+            resizeMode="contain"
+            source={require('../../assets/back_arrow.png')} // Use the appropriate back arrow icon
+            style={styles.menuimg}
+          />
+        </TouchableOpacity>
+      )}
       <Text style={styles.title}>{title}</Text>
       <View style={styles.rightContainer}>
         <TouchableOpacity style={styles.iconWrapper}>
@@ -50,7 +62,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 10,
     paddingTop: 10,
-    backgroundColor:"#fff"
+    backgroundColor: "#fff"
   },
   rightContainer: {
     flexDirection: 'row',

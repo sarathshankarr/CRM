@@ -5,7 +5,6 @@ import Categories from '../bottom/Categories';
 import Order from '../bottom/Order';
 import CommonHeader from '../components/CommonHeader';
 import Home from '../bottom/Home';
-
 const Bottom = createBottomTabNavigator();
 
 const HomeScreen = ({navigation}) => {
@@ -14,7 +13,7 @@ const HomeScreen = ({navigation}) => {
       <Bottom.Screen
         name="Home"
         component={Home}
-        options={{
+        options={({route}) => ({
           tabBarIcon: ({color, size}) => (
             <Image
               source={require('../../assets/store.png')}
@@ -22,34 +21,51 @@ const HomeScreen = ({navigation}) => {
             />
           ),
           headerShown: true,
-          headerTitle: 'Home', // You can set a custom header title if needed
-          header: ({navigation}) => (
-            <CommonHeader navigation={navigation} title="Home" />
-          ),
-        }}
+          headerTitle: 'Home', // Set the title for Order screen
+          header: ({navigation}) => {
+            const showDrawerButton = !['Login', 'Main', 'Cart'].includes(
+              route.name,
+            );
+            return (
+              <CommonHeader
+                navigation={navigation}
+                title="Home"
+                showDrawerButton={showDrawerButton}
+              />
+            );
+          },
+        })}
       />
       <Bottom.Screen
         name="Categories"
         component={Categories}
-        options={{
+        options={({route}) => ({
           tabBarIcon: ({color, size}) => (
             <Image
-              source={require('../../assets/cate.png')}
-              style={{height: 24, width: 24, tintColor: color}}
-            />
+            source={require('../../assets/cate.png')}
+            style={{height: 24, width: 24, tintColor: color}}
+          />
           ),
           headerShown: true,
-          headerTitle: 'Categories', // Set the title for Categories screen
-          header: ({navigation}) => (
-            <CommonHeader navigation={navigation} title="Categories" />
-          ),
-        }}
+          headerTitle: 'Categories', // Set the title for Order screen
+          header: ({navigation}) => {
+            const showDrawerButton = !['Login', 'Main', 'Cart'].includes(
+              route.name,
+            );
+            return (
+              <CommonHeader
+                navigation={navigation}
+                title="Categories"
+                showDrawerButton={showDrawerButton}
+              />
+            );
+          },
+        })}
       />
-
       <Bottom.Screen
         name="Order"
         component={Order}
-        options={{
+        options={({route}) => ({
           tabBarIcon: ({color, size}) => (
             <Image
               source={require('../../assets/order.png')}
@@ -58,10 +74,19 @@ const HomeScreen = ({navigation}) => {
           ),
           headerShown: true,
           headerTitle: 'Order', // Set the title for Order screen
-          header: ({navigation}) => (
-            <CommonHeader navigation={navigation} title="Order" />
-          ),
-        }}
+          header: ({navigation}) => {
+            const showDrawerButton = !['Login', 'Main', 'Cart'].includes(
+              route.name,
+            );
+            return (
+              <CommonHeader
+                navigation={navigation}
+                title="Order"
+                showDrawerButton={showDrawerButton}
+              />
+            );
+          },
+        })}
       />
     </Bottom.Navigator>
   );

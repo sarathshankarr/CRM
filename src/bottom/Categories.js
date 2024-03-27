@@ -9,33 +9,32 @@ import {
   TextInput,
 } from 'react-native';
 import {PRODUCT_DETAILS} from '../components/ProductDetails';
-import {AllPRODUCT_DETAILS} from '../components/AllProductDetails';
 
 const Categories = ({navigation}) => {
-  const [showSearchInput, setShowSearchInput] = useState(false);
   const [selectedDetails, setSelectedDetails] = useState(PRODUCT_DETAILS);
-
 
   const handleCategoryPress = details => {
     setSelectedDetails(details);
   };
-  const renderProductItem = ({ item }) => {
+  const renderProductItem = ({item}) => {
     return (
       <TouchableOpacity
-  style={styles.productItem}
-  onPress={() => navigation.navigate('AllCategoriesListed', { item })}>
-  <View style={styles.productImageContainer}>
-    <Image style={styles.productImage} source={item.image} />
-    <Text style={styles.productName}>{item.name}</Text>
-  </View>
-</TouchableOpacity>
-
+        style={styles.productItem}
+        onPress={() => {
+          console.log('Pressed item:', item);
+          navigation.navigate('AllCategoriesListed', {item: item});
+        }}>
+        <View style={styles.productImageContainer}>
+          <Image style={styles.productImage} source={item.image} />
+          <Text style={styles.productName}>{item.name}</Text>
+        </View>
+      </TouchableOpacity>
     );
-  };  
+  };
+
   return (
     <View style={styles.container}>
-      <View style={styles.head}>     
-      </View>
+      <View style={styles.head}></View>
       <FlatList
         data={selectedDetails}
         renderItem={renderProductItem}
@@ -91,9 +90,9 @@ const styles = StyleSheet.create({
     height: 30,
     width: 35,
   },
-  cartimg:{
-    height:40,
-    width:40,
+  cartimg: {
+    height: 40,
+    width: 40,
   },
   head: {
     flexDirection: 'row',
@@ -147,8 +146,8 @@ const styles = StyleSheet.create({
   },
   productItem: {
     flex: 1,
-    marginHorizontal:4,
-    marginVertical:5,
+    marginHorizontal: 4,
+    marginVertical: 5,
     backgroundColor: '#fff',
     borderRadius: 10,
     elevation: 3,
@@ -160,7 +159,7 @@ const styles = StyleSheet.create({
   },
   productImage: {
     width: '100%',
-    height: 300, 
+    height: 300,
     resizeMode: 'cover',
   },
   productName: {
@@ -176,7 +175,7 @@ const styles = StyleSheet.create({
   additionalDetailsContainer: {
     paddingTop: 5,
   },
-  
+
   notesContainer: {
     paddingVertical: 5,
   },
@@ -184,20 +183,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: 5,
-    marginHorizontal:4
+    marginHorizontal: 4,
   },
   button: {
-    borderWidth:1,
+    borderWidth: 1,
     paddingVertical: 10,
     borderRadius: 5,
-    flexDirection:"row",
+    flexDirection: 'row',
   },
   buttonqty: {
-    borderWidth:1,
+    borderWidth: 1,
     paddingVertical: 10,
     borderRadius: 5,
-    flexDirection:"row",
-    paddingHorizontal:5
+    flexDirection: 'row',
+    paddingHorizontal: 5,
   },
 });
 

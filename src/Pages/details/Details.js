@@ -4,8 +4,8 @@ import {
   View,
   Image,
   StyleSheet,
-  TouchableOpacity,
   ScrollView,
+  TouchableOpacity,
 } from 'react-native';
 
 const Details = ({route}) => {
@@ -37,7 +37,7 @@ const Details = ({route}) => {
       </View>
       <View style={styles.notesContainer}>
         <Text style={styles.notesLabel}>Notes:</Text>
-        <Text style={styles.txt}>{item.Notes}</Text>
+        <Text style={styles.txt}>{item.disription}</Text>
       </View>
       {/* Render other details */}
     </ScrollView>
@@ -47,6 +47,7 @@ const Details = ({route}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor:"#fff"
   },
   img: {
     width: '90%',

@@ -4,7 +4,7 @@ export const AllPRODUCT_DETAILS=[
         name:"Sustainable",
         price:"10000",
         tags:"null",
-        Notes:"Watch out this space for more details",
+        disription:"Watch out this space for more details",
         image:require('../../assets/img1.jpg')
     },
     {
@@ -12,7 +12,7 @@ export const AllPRODUCT_DETAILS=[
         name:"Cotton",
         price:"10000",
         tags:"null",
-        Notes:"Watch out this space for more details",
+        disription:"Watch out this space for more details",
         image:require('../../assets/img1.jpg')
 
     },
@@ -21,7 +21,7 @@ export const AllPRODUCT_DETAILS=[
         name:"Premium",
         price:"10000",
         tags:"null",
-        Notes:"Watch out this space for more details",
+        disription:"Watch out this space for more details",
         image:require('../../assets/img1.jpg')
 
     },
@@ -30,7 +30,7 @@ export const AllPRODUCT_DETAILS=[
         name:"Premium",
         price:"10000",
         tags:"null",
-        Notes:"Watch out this space for more details",
+        disription:"Watch out this space for more details",
         image:require('../../assets/img1.jpg')
 
     },
@@ -39,7 +39,7 @@ export const AllPRODUCT_DETAILS=[
         name:"Premium",
         price:"10000",
         tags:"null",
-        Notes:"Watch out this space for more details",
+        disription:"Watch out this space for more details",
         image:require('../../assets/img1.jpg')
 
     },
@@ -48,7 +48,7 @@ export const AllPRODUCT_DETAILS=[
         name:"Vip",
         price:"10000",
         tags:"null",
-        Notes:"Watch out this space for more details",
+        disription:"Watch out this space for more details",
         image:require('../../assets/img1.jpg')
 
     },

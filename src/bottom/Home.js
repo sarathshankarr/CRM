@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
   Text,
   View,
@@ -8,10 +8,10 @@ import {
   TouchableOpacity,
   TextInput,
 } from 'react-native';
-import {PRODUCT_DETAILS} from '../components/ProductDetails';
-import {AllPRODUCT_DETAILS} from '../components/AllProductDetails';
+import { PRODUCT_DETAILS } from '../components/ProductDetails';
+import { AllPRODUCT_DETAILS } from '../components/AllProductDetails';
 
-const Home = ({navigation}) => {
+const Home = ({ navigation }) => {
   const [showSearchInput, setShowSearchInput] = useState(false);
   const [selectedDetails, setSelectedDetails] = useState(PRODUCT_DETAILS);
 
@@ -22,11 +22,27 @@ const Home = ({navigation}) => {
   const handleCategoryPress = details => {
     setSelectedDetails(details);
   };
+
   const renderProductItem = ({ item }) => {
     return (
       <TouchableOpacity
         style={styles.productItem}
-        onPress={() => navigation.navigate('Details', { item, name: item.name, image: item.image })}>
+        onPress={() =>
+          selectedDetails === PRODUCT_DETAILS
+            ? navigation.navigate('AllCategoriesListed', {
+                item,
+                name: item.name,
+                image: item.image,
+              })
+            : navigation.navigate('Details', {
+                item,
+                name: item.name,
+                image: item.image,
+                category: item.category,
+                tags: item.tags,
+                set: item.set,
+              })
+        }>
         <View style={styles.productImageContainer}>
           <Image style={styles.productImage} source={item.image} />
           <Text style={styles.productName}>{item.name}</Text>
@@ -36,14 +52,20 @@ const Home = ({navigation}) => {
             <Text>Price: {item.price}</Text>
             <Text>Tags: {item.tags}</Text>
             <View style={styles.notesContainer}>
-              <Text>Notes: {item.Notes}</Text>
+              <Text>Notes: {item.disription}</Text>
               <View style={styles.buttonsContainer}>
                 <TouchableOpacity style={styles.button}>
-                  <Image style={{ height: 20, width: 20 }} source={require('../../assets/heart.png')} />
+                  <Image
+                    style={{ height: 20, width: 20 }}
+                    source={require('../../assets/heart.png')}
+                  />
                   <Text>WISHLIST</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.buttonqty}>
-                  <Image style={{ height: 20, width: 20 }} source={require('../../assets/qty.png')} />
+                  <Image
+                    style={{ height: 20, width: 20 }}
+                    source={require('../../assets/qty.png')}
+                  />
                   <Text>ADD QTY</Text>
                 </TouchableOpacity>
               </View>
@@ -52,7 +74,8 @@ const Home = ({navigation}) => {
         )}
       </TouchableOpacity>
     );
-  };  
+  };
+
   return (
     <View style={styles.container}>
       {/* Category buttons */}
@@ -126,49 +149,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
-  header: {
-    width: '100%',
-    height: 60,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 15,
-    elevation: 3,
-    backgroundColor: '#fff',
-  },
-  headerLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  headerRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  crmtxt: {
-    color: 'gray',
-    fontSize: 25,
-    fontWeight: 'bold',
-    marginLeft: 20,
-  },
-  menuimg: {
-    height: 30,
-    width: 30,
-  },
-  iconWrapper: {
-    marginHorizontal: 10,
-  },
-  locationimg: {
-    height: 25,
-    width: 20,
-  },
-  msgimg: {
-    height: 30,
-    width: 35,
-  },
-  cartimg:{
-    height:40,
-    width:40,
-  },
   head: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -221,8 +201,8 @@ const styles = StyleSheet.create({
   },
   productItem: {
     flex: 1,
-    marginHorizontal:4,
-    marginVertical:5,
+    marginHorizontal: 4,
+    marginVertical: 5,
     backgroundColor: '#fff',
     borderRadius: 10,
     elevation: 3,
@@ -234,7 +214,7 @@ const styles = StyleSheet.create({
   },
   productImage: {
     width: '100%',
-    height: 300, 
+    height: 300,
     resizeMode: 'cover',
   },
   productName: {
@@ -250,7 +230,6 @@ const styles = StyleSheet.create({
   additionalDetailsContainer: {
     paddingTop: 5,
   },
-  
   notesContainer: {
     paddingVertical: 5,
   },
@@ -258,20 +237,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: 5,
-    marginHorizontal:4
+    marginHorizontal: 4,
   },
   button: {
-    borderWidth:1,
+    borderWidth: 1,
     paddingVertical: 10,
     borderRadius: 5,
-    flexDirection:"row",
+    flexDirection: 'row',
   },
   buttonqty: {
-    borderWidth:1,
+    borderWidth: 1,
     paddingVertical: 10,
     borderRadius: 5,
-    flexDirection:"row",
-    paddingHorizontal:5
+    flexDirection: 'row',
+    paddingHorizontal: 5,
   },
 });
 
