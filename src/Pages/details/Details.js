@@ -12,42 +12,50 @@ const Details = ({route}) => {
   const {item, name, image, category, tags, set} = route.params;
 
   return (
-    <ScrollView style={styles.container}>
-      <Image resizeMode="contain" style={styles.img} source={image} />
-      <View style={styles.priceContainer}>
-        <Text style={styles.priceText}>Price: {item.price}</Text>
-        <TouchableOpacity>
-          <Image
-            style={styles.priceImage}
-            source={require('../../../assets/heart.png')}
-          />
-        </TouchableOpacity>
-      </View>
-      <View style={styles.categoryContainer}>
-        <Text style={styles.detailLabel}>Category:</Text>
-        <Text style={styles.detailValue}>{category}</Text>
-      </View>
-      <View style={styles.tagsContainer}>
-        <Text style={styles.detailLabel}>Tags:</Text>
-        <Text style={styles.detailValue}>{item.tags}</Text>
-      </View>
-      <View style={styles.setContainer}>
-        <Text style={styles.detailLabel}>Sets:</Text>
-        <Text style={styles.detailValue}>{set}</Text>
-      </View>
-      <View style={styles.notesContainer}>
-        <Text style={styles.notesLabel}>Notes:</Text>
-        <Text style={styles.txt}>{item.disription}</Text>
-      </View>
-      {/* Render other details */}
-    </ScrollView>
+    <View style={styles.container}>
+      <ScrollView style={styles.scrollView}>
+        <Image resizeMode="contain" style={styles.img} source={image} />
+        <View style={styles.priceContainer}>
+          <Text style={styles.priceText}>Price: {item.price}</Text>
+          <TouchableOpacity>
+            <Image
+              style={styles.priceImage}
+              source={require('../../../assets/heart.png')}
+            />
+          </TouchableOpacity>
+        </View>
+        <View style={styles.categoryContainer}>
+          <Text style={styles.detailLabel}>Category:</Text>
+          <Text style={styles.detailValue}>{category}</Text>
+        </View>
+        <View style={styles.tagsContainer}>
+          <Text style={styles.detailLabel}>Tags:</Text>
+          <Text style={styles.detailValue}>{item.tags}</Text>
+        </View>
+        <View style={styles.setContainer}>
+          <Text style={styles.detailLabel}>Sets:</Text>
+          <Text style={styles.detailValue}>{set}</Text>
+        </View>
+        <View style={styles.notesContainer}>
+          <Text style={styles.notesLabel}>Notes:</Text>
+          <Text style={styles.txt}>{item.disription}</Text>
+        </View>
+      </ScrollView>
+      <TouchableOpacity
+        style={styles.buttonContainer}>
+        <Text style={styles.buttonText}>ADD QUANTITY</Text>
+      </TouchableOpacity>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor:"#fff"
+    backgroundColor: "#fff"
+  },
+  scrollView: {
+    flex: 1,
   },
   img: {
     width: '90%',
@@ -125,6 +133,20 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginTop: 10,
     marginVertical: 10,
+  },
+  buttonContainer: {
+    borderWidth: 1,
+    backgroundColor: 'gray',
+    width: '100%',
+    paddingVertical: 20,
+    position: 'absolute',
+    bottom: 0,
+  },
+  buttonText: {
+    textAlign: 'center',
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: 'bold',
   },
 });
 
