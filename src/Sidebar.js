@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
   Image,
   StyleSheet,
@@ -7,10 +7,11 @@ import {
   View,
   Modal,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ImagePicker from 'react-native-image-crop-picker';
-const Sidebar = ({userName, companyName}) => {
+
+const Sidebar = ({ userName, companyName }) => {
   const navigation = useNavigation();
   const [modalVisible, setModalVisible] = useState(false);
   const [image, setImage] = useState(require('../assets/profile.png'));
@@ -29,22 +30,24 @@ const Sidebar = ({userName, companyName}) => {
     console.log('Navigating to Order');
     navigation.navigate('Order');
   };
-  const goToEditProfile =()=>{
-    navigation.navigate("Profile")
-  }
+
+  const goToEditProfile = () => {
+    navigation.navigate('Profile');
+  };
+
   const takePhotoFromCamera = () => {
     ImagePicker.openCamera({
       width: 300,
       height: 400,
       cropping: true,
-      compressImageQuality:0.7
+      compressImageQuality: 0.7,
     })
-      .then(image => {
+      .then((image) => {
         console.log(image);
-        setImage({uri: image.path});
+        setImage({ uri: image.path });
         setModalVisible(false);
       })
-      .catch(error => {
+      .catch((error) => {
         console.log('Error taking photo from camera:', error);
         setModalVisible(false);
       });
@@ -55,14 +58,14 @@ const Sidebar = ({userName, companyName}) => {
       width: 300,
       height: 300,
       cropping: true,
-      compressImageQuality:0.7
+      compressImageQuality: 0.7,
     })
-      .then(image => {
+      .then((image) => {
         console.log(image);
-        setImage({uri: image.path});
+        setImage({ uri: image.path });
         setModalVisible(false);
       })
-      .catch(error => {
+      .catch((error) => {
         console.log('Error choosing photo from library:', error);
         setModalVisible(false);
       });
@@ -79,15 +82,15 @@ const Sidebar = ({userName, companyName}) => {
 
   return (
     <View style={styles.container}>
-      <View style={{backgroundColor: '#56994B'}}>
+      <View style={{ backgroundColor: '#56994B' }}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => setModalVisible(true)}>
-            <Image style={[styles.img, {borderRadius: 30}]} source={image} />
+            <Image style={[styles.img, { borderRadius: 30 }]} source={image} />
           </TouchableOpacity>
 
           <TouchableOpacity onPress={goToEditProfile} style={styles.editbox}>
             <Image
-              style={[styles.editimg, {tintColor: '#fff'}]}
+              style={[styles.editimg, { tintColor: '#fff' }]}
               source={require('../assets/edit.png')}
             />
             <Text style={styles.edittxt}>EDIT PROFILE</Text>
@@ -105,10 +108,10 @@ const Sidebar = ({userName, companyName}) => {
           marginVertical: 25,
         }}>
         <Image
-          style={{height: 40, width: 40}}
+          style={{ height: 40, width: 40 }}
           source={require('../assets/store.png')}
         />
-        <Text style={{fontSize: 16, marginLeft: 10}}>Home</Text>
+        <Text style={{ fontSize: 16, marginLeft: 10 }}>Home</Text>
       </TouchableOpacity>
       <TouchableOpacity
         onPress={goToCategories}
@@ -118,10 +121,10 @@ const Sidebar = ({userName, companyName}) => {
           marginHorizontal: 10,
         }}>
         <Image
-          style={{height: 40, width: 40}}
+          style={{ height: 40, width: 40 }}
           source={require('../assets/cate.png')}
         />
-        <Text style={{fontSize: 16, marginLeft: 10}}>Categories</Text>
+        <Text style={{ fontSize: 16, marginLeft: 10 }}>Categories</Text>
       </TouchableOpacity>
       <TouchableOpacity
         onPress={goToOrder}
@@ -132,20 +135,11 @@ const Sidebar = ({userName, companyName}) => {
           marginVertical: 25,
         }}>
         <Image
-          style={{height: 40, width: 40}}
+          style={{ height: 40, width: 40 }}
           source={require('../assets/order.png')}
         />
-        <Text style={{fontSize: 16, marginLeft: 10}}>Order</Text>
+        <Text style={{ fontSize: 16, marginLeft: 10 }}>Order</Text>
       </TouchableOpacity>
-      <View>
-        <TouchableOpacity onPress={handleLogout} style={styles.logoutbox}>
-          <Image
-            style={[styles.logoutimg, {tintColor: '#fff'}]}
-            source={require('../assets/logout.png')}
-          />
-          <Text style={styles.logouttxt}>Logout</Text>
-        </TouchableOpacity>
-      </View>
 
       {/* Profile Image Modal */}
       <Modal
@@ -170,11 +164,22 @@ const Sidebar = ({userName, companyName}) => {
             <TouchableOpacity
               style={styles.modalCancelButton}
               onPress={() => setModalVisible(false)}>
-              <Text style={{color: 'white'}}>Cancel</Text>
+              <Text style={{ color: 'white' }}>Cancel</Text>
             </TouchableOpacity>
           </View>
         </View>
       </Modal>
+
+      {/* Logout box positioned at the bottom */}
+      <View style={styles.logoutContainer}>
+        <TouchableOpacity onPress={handleLogout} style={styles.logoutbox}>
+          <Image
+            style={[styles.logoutimg, { tintColor: '#fff' }]}
+            source={require('../assets/logout.png')}
+          />
+          <Text style={styles.logouttxt}>Logout</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -226,6 +231,12 @@ const styles = StyleSheet.create({
     color: '#fff',
     marginBottom: 10,
   },
+  logoutContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+  },
   logoutbox: {
     borderWidth: 1,
     borderColor: '#000',
@@ -235,7 +246,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginHorizontal: 30,
     justifyContent: 'center',
-    marginTop: 350,
+    marginBottom:10
   },
   logoutimg: {
     height: 20,

@@ -89,6 +89,7 @@ const Login = () => {
         <TextInput
           style={styles.input}
           placeholder="Username"
+          placeholderTextColor="#000"
           onChangeText={text => setUsername(text)}
           value={username}
         />
@@ -102,6 +103,7 @@ const Login = () => {
         <TextInput
           style={styles.input}
           placeholder="Password"
+          placeholderTextColor="#000"
           secureTextEntry={true}
           onChangeText={text => setPassword(text)}
           value={password}
@@ -155,6 +157,7 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     height: '100%',
+    color:'black',
     fontSize: 16,
   },
   rowContainer: {
