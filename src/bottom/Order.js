@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
   },
   activeTabButton: {
     borderBottomWidth: 2,
-    borderBottomColor: 'blue', // Change to your desired active tab color
+    borderBottomColor: '#000', // Change to your desired active tab color
   },
   tabText: {
     fontSize: 16,
