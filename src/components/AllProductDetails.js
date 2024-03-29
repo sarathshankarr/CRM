@@ -5,7 +5,11 @@ export const AllPRODUCT_DETAILS=[
         price:"10000",
         tags:"null",
         disription:"Watch out this space for more details",
-        image:require('../../assets/img1.jpg')
+        image:require('../../assets/img1.jpg'),
+        image2:require('../../assets/img2.jpg'),
+        image3:require('../../assets/img1.jpg'),
+        image4:require('../../assets/img2.jpg'),
+        image5:require('../../assets/img2.jpg'),
     },
     {
         id:2,
@@ -13,7 +17,11 @@ export const AllPRODUCT_DETAILS=[
         price:"10000",
         tags:"null",
         disription:"Watch out this space for more details",
-        image:require('../../assets/img1.jpg')
+        image:require('../../assets/img1.jpg'),
+        image2:require('../../assets/img1.jpg'),
+        image3:require('../../assets/img1.jpg'),
+        image4:require('../../assets/img1.jpg'),
+        image5:require('../../assets/img1.jpg'),
 
     },
     {
@@ -22,7 +30,11 @@ export const AllPRODUCT_DETAILS=[
         price:"10000",
         tags:"null",
         disription:"Watch out this space for more details",
-        image:require('../../assets/img1.jpg')
+        image:require('../../assets/img1.jpg'),
+        image2:require('../../assets/img1.jpg'),
+        image3:require('../../assets/img1.jpg'),
+        image4:require('../../assets/img1.jpg'),
+        image5:require('../../assets/img1.jpg'),
 
     },
     {
@@ -31,7 +43,11 @@ export const AllPRODUCT_DETAILS=[
         price:"10000",
         tags:"null",
         disription:"Watch out this space for more details",
-        image:require('../../assets/img1.jpg')
+        image:require('../../assets/img1.jpg'),
+        image2:require('../../assets/img1.jpg'),
+        image3:require('../../assets/img1.jpg'),
+        image4:require('../../assets/img1.jpg'),
+        image5:require('../../assets/img1.jpg'),
 
     },
     {
@@ -40,7 +56,11 @@ export const AllPRODUCT_DETAILS=[
         price:"10000",
         tags:"null",
         disription:"Watch out this space for more details",
-        image:require('../../assets/img1.jpg')
+        image:require('../../assets/img1.jpg'),
+        image2:require('../../assets/img1.jpg'),
+        image3:require('../../assets/img1.jpg'),
+        image4:require('../../assets/img1.jpg'),
+        image5:require('../../assets/img1.jpg'),
 
     },
     {
@@ -49,7 +69,11 @@ export const AllPRODUCT_DETAILS=[
         price:"10000",
         tags:"null",
         disription:"Watch out this space for more details",
-        image:require('../../assets/img1.jpg')
+        image:require('../../assets/img1.jpg'),
+        image2:require('../../assets/img1.jpg'),
+        image3:require('../../assets/img1.jpg'),
+        image4:require('../../assets/img1.jpg'),
+        image5:require('../../assets/img1.jpg'),
 
     },
 ];

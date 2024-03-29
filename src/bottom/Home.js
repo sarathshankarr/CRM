@@ -38,13 +38,19 @@ const Home = ({ navigation }) => {
                 item,
                 name: item.name,
                 image: item.image,
+                image2: item.image2,
+                image3: item.image3,
+                image4: item.image4,
+                image5: item.image5,
                 category: item.category,
                 tags: item.tags,
                 set: item.set,
               })
         }>
         <View style={styles.productImageContainer}>
-          <Image style={styles.productImage} source={item.image} />
+          {item.image && (
+            <Image style={styles.productImage} source={item.image} />
+          )}
           <Text style={styles.productName}>{item.name}</Text>
         </View>
         {selectedDetails === AllPRODUCT_DETAILS && (

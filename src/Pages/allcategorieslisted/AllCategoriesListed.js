@@ -1,16 +1,20 @@
 // AllCategoriesListed.js
 
 import React from 'react';
-import { Text, View, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import {Text, View, Image, StyleSheet, TouchableOpacity} from 'react-native';
 
-const AllCategoriesListed = ({ navigation, route }) => {
-  const { item } = route.params;
+const AllCategoriesListed = ({navigation, route}) => {
+  const {item} = route.params;
 
   const navigateToDetails = () => {
     navigation.navigate('Details', {
       item,
       name: item.name,
       image: item.image,
+      image2: item.image2,
+      image3: item.image3,
+      image4: item.image4,
+      image5: item.image5,
       category: item.category, // Assuming you have a category property in your item object
       tags: item.tags,
       set: item.set, // Assuming you have a set property in your item object
@@ -32,11 +36,17 @@ const AllCategoriesListed = ({ navigation, route }) => {
       </View>
       <View style={styles.buttonsContainer}>
         <TouchableOpacity style={styles.button}>
-          <Image style={{ height: 20, width: 20 }} source={require('../../../assets/heart.png')} />
+          <Image
+            style={{height: 20, width: 20}}
+            source={require('../../../assets/heart.png')}
+          />
           <Text>WISHLIST</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.buttonqty}>
-          <Image style={{ height: 20, width: 20 }} source={require('../../../assets/qty.png')} />
+          <Image
+            style={{height: 20, width: 20}}
+            source={require('../../../assets/qty.png')}
+          />
           <Text>ADD QTY</Text>
         </TouchableOpacity>
       </View>
@@ -89,18 +99,18 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
   button: {
-    borderWidth:1,
+    borderWidth: 1,
     paddingVertical: 10,
     borderRadius: 5,
-    flexDirection:"row",
-    marginHorizontal:5
+    flexDirection: 'row',
+    marginHorizontal: 5,
   },
   buttonqty: {
-    borderWidth:1,
+    borderWidth: 1,
     paddingVertical: 10,
     borderRadius: 5,
-    flexDirection:"row",
-    paddingHorizontal:5
+    flexDirection: 'row',
+    paddingHorizontal: 5,
   },
 });
 

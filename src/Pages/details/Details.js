@@ -6,15 +6,21 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  Dimensions,
 } from 'react-native';
+import { SliderBox } from 'react-native-image-slider-box';
 
-const Details = ({route}) => {
-  const {item, name, image, category, tags, set} = route.params;
+const Details = ({ route }) => {
+  const { item, name, image, image2, image3, image4, image5, category, tags, set } = route.params;
+
+  const images = [image, image2, image3, image4, image5];
 
   return (
     <View style={styles.container}>
-      <ScrollView style={styles.scrollView}>
-        <Image resizeMode="contain" style={styles.img} source={image} />
+      <ScrollView contentContainerStyle={styles.scrollView}>
+        <SliderBox images={images} sliderBoxHeight={Dimensions.get('window').height * 0.5} 
+        resizeMethod={'resize'}
+          resizeMode={'contain'}/>
         <View style={styles.priceContainer}>
           <Text style={styles.priceText}>Price: {item.price}</Text>
           <TouchableOpacity>
@@ -29,7 +35,7 @@ const Details = ({route}) => {
           <Text style={styles.detailValue}>{category}</Text>
         </View>
         <View style={styles.tagsContainer}>
-          <Text style={styles.detailLabel}>Tags:</Text>
+          <Text style={styles.detailLabel}>Size</Text>
           <Text style={styles.detailValue}>{item.tags}</Text>
         </View>
         <View style={styles.setContainer}>
@@ -55,13 +61,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff"
   },
   scrollView: {
-    flex: 1,
-  },
-  img: {
-    width: '90%',
-    marginTop: 50,
-    marginHorizontal: 20,
-    alignItems: 'center',
+    flexGrow: 1,
   },
   priceContainer: {
     flexDirection: 'row',
@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginTop: 20,
     paddingHorizontal: 20,
-    width: '100%', // Ensure full width
+    width: '100%',
     borderBottomWidth: 1,
     borderBottomColor: '#000',
     marginVertical: 10,
@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    width: '100%', // Ensure full width
+    width: '100%',
     borderBottomWidth: 1,
     borderBottomColor: '#000',
   },
@@ -86,7 +86,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    width: '100%', // Ensure full width
+    width: '100%',
     borderBottomWidth: 1,
     borderBottomColor: '#000',
     marginVertical: 10,
@@ -95,14 +95,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    width: '100%', // Ensure full width
+    width: '100%',
     borderBottomWidth: 1,
     borderBottomColor: '#000',
     marginVertical: 10,
   },
   notesContainer: {
     paddingHorizontal: 20,
-    width: '100%', // Ensure full width
+    width: '100%',
   },
   priceText: {
     marginVertical: 10,
