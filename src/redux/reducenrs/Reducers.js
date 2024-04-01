@@ -6,8 +6,8 @@ export const Reducers = (state = [], action) => {
       return [...state, action.payload];
 
     case REMOVE_ITEM:
-      const deleteArray = state.filtr((item, index) => {
-        return (index !== action.payload);
+      const deleteArray = state.filter((item, index) => {
+        return index !== action.payload;
       });
 
       return deleteArray;
