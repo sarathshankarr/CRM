@@ -10,6 +10,8 @@ import {
 } from 'react-native';
 import { PRODUCT_DETAILS } from '../components/ProductDetails';
 import { AllPRODUCT_DETAILS } from '../components/AllProductDetails';
+import { useDispatch } from 'react-redux';
+import { addItemToCart } from '../redux/action/Action';
 
 const Home = ({ navigation }) => {
   const [showSearchInput, setShowSearchInput] = useState(false);
@@ -23,6 +25,11 @@ const Home = ({ navigation }) => {
     setSelectedDetails(details);
   };
 
+  const dispatch=useDispatch()
+
+  const addItem =(item)=>{
+    dispatch(addItemToCart(item))
+  }
   const renderProductItem = ({ item }) => {
     return (
       <TouchableOpacity
@@ -67,7 +74,9 @@ const Home = ({ navigation }) => {
                   />
                   <Text>WISHLIST</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.buttonqty}>
+                <TouchableOpacity onPress={()=>{
+                  addItem(item)
+                }} style={styles.buttonqty}>
                   <Image
                     style={{ height: 20, width: 20 }}
                     source={require('../../assets/qty.png')}

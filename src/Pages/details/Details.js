@@ -9,12 +9,18 @@ import {
   Dimensions,
 } from 'react-native';
 import { SliderBox } from 'react-native-image-slider-box';
+import { useDispatch } from 'react-redux';
+import { addItemToCart } from '../../redux/action/Action';
 
 const Details = ({ route }) => {
   const { item, name, image, image2, image3, image4, image5, category, tags, set } = route.params;
 
   const images = [image, image2, image3, image4, image5];
+  const dispatch=useDispatch()
 
+  const addItem =(item)=>{
+    dispatch(addItemToCart(item))
+  }
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollView}>
@@ -47,7 +53,7 @@ const Details = ({ route }) => {
           <Text style={styles.txt}>{item.disription}</Text>
         </View>
       </ScrollView>
-      <TouchableOpacity
+      <TouchableOpacity onPress={addItem}
         style={styles.buttonContainer}>
         <Text style={styles.buttonText}>ADD QUANTITY</Text>
       </TouchableOpacity>

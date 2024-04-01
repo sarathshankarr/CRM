@@ -1,9 +1,14 @@
 import { useNavigation } from '@react-navigation/native';
-import React from 'react';
+import React, { useState } from 'react';
 import { View, TouchableOpacity, Image, Text, StyleSheet } from 'react-native';
+import { useSelector } from 'react-redux';
 
 const CommonHeader = ({ title, showDrawerButton }) => {
   const navigation = useNavigation();
+
+  const items = useSelector(state => state);
+  let addedItem = [];
+  addedItem = items;
 
   const GoToCart = () => {
     navigation.navigate("Cart");
@@ -43,12 +48,15 @@ const CommonHeader = ({ title, showDrawerButton }) => {
             source={require('../../assets/message.png')}
           />
         </TouchableOpacity>
-        <TouchableOpacity onPress={GoToCart} style={styles.iconWrapper}>
-          <Image
-            resizeMode="contain"
-            style={styles.cartimg}
-            source={require('../../assets/cart.jpg')}
-          />
+        <TouchableOpacity style={styles.iconWrapper} onPress={GoToCart}>
+          <View style={styles.cartContainer}>
+            <Image
+              resizeMode="contain"
+              style={styles.cartimg}
+              source={require('../../assets/cart.jpg')}
+            />
+            <Text style={styles.cartItemCount}>{addedItem.length}</Text>
+          </View>
         </TouchableOpacity>
       </View>
     </View>
@@ -79,9 +87,24 @@ const styles = StyleSheet.create({
     height: 30,
     width: 35,
   },
+  cartContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    position: 'relative',
+  },
   cartimg: {
     height: 40,
     width: 40,
+  },
+  cartItemCount: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    backgroundColor: 'red',
+    color: 'white',
+    borderRadius: 10,
+    paddingHorizontal: 5,
+    fontSize: 12,
   },
   menuimg: {
     height: 30,
