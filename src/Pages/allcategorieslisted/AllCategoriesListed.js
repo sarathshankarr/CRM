@@ -2,15 +2,15 @@
 
 import React from 'react';
 import {Text, View, Image, StyleSheet, TouchableOpacity} from 'react-native';
-import { useDispatch } from 'react-redux';
-import { addItemToCart } from '../../redux/action/Action';
+import {useDispatch} from 'react-redux';
+import {addItemToCart} from '../../redux/action/Action';
 const AllCategoriesListed = ({navigation, route}) => {
   const {item} = route.params;
-  const dispatch=useDispatch()
+  const dispatch = useDispatch();
 
-  const addItem =(item)=>{
-    dispatch(addItemToCart(item))
-  }
+  const addItem = item => {
+    dispatch(addItemToCart(item));
+  };
   const navigateToDetails = () => {
     navigation.navigate('Details', {
       item,
@@ -40,22 +40,24 @@ const AllCategoriesListed = ({navigation, route}) => {
         </View>
       </View>
       <View style={styles.buttonsContainer}>
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity
+          onPress={() => {
+            addItem(item);
+          }}
+          style={styles.button}>
           <Image
             style={{height: 20, width: 20}}
             source={require('../../../assets/heart.png')}
           />
           <Text>WISHLIST</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={()=>{
-                  addItem(item)
-                }} style={styles.buttonqty}>
-                  <Image
-                    style={{ height: 20, width: 20 }}
-                    source={require('../../../assets/qty.png')}
-                  />
-                  <Text>ADD QTY</Text>
-                </TouchableOpacity>
+        <TouchableOpacity style={styles.buttonqty}>
+          <Image
+            style={{height: 20, width: 20}}
+            source={require('../../../assets/qty.png')}
+          />
+          <Text>ADD QTY</Text>
+        </TouchableOpacity>
       </View>
     </TouchableOpacity>
   );

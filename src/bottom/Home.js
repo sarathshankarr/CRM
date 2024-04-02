@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   Text,
   View,
@@ -7,15 +7,42 @@ import {
   FlatList,
   TouchableOpacity,
   TextInput,
+  Modal,
+  Keyboard,
+  Platform,
 } from 'react-native';
-import { PRODUCT_DETAILS } from '../components/ProductDetails';
-import { AllPRODUCT_DETAILS } from '../components/AllProductDetails';
-import { useDispatch } from 'react-redux';
-import { addItemToCart } from '../redux/action/Action';
+import {PRODUCT_DETAILS} from '../components/ProductDetails';
+import {AllPRODUCT_DETAILS} from '../components/AllProductDetails';
+import {useDispatch} from 'react-redux';
+import {addItemToCart} from '../redux/action/Action';
 
-const Home = ({ navigation }) => {
+const Home = ({navigation}) => {
   const [showSearchInput, setShowSearchInput] = useState(false);
   const [selectedDetails, setSelectedDetails] = useState(PRODUCT_DETAILS);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [keyboardSpace, setKeyboardSpace] = useState(0);
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      'keyboardDidShow',
+      event => {
+        setKeyboardSpace(event.endCoordinates.height);
+      },
+    );
+
+    const keyboardDidHideListener = Keyboard.addListener(
+      'keyboardDidHide',
+      () => {
+        setKeyboardSpace(0);
+      },
+    );
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, []);
 
   const toggleSearchInput = () => {
     setShowSearchInput(!showSearchInput);
@@ -25,12 +52,30 @@ const Home = ({ navigation }) => {
     setSelectedDetails(details);
   };
 
-  const dispatch=useDispatch()
+  const dispatch = useDispatch();
 
-  const addItem =(item)=>{
-    dispatch(addItemToCart(item))
-  }
-  const renderProductItem = ({ item }) => {
+  const addItem = item => {
+    dispatch(addItemToCart(item));
+  };
+
+  const openModal = item => {
+    setSelectedItem(item);
+    setModalVisible(true);
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+  };
+
+  const onFocusTextInput = () => {
+    setModalVisible(true);
+  };
+
+  const onBlurTextInput = () => {
+    // You may add additional logic here if needed
+  };
+
+  const renderProductItem = ({item}) => {
     return (
       <TouchableOpacity
         style={styles.productItem}
@@ -67,18 +112,22 @@ const Home = ({ navigation }) => {
             <View style={styles.notesContainer}>
               <Text>Notes: {item.disription}</Text>
               <View style={styles.buttonsContainer}>
-                <TouchableOpacity style={styles.button}>
+                <TouchableOpacity
+                  onPress={() => {
+                    addItem(item);
+                  }}
+                  style={styles.button}>
                   <Image
-                    style={{ height: 20, width: 20 }}
+                    style={{height: 20, width: 20}}
                     source={require('../../assets/heart.png')}
                   />
                   <Text>WISHLIST</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={()=>{
-                  addItem(item)
-                }} style={styles.buttonqty}>
+                <TouchableOpacity
+                  onPress={() => openModal(item)}
+                  style={styles.buttonqty}>
                   <Image
-                    style={{ height: 20, width: 20 }}
+                    style={{height: 20, width: 20}}
                     source={require('../../assets/qty.png')}
                   />
                   <Text>ADD QTY</Text>
@@ -93,7 +142,6 @@ const Home = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      {/* Category buttons */}
       <View style={styles.head}>
         <TouchableOpacity
           style={[
@@ -126,13 +174,14 @@ const Home = ({ navigation }) => {
         </TouchableOpacity>
       </View>
 
-      {/* Search input */}
       <View style={styles.searchContainer}>
         {showSearchInput ? (
           <TextInput
             style={styles.searchInput}
             autoFocus={true}
             onBlur={toggleSearchInput}
+            onFocus={onFocusTextInput}
+            placeholder="Search"
           />
         ) : (
           <Text style={styles.text}>6 Categories Listed</Text>
@@ -147,7 +196,6 @@ const Home = ({ navigation }) => {
         </TouchableOpacity>
       </View>
 
-      {/* Product list */}
       <FlatList
         data={selectedDetails}
         renderItem={renderProductItem}
@@ -155,6 +203,61 @@ const Home = ({ navigation }) => {
         numColumns={2}
         contentContainerStyle={styles.productList}
       />
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={closeModal}>
+        <View style={[styles.modalContainer, {marginBottom: keyboardSpace}]}>
+          <View style={styles.modalContent}>
+            <View style={{backgroundColor: 'green', padding: 10}}>
+              <Text style={{color: 'white'}}>Add Quantity</Text>
+            </View>
+            <View
+              style={{
+                padding: 1,
+                backgroundColor: 'gray',
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}>
+              <Text style={{marginLeft: 5}}>Size/Color</Text>
+              <Text>Quantity</Text>
+              <Text>Price</Text>
+              <Text>1day {'\n'}stock</Text>
+              <Text style={{marginRight: 50}}>3day {'\n'}stock</Text>
+            </View>
+            {selectedItem && (
+              <View style={{marginHorizontal: 10, marginVertical: 10}}>
+                <Text>{selectedItem.name}</Text>
+              </View>
+            )}
+            <View style={styles.rowContainer}>
+              <Text style={styles.label}>.Extra{'\n'} Small</Text>
+              <View style={styles.inputContainer}>
+                <TextInput
+                  style={styles.searchInput} // Adjust the width as needed
+                  onFocus={onFocusTextInput}
+                />
+                <View style={styles.underline}></View>
+              </View>
+              <View style={styles.spaceBetweenContainer}>
+                <Text style={{marginLeft: 30, alignItems: 'center'}}>365</Text>
+                <Text style={{alignItems: 'center'}}>N/A</Text>
+                <Text style={{alignItems: 'center'}}>N/A</Text>
+                <TouchableOpacity>
+                  <Image
+                    style={{height: 20, width: 20}}
+                    source={require('../../assets/copy.png')}
+                  />
+                </TouchableOpacity>
+              </View>
+            </View>
+            {/* Add more content here as needed */}
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -266,6 +369,37 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     flexDirection: 'row',
     paddingHorizontal: 5,
+  },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    borderRadius: 10,
+  },
+  rowContainer: {
+    flexDirection: 'row',
+    marginHorizontal: 10,
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  label: {
+  },
+  inputContainer: {
+    flex: 0.2,
+    marginLeft: 60,
+  },
+  spaceBetweenContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    flex: 1,
+  },
+  underline: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#000',
+    marginBottom: 5, // Adjust this margin as needed
   },
 });
 

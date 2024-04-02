@@ -8,25 +8,38 @@ import {
   TouchableOpacity,
   Dimensions,
 } from 'react-native';
-import { SliderBox } from 'react-native-image-slider-box';
-import { useDispatch } from 'react-redux';
-import { addItemToCart } from '../../redux/action/Action';
-
-const Details = ({ route }) => {
-  const { item, name, image, image2, image3, image4, image5, category, tags, set } = route.params;
+import {SliderBox} from 'react-native-image-slider-box';
+import {useDispatch} from 'react-redux';
+import {addItemToCart} from '../../redux/action/Action';
+const Details = ({route}) => {
+  const {
+    item,
+    name,
+    image,
+    image2,
+    image3,
+    image4,
+    image5,
+    category,
+    tags,
+    set,
+  } = route.params;
 
   const images = [image, image2, image3, image4, image5];
-  const dispatch=useDispatch()
+  const dispatch = useDispatch();
 
-  const addItem =(item)=>{
-    dispatch(addItemToCart(item))
-  }
+  const addItem = item => {
+    dispatch(addItemToCart(item));
+  };
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollView}>
-        <SliderBox images={images} sliderBoxHeight={Dimensions.get('window').height * 0.5} 
-        resizeMethod={'resize'}
-          resizeMode={'contain'}/>
+        <SliderBox
+          images={images}
+          sliderBoxHeight={Dimensions.get('window').height * 0.5}
+          resizeMethod={'resize'}
+          resizeMode={'contain'}
+        />
         <View style={styles.priceContainer}>
           <Text style={styles.priceText}>Price: {item.price}</Text>
           <TouchableOpacity>
@@ -53,7 +66,10 @@ const Details = ({ route }) => {
           <Text style={styles.txt}>{item.disription}</Text>
         </View>
       </ScrollView>
-      <TouchableOpacity onPress={addItem}
+      <TouchableOpacity
+        onPress={() => {
+          addItem(item);
+        }}
         style={styles.buttonContainer}>
         <Text style={styles.buttonText}>ADD QUANTITY</Text>
       </TouchableOpacity>
@@ -64,7 +80,7 @@ const Details = ({ route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff"
+    backgroundColor: '#fff',
   },
   scrollView: {
     flexGrow: 1,
