@@ -240,13 +240,14 @@ const Home = ({navigation}) => {
             <View style={styles.rowContainer}>
               <Text style={styles.label}>.Extra{'\n'} Small</Text>
               <View style={styles.inputContainer}>
-                <TextInput
-                  style={{alignItems:'center'}} // Adjust the width as needed
-                  onFocus={onFocusTextInput}
-                  keyboardType="numeric"
-                  value={quantity}
-                  onChangeText={handleQuntityChange}
-                />
+              <TextInput
+  style={{ textAlign: 'center' }} // Adjust the width as needed
+  onFocus={onFocusTextInput}
+  keyboardType="numeric"
+  value={quantity}
+  onChangeText={handleQuntityChange}
+/>
+
                 <View style={styles.underline}></View>
               </View>
               <View style={styles.spaceBetweenContainer}>
