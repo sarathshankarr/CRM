@@ -22,6 +22,7 @@ const Home = ({navigation}) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [keyboardSpace, setKeyboardSpace] = useState(0);
+  const [quantity, setQuantity] = useState('');
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
@@ -73,6 +74,9 @@ const Home = ({navigation}) => {
 
   const onBlurTextInput = () => {
     // You may add additional logic here if needed
+  };
+  const handleQuntityChange = text => {
+    setQuantity(text);
   };
 
   const renderProductItem = ({item}) => {
@@ -237,8 +241,11 @@ const Home = ({navigation}) => {
               <Text style={styles.label}>.Extra{'\n'} Small</Text>
               <View style={styles.inputContainer}>
                 <TextInput
-                  style={styles.searchInput} // Adjust the width as needed
+                  style={{alignItems:'center'}} // Adjust the width as needed
                   onFocus={onFocusTextInput}
+                  keyboardType="numeric"
+                  value={quantity}
+                  onChangeText={handleQuntityChange}
                 />
                 <View style={styles.underline}></View>
               </View>
