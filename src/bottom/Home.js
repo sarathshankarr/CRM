@@ -48,7 +48,7 @@ const ProductRow = ({
 
     Clipboard.setString(quantity);
   };
-  
+
   return (
     <View style={styles.rowContainer}>
       <Text style={styles.label}>{label}</Text>
@@ -88,7 +88,6 @@ const Home = ({navigation}) => {
   const [triblelargeQuantity, setTribleLargeQuantity] = useState('');
   const [fivelargeQuantity, setFiveLargeQuantity] = useState('');
 
-
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
       'keyboardDidShow',
@@ -109,6 +108,17 @@ const Home = ({navigation}) => {
       keyboardDidHideListener.remove();
     };
   }, []);
+
+  const clearAllInputs = () => {
+    setExtraSmallQuantity('');
+    setSmallQuantity('');
+    setMediumQuantity('');
+    setLargeQuantity('');
+    setExtraLargeQuantity('');
+    setDoubleLargeQuantity('');
+    setTribleLargeQuantity('');
+    setFiveLargeQuantity('');
+  };
 
   const toggleSearchInput = () => {
     setShowSearchInput(!showSearchInput);
@@ -295,183 +305,7 @@ const Home = ({navigation}) => {
         contentContainerStyle={styles.productList}
       />
 
-<Modal
-  animationType="slide"
-  transparent={true}
-  visible={modalVisible}
-  onRequestClose={closeModal}>
-  <ScrollView
-    contentContainerStyle={[
-      styles.modalContainer,
-      {marginBottom: keyboardSpace},
-    ]}
-  >
-    <View style={styles.modalContent}>
-      <View style={{backgroundColor: 'green', padding: 10}}>
-        <Text style={{color: 'white', fontWeight: 'bold'}}>Add Quantity</Text>
-      </View>
-
-      <View
-              style={{
-                padding: 1,
-                backgroundColor: '#E7E7E7',
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}>
-              <Text style={{marginLeft: 5, color: '#000', fontWeight: 'bold'}}>
-                Size/Color
-              </Text>
-              <Text style={{color: '#000', fontWeight: 'bold'}}>Quantity</Text>
-              <Text style={{color: '#000', fontWeight: 'bold'}}>Price</Text>
-              <Text style={{color: '#000', fontWeight: 'bold'}}>
-                1day {'\n'}stock
-              </Text>
-              <Text
-                style={{marginRight: 50, color: '#000', fontWeight: 'bold'}}>
-                3day {'\n'}stock
-              </Text>
-            </View>
-                  {selectedItem && (
-        <View style={{marginHorizontal: 10, marginVertical: 10}}>
-          <Text style={{color: '#000', fontWeight: 'bold'}}>
-            {selectedItem.name}
-          </Text>
-        </View>
-      )}
-      {/* ProductRows wrapped in ScrollView */}
-      <ScrollView style={{ maxHeight: '70%' }}>
-        {/* Your ProductRows here */}
-        <ProductRow
-  label=".Extra Small"
-  copyImageSource={require('../../assets/copy.png')}
-  quantity={extraSmallQuantity}
-  handleQuantityChange={handleExtraSmallQuantityChange}
-  value1="365" // Dynamic value
-  value2="N/A" // Dynamic value
-  value3="N/A"
-  setExtraSmallQuantity={setExtraSmallQuantity}
-  setSmallQuantity={setSmallQuantity}
-  setMediumQuantity={setMediumQuantity}
-  setLargeQuantity={setLargeQuantity}
-  setExtraLargeQuantity={setExtraLargeQuantity}
-  setDoubleLargeQuantity={setDoubleLargeQuantity}
-  setTribleLargeQuantity={setTribleLargeQuantity}
-  setFiveLargeQuantity={setFiveLargeQuantity}
-/>
-
-       <View
-              style={{borderBottomWidth: 1, borderBottomColor: 'gray'}}></View>
-            <ProductRow
-              label="1.Small"
-              quantity={smallQuantity}
-              handleQuantityChange={handleSmallQuantityChange}
-              value1="365"
-              value2="N/A"
-              value3="N/A"
-            />
-            <View
-              style={{borderBottomWidth: 1, borderBottomColor: 'gray'}}></View>
-            <ProductRow
-              label="2.Medium"
-              quantity={mediumQuantity}
-              handleQuantityChange={handleMediumQuantityChange}
-              value1="145"
-              value2="61"
-              value3="4"
-            />
-            <View
-              style={{borderBottomWidth: 1, borderBottomColor: 'gray'}}></View>
-            <ProductRow
-              label="3.Large"
-              quantity={largeQuantity}
-              handleQuantityChange={handleLargeQuantityChange}
-              value1="145"
-              value2="61"
-              value3="4"
-            />
-            <View
-              style={{borderBottomWidth: 1, borderBottomColor: 'gray'}}></View>
-            <ProductRow
-              label="4.Extra Large"
-              quantity={extralargeQuantity}
-              handleQuantityChange={handleExtraQuantityChange}
-              value1="145"
-              value2="61"
-              value3="4"
-            />
-            <View
-              style={{borderBottomWidth: 1, borderBottomColor: 'gray'}}></View>
-            <ProductRow
-              label="5.2x Large"
-              quantity={doublelargeQuantity}
-              handleQuantityChange={handlDoubleQuantityChange}
-              value1="145"
-              value2="61"
-              value3="4"
-            />
-            <View
-              style={{borderBottomWidth: 1, borderBottomColor: 'gray'}}></View>
-            <ProductRow
-              label="6.3x Large"
-              quantity={triblelargeQuantity}
-              handleQuantityChange={handleTribleQuantityChange}
-              value1="145"
-              value2="61"
-              value3="4"
-            />
-            <View
-              style={{borderBottomWidth: 1, borderBottomColor: 'gray'}}></View>
-            <ProductRow
-              label="7.5x Large"
-              quantity={fivelargeQuantity}
-              handleQuantityChange={handleFiveQuantityChange}
-              value1="145"
-              value2="61"
-              value3="4"
-            />
-            <View
-              style={{borderBottomWidth: 1, borderBottomColor: 'gray'}}></View>
-      </ScrollView>
-      {/* End of ProductRows */}
-      
-      {/* Your existing content */}
-      <View
-        style={{ flexDirection: 'row', justifyContent: 'flex-end', marginRight: 20, marginTop: 20, marginBottom: 30 }}
-      >
-        <TouchableOpacity
-          style={{
-            borderWidth: 1,
-            borderColor: '#000',
-            backgroundColor: '#D4A017',
-            marginLeft: 10,
-            paddingVertical: 10,
-            paddingHorizontal: 10,
-            borderRadius: 5,
-          }}
-        >
-          <Text style={{color: 'white', fontWeight: 'bold'}}>CLEAR ALL</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={{
-            borderWidth: 1,
-            borderColor: '#000',
-            backgroundColor: 'green',
-            marginLeft: 10,
-            paddingVertical: 10,
-            paddingHorizontal: 35,
-            borderRadius: 5,
-          }}
-        >
-          <Text style={{color: 'white', fontWeight: 'bold'}}>SAVE</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  </ScrollView>
-</Modal>
-
-
-      {/* <Modal
+      <Modal
         animationType="slide"
         transparent={true}
         visible={modalVisible}
@@ -480,14 +314,16 @@ const Home = ({navigation}) => {
           contentContainerStyle={[
             styles.modalContainer,
             {marginBottom: keyboardSpace},
-          ]}>
-          {' '}
+          ]}
+          keyboardShouldPersistTaps="handled" // Add this line
+        >
           <View style={styles.modalContent}>
             <View style={{backgroundColor: 'green', padding: 10}}>
               <Text style={{color: 'white', fontWeight: 'bold'}}>
                 Add Quantity
               </Text>
             </View>
+
             <View
               style={{
                 padding: 1,
@@ -516,87 +352,127 @@ const Home = ({navigation}) => {
                 </Text>
               </View>
             )}
-            <ProductRow
-              label=".Extra Small"
-              copyImageSource={require('../../assets/copy.png')}
-              quantity={extraSmallQuantity}
-              handleQuantityChange={handleExtraSmallQuantityChange}
-              value1="365" // Dynamic value
-              value2="N/A" // Dynamic value
-              value3="N/A"
-            />
-            <View
-              style={{borderBottomWidth: 1, borderBottomColor: 'gray'}}></View>
-            <ProductRow
-              label="1.Small"
-              quantity={extraSmallQuantity}
-              handleQuantityChange={handleExtraSmallQuantityChange}
-              value1="365"
-              value2="N/A"
-              value3="N/A"
-            />
-            <View
-              style={{borderBottomWidth: 1, borderBottomColor: 'gray'}}></View>
-            <ProductRow
-              label="2.Medium"
-              quantity={mediumQuantity}
-              handleQuantityChange={handleMediumQuantityChange}
-              value1="145"
-              value2="61"
-              value3="4"
-            />
-            <View
-              style={{borderBottomWidth: 1, borderBottomColor: 'gray'}}></View>
-            <ProductRow
-              label="3.Large"
-              quantity={largeQuantity}
-              handleQuantityChange={handleLargeQuantityChange}
-              value1="145"
-              value2="61"
-              value3="4"
-            />
-            <View
-              style={{borderBottomWidth: 1, borderBottomColor: 'gray'}}></View>
-            <ProductRow
-              label="4.Extra Large"
-              quantity={extralargeQuantity}
-              handleQuantityChange={handleExtraQuantityChange}
-              value1="145"
-              value2="61"
-              value3="4"
-            />
-            <View
-              style={{borderBottomWidth: 1, borderBottomColor: 'gray'}}></View>
-            <ProductRow
-              label="5.2x Large"
-              quantity={doublelargeQuantity}
-              handleQuantityChange={handlDoubleQuantityChange}
-              value1="145"
-              value2="61"
-              value3="4"
-            />
-            <View
-              style={{borderBottomWidth: 1, borderBottomColor: 'gray'}}></View>
-            <ProductRow
-              label="6.3x Large"
-              quantity={triblelargeQuantity}
-              handleQuantityChange={handleTribleQuantityChange}
-              value1="145"
-              value2="61"
-              value3="4"
-            />
-            <View
-              style={{borderBottomWidth: 1, borderBottomColor: 'gray'}}></View>
-            <ProductRow
-              label="7.5x Large"
-              quantity={fivelargeQuantity}
-              handleQuantityChange={handleFiveQuantityChange}
-              value1="145"
-              value2="61"
-              value3="4"
-            />
-            <View
-              style={{borderBottomWidth: 1, borderBottomColor: 'gray'}}></View>
+            {/* ProductRows wrapped in ScrollView */}
+            <ScrollView style={{maxHeight: '70%'}}>
+              {/* Your ProductRows here */}
+              <ProductRow
+                label=".Extra Small"
+                copyImageSource={require('../../assets/copy.png')}
+                quantity={extraSmallQuantity}
+                handleQuantityChange={handleExtraSmallQuantityChange}
+                value1="365" // Dynamic value
+                value2="N/A" // Dynamic value
+                value3="N/A"
+                setExtraSmallQuantity={setExtraSmallQuantity}
+                setSmallQuantity={setSmallQuantity}
+                setMediumQuantity={setMediumQuantity}
+                setLargeQuantity={setLargeQuantity}
+                setExtraLargeQuantity={setExtraLargeQuantity}
+                setDoubleLargeQuantity={setDoubleLargeQuantity}
+                setTribleLargeQuantity={setTribleLargeQuantity}
+                setFiveLargeQuantity={setFiveLargeQuantity}
+              />
+
+              <View
+                style={{
+                  borderBottomWidth: 1,
+                  borderBottomColor: 'gray',
+                }}></View>
+              <ProductRow
+                label="1.Small"
+                quantity={smallQuantity}
+                handleQuantityChange={handleSmallQuantityChange}
+                value1="365"
+                value2="N/A"
+                value3="N/A"
+              />
+              <View
+                style={{
+                  borderBottomWidth: 1,
+                  borderBottomColor: 'gray',
+                }}></View>
+              <ProductRow
+                label="2.Medium"
+                quantity={mediumQuantity}
+                handleQuantityChange={handleMediumQuantityChange}
+                value1="145"
+                value2="61"
+                value3="4"
+              />
+              <View
+                style={{
+                  borderBottomWidth: 1,
+                  borderBottomColor: 'gray',
+                }}></View>
+              <ProductRow
+                label="3.Large"
+                quantity={largeQuantity}
+                handleQuantityChange={handleLargeQuantityChange}
+                value1="145"
+                value2="61"
+                value3="4"
+              />
+              <View
+                style={{
+                  borderBottomWidth: 1,
+                  borderBottomColor: 'gray',
+                }}></View>
+              <ProductRow
+                label="4.Extra Large"
+                quantity={extralargeQuantity}
+                handleQuantityChange={handleExtraQuantityChange}
+                value1="145"
+                value2="61"
+                value3="4"
+              />
+              <View
+                style={{
+                  borderBottomWidth: 1,
+                  borderBottomColor: 'gray',
+                }}></View>
+              <ProductRow
+                label="5.2x Large"
+                quantity={doublelargeQuantity}
+                handleQuantityChange={handlDoubleQuantityChange}
+                value1="145"
+                value2="61"
+                value3="4"
+              />
+              <View
+                style={{
+                  borderBottomWidth: 1,
+                  borderBottomColor: 'gray',
+                }}></View>
+              <ProductRow
+                label="6.3x Large"
+                quantity={triblelargeQuantity}
+                handleQuantityChange={handleTribleQuantityChange}
+                value1="145"
+                value2="61"
+                value3="4"
+              />
+              <View
+                style={{
+                  borderBottomWidth: 1,
+                  borderBottomColor: 'gray',
+                }}></View>
+              <ProductRow
+                label="7.5x Large"
+                quantity={fivelargeQuantity}
+                handleQuantityChange={handleFiveQuantityChange}
+                value1="145"
+                value2="61"
+                value3="4"
+              />
+              <View
+                style={{
+                  borderBottomWidth: 1,
+                  borderBottomColor: 'gray',
+                }}></View>
+            </ScrollView>
+            {/* End of ProductRows */}
+
+            {/* Your existing content */}
             <View
               style={{
                 flexDirection: 'row',
@@ -606,6 +482,7 @@ const Home = ({navigation}) => {
                 marginBottom: 30,
               }}>
               <TouchableOpacity
+                onPress={clearAllInputs} // Add this line
                 style={{
                   borderWidth: 1,
                   borderColor: '#000',
@@ -619,7 +496,12 @@ const Home = ({navigation}) => {
                   CLEAR ALL
                 </Text>
               </TouchableOpacity>
+
               <TouchableOpacity
+                onPress={() => {
+                  addItem(selectedItem); // Use selectedItem instead of item
+                  closeModal(); // Close modal after adding item
+                }}
                 style={{
                   borderWidth: 1,
                   borderColor: '#000',
@@ -634,7 +516,7 @@ const Home = ({navigation}) => {
             </View>
           </View>
         </ScrollView>
-      </Modal> */}
+      </Modal>
     </View>
   );
 };
