@@ -10,11 +10,68 @@ import {
   Modal,
   Keyboard,
   Platform,
+  ScrollView,
+  Clipboard,
 } from 'react-native';
 import {PRODUCT_DETAILS} from '../components/ProductDetails';
 import {AllPRODUCT_DETAILS} from '../components/AllProductDetails';
 import {useDispatch} from 'react-redux';
 import {addItemToCart} from '../redux/action/Action';
+
+const ProductRow = ({
+  label,
+  copyImageSource,
+  quantity,
+  handleQuantityChange,
+  value1,
+  value2,
+  value3,
+  setExtraSmallQuantity,
+  setSmallQuantity,
+  setMediumQuantity,
+  setLargeQuantity,
+  setExtraLargeQuantity,
+  setDoubleLargeQuantity,
+  setTribleLargeQuantity,
+  setFiveLargeQuantity,
+}) => {
+  const copyValueToClipboard = () => {
+    // Copy the value to all quantities
+    setExtraSmallQuantity(quantity);
+    setSmallQuantity(quantity);
+    setMediumQuantity(quantity);
+    setLargeQuantity(quantity);
+    setExtraLargeQuantity(quantity);
+    setDoubleLargeQuantity(quantity);
+    setTribleLargeQuantity(quantity);
+    setFiveLargeQuantity(quantity);
+
+    Clipboard.setString(quantity);
+  };
+  
+  return (
+    <View style={styles.rowContainer}>
+      <Text style={styles.label}>{label}</Text>
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={{textAlign: 'center'}} // Center the text horizontally
+          keyboardType="numeric"
+          value={quantity}
+          onChangeText={handleQuantityChange}
+        />
+        <View style={styles.underline}></View>
+      </View>
+      <View style={styles.spaceBetweenContainer}>
+        <Text style={{alignItems: 'center', marginLeft: 40}}>{value1}</Text>
+        <Text style={{alignItems: 'center', marginLeft: 10}}>{value2}</Text>
+        <Text style={{alignItems: 'center', marginLeft: 10}}>{value3}</Text>
+        <TouchableOpacity onPress={copyValueToClipboard}>
+          <Image style={{height: 20, width: 20}} source={copyImageSource} />
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+};
 
 const Home = ({navigation}) => {
   const [showSearchInput, setShowSearchInput] = useState(false);
@@ -22,7 +79,15 @@ const Home = ({navigation}) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [keyboardSpace, setKeyboardSpace] = useState(0);
-  const [quantity, setQuantity] = useState('');
+  const [extraSmallQuantity, setExtraSmallQuantity] = useState('');
+  const [smallQuantity, setSmallQuantity] = useState('');
+  const [mediumQuantity, setMediumQuantity] = useState('');
+  const [largeQuantity, setLargeQuantity] = useState('');
+  const [extralargeQuantity, setExtraLargeQuantity] = useState('');
+  const [doublelargeQuantity, setDoubleLargeQuantity] = useState('');
+  const [triblelargeQuantity, setTribleLargeQuantity] = useState('');
+  const [fivelargeQuantity, setFiveLargeQuantity] = useState('');
+
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
@@ -75,10 +140,32 @@ const Home = ({navigation}) => {
   const onBlurTextInput = () => {
     // You may add additional logic here if needed
   };
-  const handleQuntityChange = text => {
-    setQuantity(text);
+
+  const handleExtraSmallQuantityChange = text => {
+    setExtraSmallQuantity(text);
   };
 
+  const handleSmallQuantityChange = text => {
+    setSmallQuantity(text);
+  };
+  const handleMediumQuantityChange = text => {
+    setMediumQuantity(text);
+  };
+  const handleLargeQuantityChange = text => {
+    setLargeQuantity(text);
+  };
+  const handleExtraQuantityChange = text => {
+    setExtraLargeQuantity(text);
+  };
+  const handlDoubleQuantityChange = text => {
+    setDoubleLargeQuantity(text);
+  };
+  const handleTribleQuantityChange = text => {
+    setTribleLargeQuantity(text);
+  };
+  const handleFiveQuantityChange = text => {
+    setFiveLargeQuantity(text);
+  };
   const renderProductItem = ({item}) => {
     return (
       <TouchableOpacity
@@ -208,64 +295,346 @@ const Home = ({navigation}) => {
         contentContainerStyle={styles.productList}
       />
 
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={closeModal}>
-        <View style={[styles.modalContainer, {marginBottom: keyboardSpace}]}>
-          <View style={styles.modalContent}>
-            <View style={{backgroundColor: 'green', padding: 10}}>
-              <Text style={{color: 'white'}}>Add Quantity</Text>
-            </View>
-            <View
+<Modal
+  animationType="slide"
+  transparent={true}
+  visible={modalVisible}
+  onRequestClose={closeModal}>
+  <ScrollView
+    contentContainerStyle={[
+      styles.modalContainer,
+      {marginBottom: keyboardSpace},
+    ]}
+  >
+    <View style={styles.modalContent}>
+      <View style={{backgroundColor: 'green', padding: 10}}>
+        <Text style={{color: 'white', fontWeight: 'bold'}}>Add Quantity</Text>
+      </View>
+
+      <View
               style={{
                 padding: 1,
-                backgroundColor: 'gray',
+                backgroundColor: '#E7E7E7',
                 flexDirection: 'row',
                 justifyContent: 'space-between',
                 alignItems: 'center',
               }}>
-              <Text style={{marginLeft: 5}}>Size/Color</Text>
-              <Text>Quantity</Text>
-              <Text>Price</Text>
-              <Text>1day {'\n'}stock</Text>
-              <Text style={{marginRight: 50}}>3day {'\n'}stock</Text>
+              <Text style={{marginLeft: 5, color: '#000', fontWeight: 'bold'}}>
+                Size/Color
+              </Text>
+              <Text style={{color: '#000', fontWeight: 'bold'}}>Quantity</Text>
+              <Text style={{color: '#000', fontWeight: 'bold'}}>Price</Text>
+              <Text style={{color: '#000', fontWeight: 'bold'}}>
+                1day {'\n'}stock
+              </Text>
+              <Text
+                style={{marginRight: 50, color: '#000', fontWeight: 'bold'}}>
+                3day {'\n'}stock
+              </Text>
+            </View>
+                  {selectedItem && (
+        <View style={{marginHorizontal: 10, marginVertical: 10}}>
+          <Text style={{color: '#000', fontWeight: 'bold'}}>
+            {selectedItem.name}
+          </Text>
+        </View>
+      )}
+      {/* ProductRows wrapped in ScrollView */}
+      <ScrollView style={{ maxHeight: '70%' }}>
+        {/* Your ProductRows here */}
+        <ProductRow
+  label=".Extra Small"
+  copyImageSource={require('../../assets/copy.png')}
+  quantity={extraSmallQuantity}
+  handleQuantityChange={handleExtraSmallQuantityChange}
+  value1="365" // Dynamic value
+  value2="N/A" // Dynamic value
+  value3="N/A"
+  setExtraSmallQuantity={setExtraSmallQuantity}
+  setSmallQuantity={setSmallQuantity}
+  setMediumQuantity={setMediumQuantity}
+  setLargeQuantity={setLargeQuantity}
+  setExtraLargeQuantity={setExtraLargeQuantity}
+  setDoubleLargeQuantity={setDoubleLargeQuantity}
+  setTribleLargeQuantity={setTribleLargeQuantity}
+  setFiveLargeQuantity={setFiveLargeQuantity}
+/>
+
+       <View
+              style={{borderBottomWidth: 1, borderBottomColor: 'gray'}}></View>
+            <ProductRow
+              label="1.Small"
+              quantity={smallQuantity}
+              handleQuantityChange={handleSmallQuantityChange}
+              value1="365"
+              value2="N/A"
+              value3="N/A"
+            />
+            <View
+              style={{borderBottomWidth: 1, borderBottomColor: 'gray'}}></View>
+            <ProductRow
+              label="2.Medium"
+              quantity={mediumQuantity}
+              handleQuantityChange={handleMediumQuantityChange}
+              value1="145"
+              value2="61"
+              value3="4"
+            />
+            <View
+              style={{borderBottomWidth: 1, borderBottomColor: 'gray'}}></View>
+            <ProductRow
+              label="3.Large"
+              quantity={largeQuantity}
+              handleQuantityChange={handleLargeQuantityChange}
+              value1="145"
+              value2="61"
+              value3="4"
+            />
+            <View
+              style={{borderBottomWidth: 1, borderBottomColor: 'gray'}}></View>
+            <ProductRow
+              label="4.Extra Large"
+              quantity={extralargeQuantity}
+              handleQuantityChange={handleExtraQuantityChange}
+              value1="145"
+              value2="61"
+              value3="4"
+            />
+            <View
+              style={{borderBottomWidth: 1, borderBottomColor: 'gray'}}></View>
+            <ProductRow
+              label="5.2x Large"
+              quantity={doublelargeQuantity}
+              handleQuantityChange={handlDoubleQuantityChange}
+              value1="145"
+              value2="61"
+              value3="4"
+            />
+            <View
+              style={{borderBottomWidth: 1, borderBottomColor: 'gray'}}></View>
+            <ProductRow
+              label="6.3x Large"
+              quantity={triblelargeQuantity}
+              handleQuantityChange={handleTribleQuantityChange}
+              value1="145"
+              value2="61"
+              value3="4"
+            />
+            <View
+              style={{borderBottomWidth: 1, borderBottomColor: 'gray'}}></View>
+            <ProductRow
+              label="7.5x Large"
+              quantity={fivelargeQuantity}
+              handleQuantityChange={handleFiveQuantityChange}
+              value1="145"
+              value2="61"
+              value3="4"
+            />
+            <View
+              style={{borderBottomWidth: 1, borderBottomColor: 'gray'}}></View>
+      </ScrollView>
+      {/* End of ProductRows */}
+      
+      {/* Your existing content */}
+      <View
+        style={{ flexDirection: 'row', justifyContent: 'flex-end', marginRight: 20, marginTop: 20, marginBottom: 30 }}
+      >
+        <TouchableOpacity
+          style={{
+            borderWidth: 1,
+            borderColor: '#000',
+            backgroundColor: '#D4A017',
+            marginLeft: 10,
+            paddingVertical: 10,
+            paddingHorizontal: 10,
+            borderRadius: 5,
+          }}
+        >
+          <Text style={{color: 'white', fontWeight: 'bold'}}>CLEAR ALL</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={{
+            borderWidth: 1,
+            borderColor: '#000',
+            backgroundColor: 'green',
+            marginLeft: 10,
+            paddingVertical: 10,
+            paddingHorizontal: 35,
+            borderRadius: 5,
+          }}
+        >
+          <Text style={{color: 'white', fontWeight: 'bold'}}>SAVE</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  </ScrollView>
+</Modal>
+
+
+      {/* <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={closeModal}>
+        <ScrollView
+          contentContainerStyle={[
+            styles.modalContainer,
+            {marginBottom: keyboardSpace},
+          ]}>
+          {' '}
+          <View style={styles.modalContent}>
+            <View style={{backgroundColor: 'green', padding: 10}}>
+              <Text style={{color: 'white', fontWeight: 'bold'}}>
+                Add Quantity
+              </Text>
+            </View>
+            <View
+              style={{
+                padding: 1,
+                backgroundColor: '#E7E7E7',
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}>
+              <Text style={{marginLeft: 5, color: '#000', fontWeight: 'bold'}}>
+                Size/Color
+              </Text>
+              <Text style={{color: '#000', fontWeight: 'bold'}}>Quantity</Text>
+              <Text style={{color: '#000', fontWeight: 'bold'}}>Price</Text>
+              <Text style={{color: '#000', fontWeight: 'bold'}}>
+                1day {'\n'}stock
+              </Text>
+              <Text
+                style={{marginRight: 50, color: '#000', fontWeight: 'bold'}}>
+                3day {'\n'}stock
+              </Text>
             </View>
             {selectedItem && (
               <View style={{marginHorizontal: 10, marginVertical: 10}}>
-                <Text>{selectedItem.name}</Text>
+                <Text style={{color: '#000', fontWeight: 'bold'}}>
+                  {selectedItem.name}
+                </Text>
               </View>
             )}
-            <View style={styles.rowContainer}>
-              <Text style={styles.label}>.Extra{'\n'} Small</Text>
-              <View style={styles.inputContainer}>
-              <TextInput
-  style={{ textAlign: 'center' }} // Adjust the width as needed
-  onFocus={onFocusTextInput}
-  keyboardType="numeric"
-  value={quantity}
-  onChangeText={handleQuntityChange}
-/>
-
-                <View style={styles.underline}></View>
-              </View>
-              <View style={styles.spaceBetweenContainer}>
-                <Text style={{marginLeft: 30, alignItems: 'center'}}>365</Text>
-                <Text style={{alignItems: 'center'}}>N/A</Text>
-                <Text style={{alignItems: 'center'}}>N/A</Text>
-                <TouchableOpacity>
-                  <Image
-                    style={{height: 20, width: 20}}
-                    source={require('../../assets/copy.png')}
-                  />
-                </TouchableOpacity>
-              </View>
+            <ProductRow
+              label=".Extra Small"
+              copyImageSource={require('../../assets/copy.png')}
+              quantity={extraSmallQuantity}
+              handleQuantityChange={handleExtraSmallQuantityChange}
+              value1="365" // Dynamic value
+              value2="N/A" // Dynamic value
+              value3="N/A"
+            />
+            <View
+              style={{borderBottomWidth: 1, borderBottomColor: 'gray'}}></View>
+            <ProductRow
+              label="1.Small"
+              quantity={extraSmallQuantity}
+              handleQuantityChange={handleExtraSmallQuantityChange}
+              value1="365"
+              value2="N/A"
+              value3="N/A"
+            />
+            <View
+              style={{borderBottomWidth: 1, borderBottomColor: 'gray'}}></View>
+            <ProductRow
+              label="2.Medium"
+              quantity={mediumQuantity}
+              handleQuantityChange={handleMediumQuantityChange}
+              value1="145"
+              value2="61"
+              value3="4"
+            />
+            <View
+              style={{borderBottomWidth: 1, borderBottomColor: 'gray'}}></View>
+            <ProductRow
+              label="3.Large"
+              quantity={largeQuantity}
+              handleQuantityChange={handleLargeQuantityChange}
+              value1="145"
+              value2="61"
+              value3="4"
+            />
+            <View
+              style={{borderBottomWidth: 1, borderBottomColor: 'gray'}}></View>
+            <ProductRow
+              label="4.Extra Large"
+              quantity={extralargeQuantity}
+              handleQuantityChange={handleExtraQuantityChange}
+              value1="145"
+              value2="61"
+              value3="4"
+            />
+            <View
+              style={{borderBottomWidth: 1, borderBottomColor: 'gray'}}></View>
+            <ProductRow
+              label="5.2x Large"
+              quantity={doublelargeQuantity}
+              handleQuantityChange={handlDoubleQuantityChange}
+              value1="145"
+              value2="61"
+              value3="4"
+            />
+            <View
+              style={{borderBottomWidth: 1, borderBottomColor: 'gray'}}></View>
+            <ProductRow
+              label="6.3x Large"
+              quantity={triblelargeQuantity}
+              handleQuantityChange={handleTribleQuantityChange}
+              value1="145"
+              value2="61"
+              value3="4"
+            />
+            <View
+              style={{borderBottomWidth: 1, borderBottomColor: 'gray'}}></View>
+            <ProductRow
+              label="7.5x Large"
+              quantity={fivelargeQuantity}
+              handleQuantityChange={handleFiveQuantityChange}
+              value1="145"
+              value2="61"
+              value3="4"
+            />
+            <View
+              style={{borderBottomWidth: 1, borderBottomColor: 'gray'}}></View>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'flex-end',
+                marginRight: 20,
+                marginTop: 20,
+                marginBottom: 30,
+              }}>
+              <TouchableOpacity
+                style={{
+                  borderWidth: 1,
+                  borderColor: '#000',
+                  backgroundColor: '#D4A017',
+                  marginLeft: 10,
+                  paddingVertical: 10,
+                  paddingHorizontal: 10,
+                  borderRadius: 5,
+                }}>
+                <Text style={{color: 'white', fontWeight: 'bold'}}>
+                  CLEAR ALL
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{
+                  borderWidth: 1,
+                  borderColor: '#000',
+                  backgroundColor: 'green',
+                  marginLeft: 10,
+                  paddingVertical: 10,
+                  paddingHorizontal: 35,
+                  borderRadius: 5,
+                }}>
+                <Text style={{color: 'white', fontWeight: 'bold'}}>SAVE</Text>
+              </TouchableOpacity>
             </View>
-            {/* Add more content here as needed */}
           </View>
-        </View>
-      </Modal>
+        </ScrollView>
+      </Modal> */}
     </View>
   );
 };
@@ -394,10 +763,14 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   label: {
+    flex: 0.3,
+    marginTop: 10,
+    color: '#000',
+    fontWeight: 'bold',
   },
   inputContainer: {
     flex: 0.2,
-    marginLeft: 60,
+    marginLeft: 30,
   },
   spaceBetweenContainer: {
     flexDirection: 'row',
@@ -406,8 +779,7 @@ const styles = StyleSheet.create({
   },
   underline: {
     borderBottomWidth: 1,
-    borderBottomColor: '#000',
-    marginBottom: 5, // Adjust this margin as needed
+    borderBottomColor: 'gray',
   },
 });
 
