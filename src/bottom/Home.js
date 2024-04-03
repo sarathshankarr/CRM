@@ -528,9 +528,9 @@ const styles = StyleSheet.create({
   },
   head: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
     marginTop: 10,
+    alignItems:'center',
+    justifyContent:"center"
   },
   title: {
     borderWidth: 1,
@@ -578,7 +578,7 @@ const styles = StyleSheet.create({
   },
   productItem: {
     flex: 1,
-    marginHorizontal: 4,
+    marginHorizontal: 2,
     marginVertical: 5,
     backgroundColor: '#fff',
     borderRadius: 10,
@@ -612,22 +612,23 @@ const styles = StyleSheet.create({
   },
   buttonsContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     marginTop: 5,
-    marginHorizontal: 4,
+    alignItems:"center",
+    justifyContent:'center',
   },
   button: {
     borderWidth: 1,
     paddingVertical: 10,
     borderRadius: 5,
     flexDirection: 'row',
+    marginRight:5
   },
   buttonqty: {
     borderWidth: 1,
     paddingVertical: 10,
     borderRadius: 5,
     flexDirection: 'row',
-    paddingHorizontal: 5,
+    marginLeft:5
   },
   modalContainer: {
     flex: 1,
