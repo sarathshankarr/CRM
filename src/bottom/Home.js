@@ -123,20 +123,23 @@ const Home = ({navigation}) => {
   const dispatch = useDispatch();
 
   const toggleWishlist = item => {
+  const itemInWishlist = isInWishlist(item);
+  if (itemInWishlist) {
+    // Item exists in the wishlist, remove it
+    dispatch(removeItemFromCart(item.id));
     setWishlist(prevWishlist => {
-      const itemInWishlist = isInWishlist(item);
-      if (itemInWishlist) {
-        // Item exists in the wishlist, remove it
-        dispatch(removeItemFromCart(item.id));
-        const {[item.id]: removedItem, ...updatedWishlist} = prevWishlist;
-        return updatedWishlist;
-      } else {
-        // Item does not exist in the wishlist, add it
-        dispatch(addItemToCart(item));
-        return {...prevWishlist, [item.id]: item};
-      }
+      const {[item.id]: removedItem, ...updatedWishlist} = prevWishlist;
+      return updatedWishlist;
     });
-  };
+  } else {
+    // Item does not exist in the wishlist, add it
+    dispatch(addItemToCart(item));
+    setWishlist(prevWishlist => {
+      return {...prevWishlist, [item.id]: item};
+    });
+  }
+};
+
 
   const isInWishlist = item => {
     return !!wishlist[item.id];
@@ -516,21 +519,22 @@ const Home = ({navigation}) => {
               </TouchableOpacity>
 
               <TouchableOpacity
-                onPress={() => {
-                  addItem(selectedItem); // Use selectedItem instead of item
-                  closeModal(); // Close modal after adding item
-                }}
-                style={{
-                  borderWidth: 1,
-                  borderColor: '#000',
-                  backgroundColor: 'green',
-                  marginLeft: 10,
-                  paddingVertical: 10,
-                  paddingHorizontal: 35,
-                  borderRadius: 5,
-                }}>
-                <Text style={{color: 'white', fontWeight: 'bold'}}>SAVE</Text>
-              </TouchableOpacity>
+  onPress={() => {
+    addItem(selectedItem); // Add selectedItem to the cart
+    closeModal(); // Close modal after adding item
+  }}
+  style={{
+    borderWidth: 1,
+    borderColor: '#000',
+    backgroundColor: 'green',
+    marginLeft: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 35,
+    borderRadius: 5,
+  }}>
+  <Text style={{color: 'white', fontWeight: 'bold'}}>SAVE</Text>
+</TouchableOpacity>
+
             </View>
           </View>
         </ScrollView>

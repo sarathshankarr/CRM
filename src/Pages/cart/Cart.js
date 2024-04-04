@@ -8,9 +8,10 @@ const Cart = () => {
   const navigation = useNavigation();
   const items = useSelector(state => state);
   const dispatch = useDispatch();
-  const removeItem = index => {
-    dispatch(removeItemFromCart(index));
+  const removeItem = itemId => {
+    dispatch(removeItemFromCart(itemId));
   };
+  
 
   return (
     <View>
@@ -25,11 +26,12 @@ const Cart = () => {
             <Text>Notes: {item.disription}</Text>
             <Image style={{height: 50, width: 50}} source={item.image} />
             <TouchableOpacity
-              onPress={() => {
-                removeItem(index);
-              }}>
-              <Text>DEL</Text>
-            </TouchableOpacity>
+  onPress={() => {
+    removeItem(item.id); // Pass the id of the item
+  }}>
+  <Text>DEL</Text>
+</TouchableOpacity>
+
           </View>
         )}
         keyExtractor={item => item.id.toString()}
