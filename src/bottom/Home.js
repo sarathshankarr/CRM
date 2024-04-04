@@ -36,7 +36,6 @@ const ProductRow = ({
   setFiveLargeQuantity,
 }) => {
   const copyValueToClipboard = () => {
-    // Copy the value to all quantities
     setExtraSmallQuantity(quantity);
     setSmallQuantity(quantity);
     setMediumQuantity(quantity);
@@ -54,7 +53,7 @@ const ProductRow = ({
       <Text style={styles.label}>{label}</Text>
       <View style={styles.inputContainer}>
         <TextInput
-          style={{textAlign: 'center'}} // Center the text horizontally
+          style={{textAlign: 'center'}} 
           keyboardType="numeric"
           value={quantity}
           onChangeText={handleQuantityChange}
@@ -124,27 +123,22 @@ const Home = ({navigation}) => {
   const itemsInCart = useSelector(state => state);
 
   useEffect(() => {
-    // Update wishlist status when component mounts or receives focus
     updateWishlistStatus();
   }, []);
 
   useEffect(() => {
-    // Update wishlist status whenever items in cart change
     updateWishlistStatus();
   }, [itemsInCart]);
 
   const updateWishlistStatus = () => {
-    // Create a map of items in the cart for efficient lookup
     const cartItemsMap = itemsInCart.reduce((acc, item) => {
       acc[item.id] = true;
       return acc;
     }, {});
 
-    // Check if each item in the wishlist is in the cart
     const updatedWishlist = {};
     for (const itemId in wishlist) {
       if (cartItemsMap[itemId]) {
-        // Item is in cart, update wishlist accordingly
         updatedWishlist[itemId] = wishlist[itemId];
       }
     }
@@ -157,11 +151,9 @@ const Home = ({navigation}) => {
     const updatedWishlist = { ...wishlist }; 
 
     if (isInWishlist(item)) {
-      // Item exists in the wishlist, remove it
       dispatch(removeItemFromCart(item.id));
       delete updatedWishlist[item.id];
     } else {
-      // Item does not exist in the wishlist, add it
       dispatch(addItemToCart(item));
       updatedWishlist[item.id] = item;
     }
@@ -202,7 +194,6 @@ const Home = ({navigation}) => {
   };
 
   const onBlurTextInput = () => {
-    // You may add additional logic here if needed
   };
 
   const handleExtraSmallQuantityChange = text => {
@@ -268,10 +259,10 @@ const Home = ({navigation}) => {
               <Text>Notes: {item.disription}</Text>
               <View style={styles.buttonsContainer}>
                 <TouchableOpacity
-                  onPress={() => toggleWishlist(item)} // Toggle wishlist status
+                  onPress={() => toggleWishlist(item)} 
                   style={[
                     styles.button,
-                    isInWishlist(item) && {backgroundColor: '#FF817E'}, // Change button style if item is in wishlist
+                    isInWishlist(item) && {backgroundColor: '#FF817E'}, 
                   ]}>
                   <Image
                     style={{height: 20, width: 20}}
@@ -279,7 +270,7 @@ const Home = ({navigation}) => {
                   />
                   <Text>WISHLIST</Text>
                 </TouchableOpacity>
-                <View style={{marginHorizontal: 4}} /> {/* Add space */}
+                <View style={{marginHorizontal: 4}} /> 
                 <TouchableOpacity
                   onPress={() => openModal(item)}
                   style={styles.buttonqty}>
@@ -373,7 +364,7 @@ const Home = ({navigation}) => {
             styles.modalContainer,
             {marginBottom: keyboardSpace},
           ]}
-          keyboardShouldPersistTaps="handled" // Add this line
+          keyboardShouldPersistTaps="handled" 
         >
           <View style={styles.modalContent}>
             <View style={{backgroundColor: 'green', padding: 10}}>
@@ -410,16 +401,14 @@ const Home = ({navigation}) => {
                 </Text>
               </View>
             )}
-            {/* ProductRows wrapped in ScrollView */}
             <ScrollView style={{maxHeight: '70%'}}>
-              {/* Your ProductRows here */}
               <ProductRow
                 label=".Extra Small"
                 copyImageSource={require('../../assets/copy.png')}
                 quantity={extraSmallQuantity}
                 handleQuantityChange={handleExtraSmallQuantityChange}
-                value1="365" // Dynamic value
-                value2="N/A" // Dynamic value
+                value1="365" 
+                value2="N/A" 
                 value3="N/A"
                 setExtraSmallQuantity={setExtraSmallQuantity}
                 setSmallQuantity={setSmallQuantity}
@@ -537,7 +526,7 @@ const Home = ({navigation}) => {
                 marginBottom: 30,
               }}>
               <TouchableOpacity
-                onPress={clearAllInputs} // Add this line
+                onPress={clearAllInputs} 
                 style={{
                   borderWidth: 1,
                   borderColor: '#000',
@@ -554,8 +543,8 @@ const Home = ({navigation}) => {
 
               <TouchableOpacity
                 onPress={() => {
-                  addItem(selectedItem); // Add selectedItem to the cart
-                  closeModal(); // Close modal after adding item
+                  addItem(selectedItem); 
+                  closeModal();
                 }}
                 style={{
                   borderWidth: 1,
