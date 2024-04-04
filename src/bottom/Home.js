@@ -154,7 +154,7 @@ const Home = ({navigation}) => {
 
   
   const toggleWishlist = item => {
-    const updatedWishlist = { ...wishlist }; // Create a copy of the wishlist state
+    const updatedWishlist = { ...wishlist }; 
 
     if (isInWishlist(item)) {
       // Item exists in the wishlist, remove it
@@ -166,11 +166,11 @@ const Home = ({navigation}) => {
       updatedWishlist[item.id] = item;
     }
 
-    setWishlist(updatedWishlist); // Update the wishlist state
+    setWishlist(updatedWishlist);
   };
 
   const isInWishlist = item => {
-    return wishlist.hasOwnProperty(item.id); // Check if the item id exists in the wishlist
+    return wishlist.hasOwnProperty(item.id); 
   };
 
 
