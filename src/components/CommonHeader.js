@@ -1,18 +1,17 @@
-import { useNavigation } from '@react-navigation/native';
-import React, { useState } from 'react';
+import React from 'react';
 import { View, TouchableOpacity, Image, Text, StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
+import { useNavigation } from '@react-navigation/native';
 
 const CommonHeader = ({ title, showDrawerButton }) => {
   const navigation = useNavigation();
+  const items = useSelector(state => state); // Get items from Redux state
 
-  const items = useSelector(state => state);
-  let addedItem = [];
-  addedItem = items;
-
-  const GoToCart = () => {
+  const goToCart = () => {
     navigation.navigate("Cart");
   }
+
+  const cartItemCount = items.length; // Calculate the number of items in the cart
 
   return (
     <View style={styles.header}>
@@ -28,7 +27,7 @@ const CommonHeader = ({ title, showDrawerButton }) => {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Image
             resizeMode="contain"
-            source={require('../../assets/back_arrow.png')} // Use the appropriate back arrow icon
+            source={require('../../assets/back_arrow.png')}
             style={styles.menuimg}
           />
         </TouchableOpacity>
@@ -48,14 +47,16 @@ const CommonHeader = ({ title, showDrawerButton }) => {
             source={require('../../assets/message.png')}
           />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.iconWrapper} onPress={GoToCart}>
+        <TouchableOpacity style={styles.iconWrapper} onPress={goToCart}>
           <View style={styles.cartContainer}>
             <Image
               resizeMode="contain"
               style={styles.cartimg}
               source={require('../../assets/cart.jpg')}
             />
-            <Text style={styles.cartItemCount}>{addedItem.length}</Text>
+            {cartItemCount > 0 && ( // Display the badge only if there are items in the cart
+              <Text style={styles.cartItemCount}>{cartItemCount}</Text>
+            )}
           </View>
         </TouchableOpacity>
       </View>
