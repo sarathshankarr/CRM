@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 import {PRODUCT_DETAILS} from '../components/ProductDetails';
 import {AllPRODUCT_DETAILS} from '../components/AllProductDetails';
-import {useDispatch} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import {addItemToCart, removeItemFromCart} from '../redux/action/Action';
 
 const ProductRow = ({
@@ -121,28 +121,60 @@ const Home = ({navigation}) => {
     setFiveLargeQuantity('');
   };
   const dispatch = useDispatch();
+  const itemsInCart = useSelector(state => state);
 
+  useEffect(() => {
+    // Update wishlist status when component mounts or receives focus
+    updateWishlistStatus();
+  }, []);
+
+  useEffect(() => {
+    // Update wishlist status whenever items in cart change
+    updateWishlistStatus();
+  }, [itemsInCart]);
+
+  const updateWishlistStatus = () => {
+    // Create a map of items in the cart for efficient lookup
+    const cartItemsMap = itemsInCart.reduce((acc, item) => {
+      acc[item.id] = true;
+      return acc;
+    }, {});
+
+    // Check if each item in the wishlist is in the cart
+    const updatedWishlist = {};
+    for (const itemId in wishlist) {
+      if (cartItemsMap[itemId]) {
+        // Item is in cart, update wishlist accordingly
+        updatedWishlist[itemId] = wishlist[itemId];
+      }
+    }
+
+    setWishlist(updatedWishlist);
+  };
+
+  
   const toggleWishlist = item => {
-    const itemInWishlist = isInWishlist(item);
-    if (itemInWishlist) {
+    const updatedWishlist = { ...wishlist }; // Create a copy of the wishlist state
+
+    if (isInWishlist(item)) {
       // Item exists in the wishlist, remove it
       dispatch(removeItemFromCart(item.id));
-      setWishlist(prevWishlist => {
-        const {[item.id]: removedItem, ...updatedWishlist} = prevWishlist;
-        return updatedWishlist;
-      });
+      delete updatedWishlist[item.id];
     } else {
       // Item does not exist in the wishlist, add it
       dispatch(addItemToCart(item));
-      setWishlist(prevWishlist => {
-        return {...prevWishlist, [item.id]: item};
-      });
+      updatedWishlist[item.id] = item;
     }
+
+    setWishlist(updatedWishlist); // Update the wishlist state
   };
 
   const isInWishlist = item => {
-    return !!wishlist[item.id];
+    return wishlist.hasOwnProperty(item.id); // Check if the item id exists in the wishlist
   };
+
+
+  
 
   const toggleSearchInput = () => {
     setShowSearchInput(!showSearchInput);
@@ -264,6 +296,8 @@ const Home = ({navigation}) => {
       </TouchableOpacity>
     );
   };
+
+
 
   return (
     <View style={styles.container}>
