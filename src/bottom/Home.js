@@ -123,23 +123,22 @@ const Home = ({navigation}) => {
   const dispatch = useDispatch();
 
   const toggleWishlist = item => {
-  const itemInWishlist = isInWishlist(item);
-  if (itemInWishlist) {
-    // Item exists in the wishlist, remove it
-    dispatch(removeItemFromCart(item.id));
-    setWishlist(prevWishlist => {
-      const {[item.id]: removedItem, ...updatedWishlist} = prevWishlist;
-      return updatedWishlist;
-    });
-  } else {
-    // Item does not exist in the wishlist, add it
-    dispatch(addItemToCart(item));
-    setWishlist(prevWishlist => {
-      return {...prevWishlist, [item.id]: item};
-    });
-  }
-};
-
+    const itemInWishlist = isInWishlist(item);
+    if (itemInWishlist) {
+      // Item exists in the wishlist, remove it
+      dispatch(removeItemFromCart(item.id));
+      setWishlist(prevWishlist => {
+        const {[item.id]: removedItem, ...updatedWishlist} = prevWishlist;
+        return updatedWishlist;
+      });
+    } else {
+      // Item does not exist in the wishlist, add it
+      dispatch(addItemToCart(item));
+      setWishlist(prevWishlist => {
+        return {...prevWishlist, [item.id]: item};
+      });
+    }
+  };
 
   const isInWishlist = item => {
     return !!wishlist[item.id];
@@ -248,6 +247,7 @@ const Home = ({navigation}) => {
                   />
                   <Text>WISHLIST</Text>
                 </TouchableOpacity>
+                <View style={{marginHorizontal: 4}} /> {/* Add space */}
                 <TouchableOpacity
                   onPress={() => openModal(item)}
                   style={styles.buttonqty}>
@@ -519,22 +519,21 @@ const Home = ({navigation}) => {
               </TouchableOpacity>
 
               <TouchableOpacity
-  onPress={() => {
-    addItem(selectedItem); // Add selectedItem to the cart
-    closeModal(); // Close modal after adding item
-  }}
-  style={{
-    borderWidth: 1,
-    borderColor: '#000',
-    backgroundColor: 'green',
-    marginLeft: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 35,
-    borderRadius: 5,
-  }}>
-  <Text style={{color: 'white', fontWeight: 'bold'}}>SAVE</Text>
-</TouchableOpacity>
-
+                onPress={() => {
+                  addItem(selectedItem); // Add selectedItem to the cart
+                  closeModal(); // Close modal after adding item
+                }}
+                style={{
+                  borderWidth: 1,
+                  borderColor: '#000',
+                  backgroundColor: 'green',
+                  marginLeft: 10,
+                  paddingVertical: 10,
+                  paddingHorizontal: 35,
+                  borderRadius: 5,
+                }}>
+                <Text style={{color: 'white', fontWeight: 'bold'}}>SAVE</Text>
+              </TouchableOpacity>
             </View>
           </View>
         </ScrollView>
@@ -561,6 +560,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderBottomLeftRadius: 20,
     paddingHorizontal: 45,
+    marginLeft: 30,
   },
   titleOne: {
     borderWidth: 1,
@@ -569,6 +569,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 20,
     borderBottomRightRadius: 20,
     paddingHorizontal: 45,
+    marginRight: 30,
   },
   activeCategory: {
     backgroundColor: 'green',
@@ -643,14 +644,12 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 5,
     flexDirection: 'row',
-    marginRight: 5,
   },
   buttonqty: {
     borderWidth: 1,
     paddingVertical: 10,
     borderRadius: 5,
     flexDirection: 'row',
-    marginLeft: 5,
   },
   modalContainer: {
     flex: 1,
