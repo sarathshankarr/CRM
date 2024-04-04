@@ -1,4 +1,4 @@
-import {ADD_ITEM, REMOVE_ITEM} from '../ActionTypes';
+import { ADD_ITEM, REMOVE_ITEM } from '../ActionTypes';
 
 export const Reducers = (state = [], action) => {
   switch (action.type) {
@@ -6,11 +6,8 @@ export const Reducers = (state = [], action) => {
       return [...state, action.payload];
 
     case REMOVE_ITEM:
-      const deleteArray = state.filter((item, index) => {
-        return index !== action.payload;
-      });
+      return state.filter(item => item.id !== action.payload);
 
-      return deleteArray;
     default:
       return state;
   }

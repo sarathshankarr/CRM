@@ -16,7 +16,7 @@ import {
 import {PRODUCT_DETAILS} from '../components/ProductDetails';
 import {AllPRODUCT_DETAILS} from '../components/AllProductDetails';
 import {useDispatch} from 'react-redux';
-import {addItemToCart} from '../redux/action/Action';
+import {addItemToCart, removeItemFromCart} from '../redux/action/Action';
 
 const ProductRow = ({
   label,
@@ -87,6 +87,7 @@ const Home = ({navigation}) => {
   const [doublelargeQuantity, setDoubleLargeQuantity] = useState('');
   const [triblelargeQuantity, setTribleLargeQuantity] = useState('');
   const [fivelargeQuantity, setFiveLargeQuantity] = useState('');
+  const [wishlist, setWishlist] = useState({});
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
@@ -119,6 +120,27 @@ const Home = ({navigation}) => {
     setTribleLargeQuantity('');
     setFiveLargeQuantity('');
   };
+  const dispatch = useDispatch();
+
+  const toggleWishlist = item => {
+    setWishlist(prevWishlist => {
+      const itemInWishlist = isInWishlist(item);
+      if (itemInWishlist) {
+        // Item exists in the wishlist, remove it
+        dispatch(removeItemFromCart(item.id));
+        const {[item.id]: removedItem, ...updatedWishlist} = prevWishlist;
+        return updatedWishlist;
+      } else {
+        // Item does not exist in the wishlist, add it
+        dispatch(addItemToCart(item));
+        return {...prevWishlist, [item.id]: item};
+      }
+    });
+  };
+
+  const isInWishlist = item => {
+    return !!wishlist[item.id];
+  };
 
   const toggleSearchInput = () => {
     setShowSearchInput(!showSearchInput);
@@ -127,8 +149,6 @@ const Home = ({navigation}) => {
   const handleCategoryPress = details => {
     setSelectedDetails(details);
   };
-
-  const dispatch = useDispatch();
 
   const addItem = item => {
     dispatch(addItemToCart(item));
@@ -214,10 +234,11 @@ const Home = ({navigation}) => {
               <Text>Notes: {item.disription}</Text>
               <View style={styles.buttonsContainer}>
                 <TouchableOpacity
-                  onPress={() => {
-                    addItem(item);
-                  }}
-                  style={styles.button}>
+                  onPress={() => toggleWishlist(item)} // Toggle wishlist status
+                  style={[
+                    styles.button,
+                    isInWishlist(item) && {backgroundColor: '#FF817E'}, // Change button style if item is in wishlist
+                  ]}>
                   <Image
                     style={{height: 20, width: 20}}
                     source={require('../../assets/heart.png')}
@@ -470,9 +491,6 @@ const Home = ({navigation}) => {
                   borderBottomColor: 'gray',
                 }}></View>
             </ScrollView>
-            {/* End of ProductRows */}
-
-            {/* Your existing content */}
             <View
               style={{
                 flexDirection: 'row',
@@ -529,8 +547,8 @@ const styles = StyleSheet.create({
   head: {
     flexDirection: 'row',
     marginTop: 10,
-    alignItems:'center',
-    justifyContent:"center"
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   title: {
     borderWidth: 1,
@@ -613,22 +631,22 @@ const styles = StyleSheet.create({
   buttonsContainer: {
     flexDirection: 'row',
     marginTop: 5,
-    alignItems:"center",
-    justifyContent:'center',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   button: {
     borderWidth: 1,
     paddingVertical: 10,
     borderRadius: 5,
     flexDirection: 'row',
-    marginRight:5
+    marginRight: 5,
   },
   buttonqty: {
     borderWidth: 1,
     paddingVertical: 10,
     borderRadius: 5,
     flexDirection: 'row',
-    marginLeft:5
+    marginLeft: 5,
   },
   modalContainer: {
     flex: 1,
