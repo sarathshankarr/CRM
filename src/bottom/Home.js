@@ -292,37 +292,41 @@ const Home = ({navigation}) => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.head}>
-        <TouchableOpacity
-          style={[
-            styles.title,
-            selectedDetails === PRODUCT_DETAILS ? styles.activeCategory : null,
-          ]}
-          onPress={() => handleCategoryPress(PRODUCT_DETAILS)}>
-          <Text
-            style={
-              selectedDetails === PRODUCT_DETAILS ? styles.activeText : null
-            }>
-            CATEGORIES
-          </Text>
-        </TouchableOpacity>
+     <View style={styles.head}>
+  <View style={styles.titleContainer}>
+    <TouchableOpacity
+      style={[
+        styles.title,
+        selectedDetails === PRODUCT_DETAILS ? styles.activeCategory : null,
+      ]}
+      onPress={() => handleCategoryPress(PRODUCT_DETAILS)}>
+      <Text
+        style={
+          selectedDetails === PRODUCT_DETAILS ? styles.activeText : null
+        }>
+        CATEGORIES
+      </Text>
+    </TouchableOpacity>
+  </View>
 
-        <TouchableOpacity
-          style={[
-            styles.titleOne,
-            selectedDetails === AllPRODUCT_DETAILS
-              ? styles.activeCategory
-              : null,
-          ]}
-          onPress={() => handleCategoryPress(AllPRODUCT_DETAILS)}>
-          <Text
-            style={
-              selectedDetails === AllPRODUCT_DETAILS ? styles.activeText : null
-            }>
-            ALL PRODUCTS
-          </Text>
-        </TouchableOpacity>
-      </View>
+  <View style={styles.titleContainer}>
+    <TouchableOpacity
+      style={[
+        styles.titleone,
+        selectedDetails === AllPRODUCT_DETAILS ? styles.activeCategory : null,
+      ]}
+      onPress={() => handleCategoryPress(AllPRODUCT_DETAILS)}>
+      <Text
+        style={
+          selectedDetails === AllPRODUCT_DETAILS ? styles.activeText : null
+        }>
+        ALL PRODUCTS
+      </Text>
+    </TouchableOpacity>
+  </View>
+</View>
+
+
 
       <View style={styles.searchContainer}>
         {showSearchInput ? (
@@ -574,26 +578,28 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginTop: 10,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'center', // Center the content horizontally
+  },
+  titleContainer: {
+    alignItems: 'center',
   },
   title: {
     borderWidth: 1,
     borderColor: '#000',
     paddingVertical: 10,
+    paddingHorizontal: 45, // Adjust the width here
     borderTopLeftRadius: 20,
     borderBottomLeftRadius: 20,
-    paddingHorizontal: 45,
-    marginLeft: 30,
   },
-  titleOne: {
+  titleone: {
     borderWidth: 1,
     borderColor: '#000',
     paddingVertical: 10,
+    paddingHorizontal: 45, // Adjust the width here
     borderTopRightRadius: 20,
     borderBottomRightRadius: 20,
-    paddingHorizontal: 45,
-    marginRight: 30,
   },
+  
   activeCategory: {
     backgroundColor: 'green',
   },
