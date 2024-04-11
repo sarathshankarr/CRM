@@ -31,6 +31,9 @@ const HomeScreen = ({navigation}) => {
                 navigation={navigation}
                 title="Home"
                 showDrawerButton={showDrawerButton}
+                showMessageIcon={true}
+                showCartIcon={true}
+                showLocationIcon={true}
               />
             );
           },
@@ -57,6 +60,9 @@ const HomeScreen = ({navigation}) => {
                 navigation={navigation}
                 title="Categories"
                 showDrawerButton={showDrawerButton}
+                showMessageIcon={true}
+                showCartIcon={true}
+                showLocationIcon={true}
               />
             );
           },
@@ -83,6 +89,9 @@ const HomeScreen = ({navigation}) => {
                 navigation={navigation}
                 title="Order"
                 showDrawerButton={showDrawerButton}
+                showMessageIcon={true}
+                showCartIcon={true}
+                showLocationIcon={true}
               />
             );
           },

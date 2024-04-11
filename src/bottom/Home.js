@@ -16,13 +16,13 @@ import {
 import {PRODUCT_DETAILS} from '../components/ProductDetails';
 import {AllPRODUCT_DETAILS} from '../components/AllProductDetails';
 import {useDispatch, useSelector} from 'react-redux';
-import {addItemToCart, removeItemFromCart} from '../redux/action/Action';
-
+import {addItemToCart} from '../redux/actions/Actions';
 const ProductRow = ({
   label,
   copyImageSource,
   quantity,
   handleQuantityChange,
+  item,
   value1,
   value2,
   value3,
@@ -34,6 +34,7 @@ const ProductRow = ({
   setDoubleLargeQuantity,
   setTribleLargeQuantity,
   setFiveLargeQuantity,
+  openModal,
 }) => {
   const copyValueToClipboard = () => {
     setExtraSmallQuantity(quantity);
@@ -47,13 +48,12 @@ const ProductRow = ({
 
     Clipboard.setString(quantity);
   };
-
   return (
     <View style={styles.rowContainer}>
       <Text style={styles.label}>{label}</Text>
       <View style={styles.inputContainer}>
         <TextInput
-          style={{textAlign: 'center'}} 
+          style={{textAlign: 'center'}}
           keyboardType="numeric"
           value={quantity}
           onChangeText={handleQuantityChange}
@@ -61,7 +61,9 @@ const ProductRow = ({
         <View style={styles.underline}></View>
       </View>
       <View style={styles.spaceBetweenContainer}>
-        <Text style={{alignItems: 'center', marginLeft: 40}}>{value1}</Text>
+        <Text style={{alignItems: 'center', marginLeft: 30}}>
+          {item && item.price}
+        </Text>
         <Text style={{alignItems: 'center', marginLeft: 10}}>{value2}</Text>
         <Text style={{alignItems: 'center', marginLeft: 10}}>{value3}</Text>
         <TouchableOpacity onPress={copyValueToClipboard}>
@@ -73,6 +75,8 @@ const ProductRow = ({
 };
 
 const Home = ({navigation}) => {
+  const dispatch = useDispatch();
+  const cartItems = useSelector(state => state.cartItems);
   const [showSearchInput, setShowSearchInput] = useState(false);
   const [selectedDetails, setSelectedDetails] = useState(PRODUCT_DETAILS);
   const [modalVisible, setModalVisible] = useState(false);
@@ -119,54 +123,29 @@ const Home = ({navigation}) => {
     setTribleLargeQuantity('');
     setFiveLargeQuantity('');
   };
-  const dispatch = useDispatch();
-  const itemsInCart = useSelector(state => state);
-
-  useEffect(() => {
-    updateWishlistStatus();
-  }, []);
-
-  useEffect(() => {
-    updateWishlistStatus();
-  }, [itemsInCart]);
-
-  const updateWishlistStatus = () => {
-    const cartItemsMap = itemsInCart.reduce((acc, item) => {
-      acc[item.id] = true;
-      return acc;
-    }, {});
-
-    const updatedWishlist = {};
-    for (const itemId in wishlist) {
-      if (cartItemsMap[itemId]) {
-        updatedWishlist[itemId] = wishlist[itemId];
-      }
+  const handleSaveItem = () => {
+    if (selectedItem) {
+      const itemWithQuantity = {
+        ...selectedItem,
+        extraSmallQuantity,
+        smallQuantity,
+        mediumQuantity,
+        largeQuantity,
+        extralargeQuantity,
+        doublelargeQuantity,
+        triblelargeQuantity,
+        fivelargeQuantity,
+      };
+      dispatch(addItemToCart(itemWithQuantity)); // Dispatch the action with the item data and quantities
+      setModalVisible(false); // Close the modal after saving the item
     }
-
-    setWishlist(updatedWishlist);
   };
 
-  
-  const toggleWishlist = item => {
-    const updatedWishlist = { ...wishlist }; 
+  console.log(handleSaveItem);
 
-    if (isInWishlist(item)) {
-      dispatch(removeItemFromCart(item.id));
-      delete updatedWishlist[item.id];
-    } else {
-      dispatch(addItemToCart(item));
-      updatedWishlist[item.id] = item;
-    }
-
-    setWishlist(updatedWishlist);
+  const handleAddToCart = item => {
+    dispatch(addItemToCart(item)); // Dispatch the action with the item data
   };
-
-  const isInWishlist = item => {
-    return wishlist.hasOwnProperty(item.id); 
-  };
-
-
-  
 
   const toggleSearchInput = () => {
     setShowSearchInput(!showSearchInput);
@@ -193,8 +172,7 @@ const Home = ({navigation}) => {
     setModalVisible(true);
   };
 
-  const onBlurTextInput = () => {
-  };
+  const onBlurTextInput = () => {};
 
   const handleExtraSmallQuantityChange = text => {
     setExtraSmallQuantity(text);
@@ -221,7 +199,7 @@ const Home = ({navigation}) => {
   const handleFiveQuantityChange = text => {
     setFiveLargeQuantity(text);
   };
-  const renderProductItem = ({item}) => {
+  const renderProductItem = ({item, onAddToCart}) => {
     return (
       <TouchableOpacity
         style={styles.productItem}
@@ -258,19 +236,14 @@ const Home = ({navigation}) => {
             <View style={styles.notesContainer}>
               <Text>Notes: {item.disription}</Text>
               <View style={styles.buttonsContainer}>
-                <TouchableOpacity
-                  onPress={() => toggleWishlist(item)} 
-                  style={[
-                    styles.button,
-                    isInWishlist(item) && {backgroundColor: '#FF817E'}, 
-                  ]}>
+                <TouchableOpacity style={[styles.button]}>
                   <Image
                     style={{height: 20, width: 20}}
                     source={require('../../assets/heart.png')}
                   />
                   <Text>WISHLIST</Text>
                 </TouchableOpacity>
-                <View style={{marginHorizontal: 4}} /> 
+                <View style={{marginHorizontal: 4}} />
                 <TouchableOpacity
                   onPress={() => openModal(item)}
                   style={styles.buttonqty}>
@@ -288,45 +261,47 @@ const Home = ({navigation}) => {
     );
   };
 
-
-
   return (
     <View style={styles.container}>
-     <View style={styles.head}>
-  <View style={styles.titleContainer}>
-    <TouchableOpacity
-      style={[
-        styles.title,
-        selectedDetails === PRODUCT_DETAILS ? styles.activeCategory : null,
-      ]}
-      onPress={() => handleCategoryPress(PRODUCT_DETAILS)}>
-      <Text
-        style={
-          selectedDetails === PRODUCT_DETAILS ? styles.activeText : null
-        }>
-        CATEGORIES
-      </Text>
-    </TouchableOpacity>
-  </View>
+      <View style={styles.head}>
+        <View style={styles.titleContainer}>
+          <TouchableOpacity
+            style={[
+              styles.title,
+              selectedDetails === PRODUCT_DETAILS
+                ? styles.activeCategory
+                : null,
+            ]}
+            onPress={() => handleCategoryPress(PRODUCT_DETAILS)}>
+            <Text
+              style={
+                selectedDetails === PRODUCT_DETAILS ? styles.activeText : null
+              }>
+              CATEGORIES
+            </Text>
+          </TouchableOpacity>
+        </View>
 
-  <View style={styles.titleContainer}>
-    <TouchableOpacity
-      style={[
-        styles.titleone,
-        selectedDetails === AllPRODUCT_DETAILS ? styles.activeCategory : null,
-      ]}
-      onPress={() => handleCategoryPress(AllPRODUCT_DETAILS)}>
-      <Text
-        style={
-          selectedDetails === AllPRODUCT_DETAILS ? styles.activeText : null
-        }>
-        ALL PRODUCTS
-      </Text>
-    </TouchableOpacity>
-  </View>
-</View>
-
-
+        <View style={styles.titleContainer}>
+          <TouchableOpacity
+            style={[
+              styles.titleone,
+              selectedDetails === AllPRODUCT_DETAILS
+                ? styles.activeCategory
+                : null,
+            ]}
+            onPress={() => handleCategoryPress(AllPRODUCT_DETAILS)}>
+            <Text
+              style={
+                selectedDetails === AllPRODUCT_DETAILS
+                  ? styles.activeText
+                  : null
+              }>
+              ALL PRODUCTS
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
 
       <View style={styles.searchContainer}>
         {showSearchInput ? (
@@ -352,12 +327,13 @@ const Home = ({navigation}) => {
 
       <FlatList
         data={selectedDetails}
-        renderItem={renderProductItem}
+        renderItem={({item}) =>
+          renderProductItem({item, onAddToCart: handleAddToCart})
+        } // Pass handleAddToCart function here
         keyExtractor={item => item.id.toString()}
         numColumns={2}
         contentContainerStyle={styles.productList}
       />
-
       <Modal
         animationType="slide"
         transparent={true}
@@ -368,8 +344,7 @@ const Home = ({navigation}) => {
             styles.modalContainer,
             {marginBottom: keyboardSpace},
           ]}
-          keyboardShouldPersistTaps="handled" 
-        >
+          keyboardShouldPersistTaps="handled">
           <View style={styles.modalContent}>
             <View style={{backgroundColor: 'green', padding: 10}}>
               <Text style={{color: 'white', fontWeight: 'bold'}}>
@@ -407,12 +382,13 @@ const Home = ({navigation}) => {
             )}
             <ScrollView style={{maxHeight: '70%'}}>
               <ProductRow
+                item={selectedItem} // Pass the item object here
                 label=".Extra Small"
                 copyImageSource={require('../../assets/copy.png')}
                 quantity={extraSmallQuantity}
                 handleQuantityChange={handleExtraSmallQuantityChange}
-                value1="365" 
-                value2="N/A" 
+                price={selectedItem ? selectedItem.price : ''}
+                value2="N/A"
                 value3="N/A"
                 setExtraSmallQuantity={setExtraSmallQuantity}
                 setSmallQuantity={setSmallQuantity}
@@ -430,10 +406,11 @@ const Home = ({navigation}) => {
                   borderBottomColor: 'gray',
                 }}></View>
               <ProductRow
+                item={selectedItem} // Pass the item object here
                 label="1.Small"
                 quantity={smallQuantity}
                 handleQuantityChange={handleSmallQuantityChange}
-                value1="365"
+                price={selectedItem ? selectedItem.price : ''}
                 value2="N/A"
                 value3="N/A"
               />
@@ -443,10 +420,11 @@ const Home = ({navigation}) => {
                   borderBottomColor: 'gray',
                 }}></View>
               <ProductRow
+                item={selectedItem} // Pass the item object here
                 label="2.Medium"
                 quantity={mediumQuantity}
                 handleQuantityChange={handleMediumQuantityChange}
-                value1="145"
+                price={selectedItem ? selectedItem.price : ''}
                 value2="61"
                 value3="4"
               />
@@ -456,10 +434,11 @@ const Home = ({navigation}) => {
                   borderBottomColor: 'gray',
                 }}></View>
               <ProductRow
+                item={selectedItem} // Pass the item object here
                 label="3.Large"
                 quantity={largeQuantity}
                 handleQuantityChange={handleLargeQuantityChange}
-                value1="145"
+                price={selectedItem ? selectedItem.price : ''}
                 value2="61"
                 value3="4"
               />
@@ -469,10 +448,11 @@ const Home = ({navigation}) => {
                   borderBottomColor: 'gray',
                 }}></View>
               <ProductRow
+                item={selectedItem} // Pass the item object here
                 label="4.Extra Large"
                 quantity={extralargeQuantity}
                 handleQuantityChange={handleExtraQuantityChange}
-                value1="145"
+                price={selectedItem ? selectedItem.price : ''}
                 value2="61"
                 value3="4"
               />
@@ -482,10 +462,11 @@ const Home = ({navigation}) => {
                   borderBottomColor: 'gray',
                 }}></View>
               <ProductRow
+                item={selectedItem} // Pass the item object here
                 label="5.2x Large"
                 quantity={doublelargeQuantity}
                 handleQuantityChange={handlDoubleQuantityChange}
-                value1="145"
+                price={selectedItem ? selectedItem.price : ''}
                 value2="61"
                 value3="4"
               />
@@ -495,10 +476,11 @@ const Home = ({navigation}) => {
                   borderBottomColor: 'gray',
                 }}></View>
               <ProductRow
+                item={selectedItem} // Pass the item object here
                 label="6.3x Large"
                 quantity={triblelargeQuantity}
                 handleQuantityChange={handleTribleQuantityChange}
-                value1="145"
+                price={selectedItem ? selectedItem.price : ''}
                 value2="61"
                 value3="4"
               />
@@ -508,10 +490,11 @@ const Home = ({navigation}) => {
                   borderBottomColor: 'gray',
                 }}></View>
               <ProductRow
+                item={selectedItem} // Pass the item object here
                 label="7.5x Large"
                 quantity={fivelargeQuantity}
                 handleQuantityChange={handleFiveQuantityChange}
-                value1="145"
+                price={selectedItem ? selectedItem.price : ''}
                 value2="61"
                 value3="4"
               />
@@ -530,7 +513,7 @@ const Home = ({navigation}) => {
                 marginBottom: 30,
               }}>
               <TouchableOpacity
-                onPress={clearAllInputs} 
+                onPress={clearAllInputs}
                 style={{
                   borderWidth: 1,
                   borderColor: '#000',
@@ -546,10 +529,7 @@ const Home = ({navigation}) => {
               </TouchableOpacity>
 
               <TouchableOpacity
-                onPress={() => {
-                  addItem(selectedItem); 
-                  closeModal();
-                }}
+                onPress={handleSaveItem}
                 style={{
                   borderWidth: 1,
                   borderColor: '#000',
@@ -599,7 +579,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 20,
     borderBottomRightRadius: 20,
   },
-  
+
   activeCategory: {
     backgroundColor: 'green',
   },

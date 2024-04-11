@@ -39,6 +39,9 @@ const Routes = () => {
               <CommonHeader
                 navigation={navigation}
                 title="All Details"
+                showMessageIcon={true}
+                showCartIcon={true}
+                showLocationIcon={true}
               />
             ),
             headerBackVisible: true,
@@ -47,7 +50,16 @@ const Routes = () => {
         <Stack.Screen
           name="Cart"
           component={Cart}
-          options={{ headerShown: false }}
+          options={({ navigation }) => ({
+            header: () => (
+              <CommonHeader
+                navigation={navigation}
+                title="Order Priview"
+                showMessageIcon={true}
+              />
+            ),
+            headerBackVisible: true,
+          })}          
         />
         <Stack.Screen
           name="Profile"
@@ -62,6 +74,9 @@ const Routes = () => {
               <CommonHeader
                 navigation={navigation}
                 title="All Categories"
+                showMessageIcon={true}
+                showCartIcon={true}
+                showLocationIcon={true}
               />
             ),
             headerBackVisible: true,

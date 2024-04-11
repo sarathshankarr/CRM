@@ -4,52 +4,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { addItemToCart, removeItemFromCart } from '../../redux/action/Action';
 
 const AllCategoriesListed = ({ navigation, route }) => {
-  const [wishlist, setWishlist] = useState({});
-  const dispatch = useDispatch();
-  const itemsInCart = useSelector(state => state);
+  
 
-  useEffect(() => {
-    updateWishlistStatus();
-  }, []);
-
-  useEffect(() => {
-    updateWishlistStatus();
-  }, [itemsInCart]);
-
-  const updateWishlistStatus = () => {
-    const cartItemsMap = itemsInCart.reduce((acc, item) => {
-      acc[item.id] = true;
-      return acc;
-    }, {});
-
-    const updatedWishlist = {};
-    for (const itemId in wishlist) {
-      if (cartItemsMap[itemId]) {
-        updatedWishlist[itemId] = wishlist[itemId];
-      }
-    }
-
-    setWishlist(updatedWishlist);
-  };
-
-  const toggleWishlist = item => {
-    const updatedWishlist = { ...wishlist }; 
-
-    if (isInWishlist(item)) {
-    
-      dispatch(removeItemFromCart(item.id));
-      delete updatedWishlist[item.id];
-    } else {
-      dispatch(addItemToCart(item));
-      updatedWishlist[item.id] = item;
-    }
-
-    setWishlist(updatedWishlist); 
-  };
-
-  const isInWishlist = item => {
-    return wishlist.hasOwnProperty(item.id); 
-  };
 
   const {item} = route.params;
 
@@ -85,10 +41,8 @@ const AllCategoriesListed = ({ navigation, route }) => {
       </View>
       <View style={styles.buttonsContainer}>
       <TouchableOpacity
-                  onPress={() => toggleWishlist(item)} 
                   style={[
                     styles.button,
-                    isInWishlist(item) && {backgroundColor: '#FF817E'}, 
                   ]}>
                   <Image
                     style={{height: 20, width: 20}}

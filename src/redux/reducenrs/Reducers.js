@@ -1,14 +1,39 @@
-import { ADD_ITEM, REMOVE_ITEM } from '../ActionTypes';
+import { ADD_TO_CART, REMOVE_FROM_CART, UPDATE_CART_ITEM } from '../ActionTypes';
 
-export const Reducers = (state = [], action) => {
+const initialState = {
+  cartItems: [],
+  // Add other initial states as needed
+};
+
+const reducers = (state = initialState, action) => {
   switch (action.type) {
-    case ADD_ITEM:
-      return [...state, action.payload];
-
-    case REMOVE_ITEM:
-      return state.filter(item => item.id !== action.payload);
-
+    case ADD_TO_CART:
+      return {
+        ...state,
+        cartItems: [...state.cartItems, action.payload],
+      };
+    case REMOVE_FROM_CART:
+      return {
+        ...state,
+        cartItems: state.cartItems.filter((item, index) => index !== action.payload),
+      };
+    case UPDATE_CART_ITEM:
+      return {
+        ...state,
+        cartItems: state.cartItems.map((item, index) => {
+          if (index === action.payload.index) {
+            // Update the quantity of the specified field
+            return {
+              ...item,
+              [action.payload.field]: action.payload.quantity,
+            };
+          }
+          return item;
+        }),
+      };
     default:
       return state;
   }
 };
+
+export default reducers;

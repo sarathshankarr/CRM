@@ -14,7 +14,7 @@ export const AllPRODUCT_DETAILS=[
     {
         id:2,
         name:"Cotton",
-        price:"10000",
+        price:"20000",
         tags:"null",
         disription:"Watch out this space for more details",
         image:require('../../assets/img1.jpg'),
@@ -27,7 +27,7 @@ export const AllPRODUCT_DETAILS=[
     {
         id:3,
         name:"Premium",
-        price:"10000",
+        price:"30000",
         tags:"null",
         disription:"Watch out this space for more details",
         image:require('../../assets/img1.jpg'),
@@ -40,7 +40,7 @@ export const AllPRODUCT_DETAILS=[
     {
         id:4,
         name:"Premium",
-        price:"10000",
+        price:"40000",
         tags:"null",
         disription:"Watch out this space for more details",
         image:require('../../assets/img1.jpg'),
@@ -53,7 +53,7 @@ export const AllPRODUCT_DETAILS=[
     {
         id:5,
         name:"Premium",
-        price:"10000",
+        price:"50000",
         tags:"null",
         disription:"Watch out this space for more details",
         image:require('../../assets/img1.jpg'),
@@ -66,7 +66,7 @@ export const AllPRODUCT_DETAILS=[
     {
         id:6,
         name:"Vip",
-        price:"10000",
+        price:"60000",
         tags:"null",
         disription:"Watch out this space for more details",
         image:require('../../assets/img1.jpg'),

@@ -3,10 +3,10 @@ import {NavigationContainer} from '@react-navigation/native';
 import Routes from './src/navigation/Routes';
 import 'react-native-gesture-handler';
 import { Provider } from 'react-redux';
-import { mystore } from './src/redux/store/Store';
+import store from './src/redux/store/Store';
 const App = () => {
   return (
-    <Provider store={mystore}>
+    <Provider store={store}>
       <Routes/>
     </Provider>
   );
