@@ -1,17 +1,22 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Text, View, Image, StyleSheet, TouchableOpacity } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { addItemToCart } from '../../redux/actions/Actions';
+import ModalComponent from '../../components/ModelComponent';
 
 const AllCategoriesListed = ({ navigation, route }) => {
-  
+  const { item } = route.params;
+  const dispatch = useDispatch();
+  const [modalVisible, setModalVisible] = useState(false); // State for modal visibility
 
-
-  const {item} = route.params;
+  const toggleModal = () => {
+    setModalVisible(!modalVisible); // Toggle modal visibility
+  };
 
   const addItem = item => {
     dispatch(addItemToCart(item));
   };
+
   const navigateToDetails = () => {
     navigation.navigate('Details', {
       item,
@@ -21,8 +26,8 @@ const AllCategoriesListed = ({ navigation, route }) => {
       image3: item.image3,
       image4: item.image4,
       image5: item.image5,
-      category: item.category, 
-      set: item.set, 
+      category: item.category,
+      set: item.set,
     });
   };
 
@@ -40,24 +45,26 @@ const AllCategoriesListed = ({ navigation, route }) => {
         </View>
       </View>
       <View style={styles.buttonsContainer}>
-      <TouchableOpacity
-                  style={[
-                    styles.button,
-                  ]}>
-                  <Image
-                    style={{height: 20, width: 20}}
-                    source={require('../../../assets/heart.png')}
-                  />
-                  <Text>WISHLIST</Text>
-                </TouchableOpacity>
-        <TouchableOpacity style={styles.buttonqty}>
+        <TouchableOpacity style={styles.button} onPress={toggleModal}>
           <Image
-            style={{height: 20, width: 20}}
+            style={{ height: 20, width: 20 }}
+            source={require('../../../assets/heart.png')}
+          />
+          <Text>WISHLIST</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.buttonqty} onPress={toggleModal}>
+          <Image
+            style={{ height: 20, width: 20 }}
             source={require('../../../assets/qty.png')}
           />
           <Text>ADD QTY</Text>
         </TouchableOpacity>
       </View>
+      <ModalComponent // Render the ModalComponent
+        modalVisible={modalVisible}
+        closeModal={() => setModalVisible(false)}
+        selectedItem={item} // Pass the selected item to ModalComponent
+      />
     </TouchableOpacity>
   );
 };
@@ -69,11 +76,11 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   touchableContent: {
-    width: '100%', 
+    width: '100%',
   },
   productImageContainer: {
     position: 'relative',
-    width: '50%', 
+    width: '50%',
   },
   productImage: {
     width: '100%',
@@ -93,7 +100,7 @@ const styles = StyleSheet.create({
     marginLeft: 5,
   },
   detailsContainer: {
-    width: '50%', 
+    width: '50%',
     paddingHorizontal: 5,
     paddingVertical: 10,
   },

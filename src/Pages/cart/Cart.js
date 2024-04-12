@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
   Image,
   ScrollView,
@@ -8,14 +8,14 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {useDispatch, useSelector} from 'react-redux';
-import {removeFromCart, updateCartItem} from '../../redux/actions/Actions';
+import { useDispatch, useSelector } from 'react-redux';
+import { removeFromCart, updateCartItem } from '../../redux/actions/Actions';
 
 const Cart = () => {
-  const cartItems = useSelector(state => state.cartItems);
+  const cartItems = useSelector((state) => state.cartItems);
   const dispatch = useDispatch();
 
-  const handleRemoveItem = itemIndex => {
+  const handleRemoveItem = (itemIndex) => {
     dispatch(removeFromCart(itemIndex));
   };
   const handleQuantityChange = (index, field, text) => {
@@ -27,8 +27,6 @@ const Cart = () => {
     }
   };
   const totalItems = cartItems.length;
-
- 
 
   const totalQty = cartItems.reduce((total, item) => {
     return (
@@ -43,11 +41,11 @@ const Cart = () => {
       (parseInt(item.fivelargeQuantity) || 0)
     );
   }, 0);
-  
+
   const totalPrice = cartItems.reduce((total, item) => {
     return (
       total +
-      (parseInt(item.price) *
+      parseInt(item.price) *
         ((parseInt(item.extraSmallQuantity) || 0) +
           (parseInt(item.smallQuantity) || 0) +
           (parseInt(item.mediumQuantity) || 0) +
@@ -55,12 +53,13 @@ const Cart = () => {
           (parseInt(item.extralargeQuantity) || 0) +
           (parseInt(item.doublelargeQuantity) || 0) +
           (parseInt(item.triblelargeQuantity) || 0) +
-          (parseInt(item.fivelargeQuantity) || 0)))
+          (parseInt(item.fivelargeQuantity) || 0))
     );
   }, 0);
-  
+
   return (
-    <ScrollView style={style.container}>
+    <View style={{ flex: 1 }}>
+       <ScrollView style={style.container}>
       <View style={style.header}>
         <Text style={style.txt}>Total Items: {totalItems}</Text>
       </View>
@@ -399,36 +398,40 @@ const Cart = () => {
                 borderBottomColor: 'gray',
                 paddingVertical: 10,
               }}></View>
-           
           </View>
         ))}
-        <View style={{flex: 1, flexDirection: 'row', alignItems: 'center',marginLeft:20}}>
-    <View style={{flex: 1}}>
-      <Text>Total Qty:</Text>
-    </View>
-    <View style={{flex: 1}}>
-      <Text>Total Set:</Text>
-    </View>
-    <View style={{flex: 1}}>
-      <Text>Total Amt: </Text>
-    </View>
-  </View>
-  <View style={{flexDirection:"row",flex:1,alignItems:"center",marginLeft:40}}>
-    <View style={{flex:1}}>
-    <Text>{totalQty}</Text>
-
-    </View>
-  <View style={{flex:1}}>
-    <Text>{totalQty}</Text>
-  </View>
-  <View style={{flex:1}}>
-    <Text>{totalPrice}</Text>
-  </View>
-  </View>
-  <TouchableOpacity style={{borderWidth:1,borderColor:"green",backgroundColor:"green",marginVertical:5,paddingVertical:15}}>
-    <Text style={{textAlign:"center",color:"#fff",fontWeight:'bold',fontSize:20}}>PLACE ORDER</Text>
-  </TouchableOpacity>
     </ScrollView>
+      <View style={style.bottomContainer}>
+        <View style={{ flex: 1 }}>
+          <Text>Total Qty: {totalQty}</Text>
+        </View>
+        <View style={{ flex: 1 }}>
+          <Text>Total Set: {totalItems}</Text>
+        </View>
+        <View style={{ flex: 1 }}>
+          <Text>Total Amt: {totalPrice}</Text>
+        </View>
+      </View>
+      <TouchableOpacity
+        style={{
+          borderWidth: 1,
+          borderColor: 'green',
+          backgroundColor: 'green',
+          marginVertical: 5,
+          paddingVertical: 15,
+          paddingHorizontal: 20,
+        }}>
+        <Text
+          style={{
+            textAlign: 'center',
+            color: '#fff',
+            fontWeight: 'bold',
+            fontSize: 20,
+          }}>
+          PLACE ORDER
+        </Text>
+      </TouchableOpacity>
+    </View>
   );
 };
 
@@ -468,6 +471,15 @@ const style = StyleSheet.create({
     width: 25,
     height: 25,
     marginLeft: 10,
+  },
+  bottomContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderTopWidth: 1,
+    borderTopColor: 'lightgray',
+    backgroundColor: '#fff',
   },
 });
 

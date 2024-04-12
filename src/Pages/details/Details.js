@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Text,
   View,
@@ -8,10 +8,11 @@ import {
   TouchableOpacity,
   Dimensions,
 } from 'react-native';
-import {SliderBox} from 'react-native-image-slider-box';
-import {useDispatch} from 'react-redux';
+import { SliderBox } from 'react-native-image-slider-box';
+import { useDispatch } from 'react-redux';
 import { addItemToCart } from '../../redux/actions/Actions';
-const Details = ({route}) => {
+import ModalComponent from '../../components/ModelComponent';
+const Details = ({ route }) => {
   const {
     item,
     name,
@@ -27,10 +28,16 @@ const Details = ({route}) => {
 
   const images = [image, image2, image3, image4, image5];
   const dispatch = useDispatch();
+  const [modalVisible, setModalVisible] = useState(false); // State for modal visibility
+
+  const toggleModal = () => {
+    setModalVisible(!modalVisible); // Toggle modal visibility
+  };
 
   const addItem = item => {
     dispatch(addItemToCart(item));
   };
+
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollView}>
@@ -66,13 +73,14 @@ const Details = ({route}) => {
           <Text style={styles.txt}>{item.disription}</Text>
         </View>
       </ScrollView>
-      <TouchableOpacity
-        onPress={() => {
-          addItem(item);
-        }}
-        style={styles.buttonContainer}>
+      <TouchableOpacity onPress={toggleModal} style={styles.buttonContainer}>
         <Text style={styles.buttonText}>ADD QUANTITY</Text>
       </TouchableOpacity>
+      <ModalComponent
+        modalVisible={modalVisible}
+        closeModal={() => setModalVisible(false)}
+        selectedItem={item}
+      />
     </View>
   );
 };
