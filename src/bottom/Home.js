@@ -11,12 +11,13 @@ import {
   Keyboard,
   Platform,
   ScrollView,
-  Clipboard,
 } from 'react-native';
 import {PRODUCT_DETAILS} from '../components/ProductDetails';
 import {AllPRODUCT_DETAILS} from '../components/AllProductDetails';
 import {useDispatch, useSelector} from 'react-redux';
 import {addItemToCart} from '../redux/actions/Actions';
+import Clipboard from '@react-native-clipboard/clipboard';
+
 const ProductRow = ({
   label,
   copyImageSource,

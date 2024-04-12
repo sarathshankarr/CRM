@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import {SliderBox} from 'react-native-image-slider-box';
 import {useDispatch} from 'react-redux';
-import {addItemToCart} from '../../redux/action/Action';
+import { addItemToCart } from '../../redux/actions/Actions';
 const Details = ({route}) => {
   const {
     item,

@@ -26,9 +26,39 @@ const Cart = () => {
       dispatch(updateCartItem(index, field, quantity));
     }
   };
-
   const totalItems = cartItems.length;
 
+ 
+
+  const totalQty = cartItems.reduce((total, item) => {
+    return (
+      total +
+      (parseInt(item.extraSmallQuantity) || 0) +
+      (parseInt(item.smallQuantity) || 0) +
+      (parseInt(item.mediumQuantity) || 0) +
+      (parseInt(item.largeQuantity) || 0) +
+      (parseInt(item.extralargeQuantity) || 0) +
+      (parseInt(item.doublelargeQuantity) || 0) +
+      (parseInt(item.triblelargeQuantity) || 0) +
+      (parseInt(item.fivelargeQuantity) || 0)
+    );
+  }, 0);
+  
+  const totalPrice = cartItems.reduce((total, item) => {
+    return (
+      total +
+      (parseInt(item.price) *
+        ((parseInt(item.extraSmallQuantity) || 0) +
+          (parseInt(item.smallQuantity) || 0) +
+          (parseInt(item.mediumQuantity) || 0) +
+          (parseInt(item.largeQuantity) || 0) +
+          (parseInt(item.extralargeQuantity) || 0) +
+          (parseInt(item.doublelargeQuantity) || 0) +
+          (parseInt(item.triblelargeQuantity) || 0) +
+          (parseInt(item.fivelargeQuantity) || 0)))
+    );
+  }, 0);
+  
   return (
     <ScrollView style={style.container}>
       <View style={style.header}>
@@ -115,37 +145,6 @@ const Cart = () => {
                   borderBottomWidth: 1,
                   borderBottomColor: 'gray',
                 }}></View>
-
-                <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                <View style={{flex: 1}}>
-                  <Text>.Extra Small</Text>
-                </View>
-                <View style={{flex: 0.7, justifyContent: 'center'}}>
-                  <TextInput
-                    style={{alignItems: 'center', marginLeft: 17}}
-                    value={item.extraSmallQuantity.toString()}
-                    onChangeText={text =>
-                      handleQuantityChange(index, 'extraSmallQuantity', text)
-                    }
-                    keyboardType="numeric"
-                  />
-                  <View
-                    style={{
-                      borderBottomWidth: 1,
-                      borderBottomColor: 'gray',
-                      marginRight: 50,
-                    }}></View>
-                </View>
-                <View style={{flex: 1}}>
-                  <Text>{item.price}</Text>
-                </View>
-              </View>
-              <View
-                style={{
-                  paddingVertical: 5,
-                  borderBottomWidth: 1,
-                  borderBottomColor: 'gray',
-                }}></View>
               <View style={{flexDirection: 'row', alignItems: 'center'}}>
                 <View style={{flex: 1}}>
                   <Text>Small Quantity:</Text>
@@ -178,8 +177,7 @@ const Cart = () => {
                   borderBottomColor: 'gray',
                 }}></View>
 
-
-<View style={{flexDirection: 'row', alignItems: 'center'}}>
+              <View style={{flexDirection: 'row', alignItems: 'center'}}>
                 <View style={{flex: 1}}>
                   <Text>Medium Quantity:</Text>
                 </View>
@@ -188,7 +186,8 @@ const Cart = () => {
                     style={{alignItems: 'center', marginLeft: 17}}
                     value={item.mediumQuantity.toString()}
                     onChangeText={
-                      text => handleQuantityChange(index, 'smallQuantity', text) // Use 'smallQuantity' as the field parameter
+                      text =>
+                        handleQuantityChange(index, 'mediumQuantity', text) // Use 'smallQuantity' as the field parameter
                     }
                     keyboardType="numeric"
                   />
@@ -210,7 +209,6 @@ const Cart = () => {
                   borderBottomWidth: 1,
                   borderBottomColor: 'gray',
                 }}></View>
-              
 
               <View style={{flexDirection: 'row', alignItems: 'center'}}>
                 <View style={{flex: 1}}>
@@ -221,7 +219,7 @@ const Cart = () => {
                     style={{alignItems: 'center', marginLeft: 17}}
                     value={item.largeQuantity.toString()}
                     onChangeText={
-                      text => handleQuantityChange(index, 'smallQuantity', text) // Use 'smallQuantity' as the field parameter
+                      text => handleQuantityChange(index, 'largeQuantity', text) // Use 'smallQuantity' as the field parameter
                     }
                     keyboardType="numeric"
                   />
@@ -243,18 +241,18 @@ const Cart = () => {
                   borderBottomWidth: 1,
                   borderBottomColor: 'gray',
                 }}></View>
-             
-             
-             <View style={{flexDirection: 'row', alignItems: 'center'}}>
+
+              <View style={{flexDirection: 'row', alignItems: 'center'}}>
                 <View style={{flex: 1}}>
                   <Text>Extra Large Quantity:</Text>
                 </View>
                 <View style={{flex: 0.7, justifyContent: 'center'}}>
                   <TextInput
                     style={{alignItems: 'center', marginLeft: 17}}
-                    value={item.extralargeQuantity.toString()}
+                    value={item.extralargeQuantity?.toString()}
                     onChangeText={
-                      text => handleQuantityChange(index, 'smallQuantity', text) // Use 'smallQuantity' as the field parameter
+                      text =>
+                        handleQuantityChange(index, 'extralargeQuantity', text) // Use 'smallQuantity' as the field parameter
                     }
                     keyboardType="numeric"
                   />
@@ -276,17 +274,18 @@ const Cart = () => {
                   borderBottomWidth: 1,
                   borderBottomColor: 'gray',
                 }}></View>
-             
-             <View style={{flexDirection: 'row', alignItems: 'center'}}>
+
+              <View style={{flexDirection: 'row', alignItems: 'center'}}>
                 <View style={{flex: 1}}>
                   <Text>2x Large Quantity:</Text>
                 </View>
                 <View style={{flex: 0.7, justifyContent: 'center'}}>
                   <TextInput
                     style={{alignItems: 'center', marginLeft: 17}}
-                    value={item.doublelargeQuantity.toString()}
+                    value={item.doublelargeQuantity?.toString()}
                     onChangeText={
-                      text => handleQuantityChange(index, 'smallQuantity', text) // Use 'smallQuantity' as the field parameter
+                      text =>
+                        handleQuantityChange(index, 'doublelargeQuantity', text) // Use 'smallQuantity' as the field parameter
                     }
                     keyboardType="numeric"
                   />
@@ -308,16 +307,20 @@ const Cart = () => {
                   borderBottomWidth: 1,
                   borderBottomColor: 'gray',
                 }}></View>
- <View style={{flexDirection: 'row', alignItems: 'center'}}>
+              <View style={{flexDirection: 'row', alignItems: 'center'}}>
                 <View style={{flex: 1}}>
                   <Text>3x Large Quantity:</Text>
                 </View>
                 <View style={{flex: 0.7, justifyContent: 'center'}}>
                   <TextInput
                     style={{alignItems: 'center', marginLeft: 17}}
-                    value={item.doublelargeQuantity.toString()}
-                    onChangeText={
-                      text => handleQuantityChange(index, 'smallQuantity', text) // Use 'smallQuantity' as the field parameter
+                    value={
+                      item && item.triblelargeQuantity !== undefined
+                        ? item.triblelargeQuantity.toString()
+                        : ''
+                    }
+                    onChangeText={text =>
+                      handleQuantityChange(index, 'triblelargeQuantity', text)
                     }
                     keyboardType="numeric"
                   />
@@ -339,17 +342,21 @@ const Cart = () => {
                   borderBottomWidth: 1,
                   borderBottomColor: 'gray',
                 }}></View>
-             
-             <View style={{flexDirection: 'row', alignItems: 'center'}}>
+
+              <View style={{flexDirection: 'row', alignItems: 'center'}}>
                 <View style={{flex: 1}}>
                   <Text>5x Large Quantity: </Text>
                 </View>
                 <View style={{flex: 0.7, justifyContent: 'center'}}>
                   <TextInput
                     style={{alignItems: 'center', marginLeft: 17}}
-                    value={item.fivelargeQuantity.toString()}
-                    onChangeText={
-                      text => handleQuantityChange(index, 'smallQuantity', text) // Use 'smallQuantity' as the field parameter
+                    value={
+                      item && item.fivelargeQuantity
+                        ? item.fivelargeQuantity.toString()
+                        : ''
+                    }
+                    onChangeText={text =>
+                      handleQuantityChange(index, 'fivelargeQuantity', text)
                     }
                     keyboardType="numeric"
                   />
@@ -371,12 +378,56 @@ const Cart = () => {
                   borderBottomWidth: 1,
                   borderBottomColor: 'gray',
                 }}></View>
-             
-
-              
+              <View>
+                <Text style={style.txt}>Total: {totalItems}</Text>
+              </View>
             </View>
+            <View>
+              <TextInput placeholder="Expected Delivery Date" />
+            </View>
+            <View
+              style={{
+                borderBottomWidth: 1,
+                borderBottomColor: 'gray',
+              }}></View>
+            <View>
+              <TextInput placeholder="Add Note" />
+            </View>
+            <View
+              style={{
+                borderBottomWidth: 1,
+                borderBottomColor: 'gray',
+                paddingVertical: 10,
+              }}></View>
+           
           </View>
         ))}
+        <View style={{flex: 1, flexDirection: 'row', alignItems: 'center',marginLeft:20}}>
+    <View style={{flex: 1}}>
+      <Text>Total Qty:</Text>
+    </View>
+    <View style={{flex: 1}}>
+      <Text>Total Set:</Text>
+    </View>
+    <View style={{flex: 1}}>
+      <Text>Total Amt: </Text>
+    </View>
+  </View>
+  <View style={{flexDirection:"row",flex:1,alignItems:"center",marginLeft:40}}>
+    <View style={{flex:1}}>
+    <Text>{totalQty}</Text>
+
+    </View>
+  <View style={{flex:1}}>
+    <Text>{totalQty}</Text>
+  </View>
+  <View style={{flex:1}}>
+    <Text>{totalPrice}</Text>
+  </View>
+  </View>
+  <TouchableOpacity style={{borderWidth:1,borderColor:"green",backgroundColor:"green",marginVertical:5,paddingVertical:15}}>
+    <Text style={{textAlign:"center",color:"#fff",fontWeight:'bold',fontSize:20}}>PLACE ORDER</Text>
+  </TouchableOpacity>
     </ScrollView>
   );
 };

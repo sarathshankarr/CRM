@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Text, View, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { addItemToCart, removeItemFromCart } from '../../redux/action/Action';
+import { addItemToCart } from '../../redux/actions/Actions';
 
 const AllCategoriesListed = ({ navigation, route }) => {
   
