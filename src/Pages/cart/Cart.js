@@ -11,10 +11,41 @@ import {
 import {useDispatch, useSelector} from 'react-redux';
 import {removeFromCart, updateCartItem} from '../../redux/actions/Actions';
 import Clipboard from '@react-native-clipboard/clipboard';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import { useNavigation } from '@react-navigation/native';
 
 const Cart = () => {
+  const navigation = useNavigation();
   const cartItems = useSelector(state => state.cartItems);
   const dispatch = useDispatch();
+
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+  const [selatedDate, setSelectedDate] = useState('Expexted Delivery Date');
+
+  const showDatePicker = () => {
+    setDatePickerVisibility(true);
+  };
+
+  const hideDatePicker = () => {
+    setDatePickerVisibility(false);
+  };
+
+  const handleDateConfirm = date => {
+    console.warn('A date has been picked: ', date);
+    const dt = new Date(date);
+    const x = dt.toISOString().split('T');
+    const x1 = x[0].split('-');
+    const formattedDate = x1[2] + '/' + x1[1] + '/' + x1[0];
+    const formattedTime = dt.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: 'numeric',
+      hour12: true,
+    });
+    setSelectedDate(
+      'Expected Delivery Date: ' + formattedDate + ' ' + formattedTime,
+    );
+    hideDatePicker();
+  };
 
   const handleCopyToClipboard = (quantity, field, index) => {
     // Update all quantity fields
@@ -99,7 +130,9 @@ const Cart = () => {
                       source={require('../../../assets/edit.png')}
                     />
                   </TouchableOpacity>
-                  <TouchableOpacity>
+                  <TouchableOpacity onPress={()=>{
+                    navigation.navigate("Add Note")
+                  }}>
                     <Image
                       style={style.buttonIcon}
                       source={require('../../../assets/save.png')}
@@ -423,56 +456,86 @@ const Cart = () => {
                   <Text style={style.txt}>Total: {totalItems}</Text>
                 </View>
               </View>
-              <View>
-                <TextInput placeholder="Expected Delivery Date" />
-              </View>
-              <View
-                style={{
-                  borderBottomWidth: 1,
-                  borderBottomColor: 'gray',
-                }}></View>
-              <View>
-                <TextInput placeholder="Add Note" />
-              </View>
-              <View
-                style={{
-                  borderBottomWidth: 1,
-                  borderBottomColor: 'gray',
-                  paddingVertical: 10,
-                }}></View>
             </View>
           ))}
       </ScrollView>
-      <View style={style.bottomContainer}>
-        <View style={{flex: 1}}>
-          <Text>Total Qty: {totalQty}</Text>
+      <View style={{backgroundColor: '#fff'}}>
+        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+          <TouchableOpacity
+            onPress={showDatePicker}
+            style={{flexDirection: 'row', alignItems: 'center'}}>
+            <View style={{paddingVertical: 10}}>
+              <Text>{selatedDate}</Text>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{
+              justifyContent: 'center',
+              alignItems: 'center',
+              marginHorizontal: 10,
+            }}
+            onPress={showDatePicker}>
+            <Image
+              style={style.dateIcon}
+              source={require('../../../assets/date.png')}
+            />
+          </TouchableOpacity>
         </View>
-        <View style={{flex: 1}}>
-          <Text>Total Set: {totalItems}</Text>
-        </View>
-        <View style={{flex: 1}}>
-          <Text>Total Amt: {totalPrice}</Text>
-        </View>
-      </View>
-      <TouchableOpacity
-        style={{
-          borderWidth: 1,
-          borderColor: 'green',
-          backgroundColor: 'green',
-          marginVertical: 5,
-          paddingVertical: 15,
-          paddingHorizontal: 20,
-        }}>
-        <Text
+
+        <View
           style={{
-            textAlign: 'center',
-            color: '#fff',
-            fontWeight: 'bold',
-            fontSize: 20,
+            borderBottomWidth: 1,
+            borderBottomColor: 'gray',
+            marginTop: 10,
+          }}></View>
+        <View>
+          <TextInput placeholder="Add Note" />
+        </View>
+        <View
+          style={{
+            borderBottomWidth: 1,
+            borderBottomColor: 'gray',
+            paddingVertical: 10,
+          }}></View>
+
+        <View style={style.bottomContainer}>
+          <View style={{flex: 1}}>
+            <Text>Total Qty: {totalQty}</Text>
+          </View>
+          <View style={{flex: 1}}>
+            <Text>Total Set: {totalItems}</Text>
+          </View>
+          <View style={{flex: 1}}>
+            <Text>Total Amt: {totalPrice}</Text>
+          </View>
+        </View>
+        <TouchableOpacity
+          style={{
+            borderWidth: 1,
+            borderColor: 'green',
+            backgroundColor: 'green',
+            marginVertical: 5,
+            paddingVertical: 15,
+            paddingHorizontal: 20,
           }}>
-          PLACE ORDER
-        </Text>
-      </TouchableOpacity>
+          <Text
+            style={{
+              textAlign: 'center',
+              color: '#fff',
+              fontWeight: 'bold',
+              fontSize: 20,
+            }}>
+            PLACE ORDER
+          </Text>
+        </TouchableOpacity>
+
+        <DateTimePickerModal
+          isVisible={isDatePickerVisible}
+          mode="date"
+          onConfirm={handleDateConfirm}
+          onCancel={hideDatePicker}
+        />
+      </View>
     </View>
   );
 };
@@ -522,6 +585,15 @@ const style = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: 'lightgray',
     backgroundColor: '#fff',
+  },
+  dateIconContainer: {
+    justifyContent: 'center', // Center the icon vertically
+    paddingLeft: 20, // Add some padding to the left
+    marginHorizontal: 15,
+  },
+  dateIcon: {
+    height: 25,
+    width: 25,
   },
 });
 

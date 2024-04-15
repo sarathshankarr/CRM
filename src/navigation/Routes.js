@@ -9,6 +9,8 @@ import Cart from '../Pages/cart/Cart';
 import Profile from '../Pages/editprofile/EditProfile';
 import AllCategoriesListed from '../Pages/allcategorieslisted/AllCategoriesListed';
 import CommonHeader from '../components/CommonHeader';
+import Notes from '../Pages/notes/AddNote';
+import AddNote from '../Pages/notes/AddNote';
 
 const Stack = createNativeStackNavigator();
 
@@ -82,7 +84,13 @@ const Routes = () => {
             headerBackVisible: true,
           })}
         />
+        <Stack.Screen
+          name="Add Note"
+          component={AddNote}
+          options={{ headerShown: true }}
+        />
       </Stack.Navigator>
+
     </NavigationContainer>
   );
 };
