@@ -28,10 +28,10 @@ const Details = ({ route }) => {
 
   const images = [image, image2, image3, image4, image5];
   const dispatch = useDispatch();
-  const [modalVisible, setModalVisible] = useState(false); // State for modal visibility
+  const [modalVisible, setModalVisible] = useState(false); 
 
   const toggleModal = () => {
-    setModalVisible(!modalVisible); // Toggle modal visibility
+    setModalVisible(!modalVisible); 
   };
 
   const addItem = item => {
