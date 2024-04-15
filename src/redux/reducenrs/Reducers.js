@@ -1,7 +1,8 @@
-import { ADD_TO_CART, REMOVE_FROM_CART, UPDATE_CART_ITEM } from '../ActionTypes';
+import { ADD_SELECTED_IMAGE, ADD_TO_CART, REMOVE_FROM_CART, REMOVE_SELECTED_IMAGE, UPDATE_CART_ITEM } from '../ActionTypes';
 
 const initialState = {
-  cartItems: [],
+  cartItems: [], 
+   selectedImages: [],
   // Add other initial states as needed
 };
 
@@ -31,9 +32,22 @@ const reducers = (state = initialState, action) => {
           return item;
         }),
       };
+      case ADD_SELECTED_IMAGE:
+      return {
+        ...state,
+        selectedImages: [...state.selectedImages, action.payload],
+      };
+    case REMOVE_SELECTED_IMAGE:
+      return {
+        ...state,
+        selectedImages: state.selectedImages.filter(image => image !== action.payload),
+      };
     default:
       return state;
+      
+      
   }
+
 };
 
 export default reducers;
