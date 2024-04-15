@@ -36,14 +36,14 @@ const Cart = () => {
   const handleRemoveItem = itemIndex => {
     dispatch(removeFromCart(itemIndex));
   };
+
   const handleQuantityChange = (index, field, text) => {
-    // Convert text to a number
-    const quantity = parseInt(text, 10);
-    if (!isNaN(quantity)) {
-      // Dispatch action to update the cart item
-      dispatch(updateCartItem(index, field, quantity));
-    }
+    const currentItem = cartItems[index];
+    const newQuantity = text === '' ? '' : parseInt(text).toString(); // Convert empty string to actual empty string or integer
+    const newCartItem = {...currentItem, [field]: newQuantity};
+    dispatch(updateCartItem(index, field, newQuantity));
   };
+
   const totalItems = cartItems.length;
 
   const totalQty = cartItems.reduce((total, item) => {
@@ -139,7 +139,7 @@ const Cart = () => {
                   <View style={{flex: 0.7, justifyContent: 'center'}}>
                     <TextInput
                       style={{alignItems: 'center', marginLeft: 17}}
-                      value={item.extraSmallQuantity.toString()}
+                      value={item.extraSmallQuantity.toString()} // Assuming extraSmallQuantity is a string
                       onChangeText={text =>
                         handleQuantityChange(index, 'extraSmallQuantity', text)
                       }

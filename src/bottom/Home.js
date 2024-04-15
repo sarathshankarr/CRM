@@ -121,9 +121,10 @@ const Home = ({navigation}) => {
             ]}
             onPress={() => handleCategoryPress(PRODUCT_DETAILS)}>
             <Text
-              style={
-                selectedDetails === PRODUCT_DETAILS ? styles.activeText : null
-              }>
+              style={[
+                selectedDetails === PRODUCT_DETAILS ? styles.activeText : null ,
+                { marginHorizontal: 40 }
+              ]}>
               CATEGORIES
             </Text>
           </TouchableOpacity>
@@ -139,11 +140,12 @@ const Home = ({navigation}) => {
             ]}
             onPress={() => handleCategoryPress(AllPRODUCT_DETAILS)}>
             <Text
-              style={
+              style={[
                 selectedDetails === AllPRODUCT_DETAILS
                   ? styles.activeText
-                  : null
-              }>
+                  : null,
+                  { marginHorizontal: 40 }
+              ]}>
               ALL PRODUCTS
             </Text>
           </TouchableOpacity>
@@ -198,27 +200,26 @@ const styles = StyleSheet.create({
   head: {
     flexDirection: 'row',
     marginTop: 10,
-    alignItems: 'center',
-    justifyContent: 'center', // Center the content horizontally
+    alignItems:"center",
+    justifyContent:"center",
   },
   titleContainer: {
-    alignItems: 'center',
+    alignItems:"center",
+    justifyContent:"center",
   },
   title: {
     borderWidth: 1,
     borderColor: '#000',
     paddingVertical: 10,
-    paddingHorizontal: 45, // Adjust the width here
-    borderTopLeftRadius: 20,
-    borderBottomLeftRadius: 20,
+    borderBottomLeftRadius:20,
+    borderTopLeftRadius:20
   },
   titleone: {
     borderWidth: 1,
     borderColor: '#000',
     paddingVertical: 10,
-    paddingHorizontal: 45, // Adjust the width here
-    borderTopRightRadius: 20,
-    borderBottomRightRadius: 20,
+    borderBottomRightRadius:20,
+    borderTopRightRadius:20,
   },
 
   activeCategory: {

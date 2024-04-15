@@ -71,7 +71,17 @@ const ProductRow = ({
 
 const ModalComponent = ({modalVisible, closeModal, selectedItem}) => {
   useEffect(() => {
-    console.log('selectedItem in ModalComponent:', selectedItem);
+    if (selectedItem) {
+      // Initialize each quantity state with the initial quantity value passed from props
+      setExtraSmallQuantity(selectedItem.extraSmallQuantity || '');
+      setSmallQuantity(selectedItem.smallQuantity || '');
+      setMediumQuantity(selectedItem.mediumQuantity || '');
+      setLargeQuantity(selectedItem.largeQuantity || '');
+      setExtraLargeQuantity(selectedItem.extralargeQuantity || '');
+      setDoubleLargeQuantity(selectedItem.doublelargeQuantity || '');
+      setTribleLargeQuantity(selectedItem.triblelargeQuantity || '');
+      setFiveLargeQuantity(selectedItem.fivelargeQuantity || '');
+    }
   }, [selectedItem]);
 
   const dispatch = useDispatch();
