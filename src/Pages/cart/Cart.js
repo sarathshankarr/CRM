@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import {
   Image,
+  Modal,
   ScrollView,
   StyleSheet,
   Text,
@@ -21,6 +22,11 @@ const Cart = () => {
 
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [selatedDate, setSelectedDate] = useState('Expexted Delivery Date');
+  const [isModalVisible, setModalVisible] = useState(false);
+
+  const toggleModal = () => {
+    setModalVisible(!isModalVisible);
+  };
 
   const showDatePicker = () => {
     setDatePickerVisibility(true);
@@ -509,6 +515,12 @@ const Cart = () => {
             <Text>Total Amt: {totalPrice}</Text>
           </View>
         </View>
+        <TouchableOpacity onPress={toggleModal} style={style.plusButton}>
+        <Image
+          style={{height: 30, width: 30, justifyContent: 'center', alignItems: 'center'}}
+          source={require('../../../assets/plus.png')}
+        />
+      </TouchableOpacity>
         <TouchableOpacity
           style={{
             borderWidth: 1,
@@ -535,6 +547,41 @@ const Cart = () => {
           onConfirm={handleDateConfirm}
           onCancel={hideDatePicker}
         />
+     <Modal
+        animationType="fade"
+        transparent={true}
+        visible={isModalVisible}
+        onRequestClose={() => {
+          toggleModal();
+        }}>
+        <View style={style.modalContainer}>
+          <View style={style.modalContent}>
+            <Text style={style.modalTitle}>Customer Details</Text>
+            <TextInput
+              style={style.input}
+              placeholder="Customer Name"
+            />
+            <TextInput
+              style={style.input}
+              placeholder="Phone Number"
+              keyboardType="phone-pad"
+            />
+            <TextInput
+              style={style.input}
+              placeholder="Email"
+              keyboardType="email-address"
+            />
+            <TouchableOpacity
+              style={style.saveButton}
+              onPress={() => {
+                // Logic to save customer details
+                toggleModal();
+              }}>
+              <Text style={style.saveButtonText}>Save</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
       </View>
     </View>
   );
@@ -595,6 +642,50 @@ const style = StyleSheet.create({
     height: 25,
     width: 25,
   },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 10,
+    width: '80%',
+    alignItems: 'center',
+    elevation: 5, // Add elevation for shadow on Android
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: 'gray',
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 10,
+    width: '100%',
+  },
+  saveButton: {
+    backgroundColor: 'green',
+    padding: 10,
+    borderRadius: 5,
+    marginTop: 20,
+    width: '100%',
+  },
+  saveButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  plusButton:{
+    alignItems:'center',
+    justifyContent:'center',
+    textAlign:'center'
+  }
 });
 
 export default Cart;
