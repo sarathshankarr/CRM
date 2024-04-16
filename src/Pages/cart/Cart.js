@@ -574,13 +574,11 @@ const Cart = () => {
             />
             <TextInput
               style={style.input}
-              placeholder="Phone Number"
-              keyboardType="phone-pad"
+              placeholder="Address"
             />
             <TextInput
               style={style.input}
-              placeholder="Email"
-              keyboardType="email-address"
+              placeholder="Gst Number"
             />
             <TouchableOpacity
               style={style.saveButton}
