@@ -5,9 +5,12 @@ const Pending = ({ route }) => {
   const [cartItems, setCartItems] = useState([]);
 
   useEffect(() => {
-    // Update cartItems when route.params.cartItems changes
-    setCartItems(route.params && route.params.cartItems ? route.params.cartItems : []);
-  }, [route.params.cartItems]);
+    // Check if route and route.params are defined
+    if (route && route.params && route.params.cartItems) {
+      // Update cartItems when route.params.cartItems changes
+      setCartItems(route.params.cartItems);
+    }
+  }, [route.params]); // Only re-run effect if route.params changes
 
   // Calculate total quantity
   const totalQuantity = cartItems.reduce((total, item) => {
