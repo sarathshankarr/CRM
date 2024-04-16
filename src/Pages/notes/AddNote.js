@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View, Image, Modal, ScrollView } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View, Image, Modal, ScrollView, TextInput } from 'react-native';
 import ImagePicker from 'react-native-image-crop-picker';
 import { useDispatch, useSelector } from 'react-redux';
 import { addSelectedImage, removeSelectedImage } from '../../redux/actions/Actions';
@@ -83,14 +83,25 @@ const AddNote = () => {
         <Text style={styles.txt}>Photos Notes</Text>
       </View>
       <ScrollView>
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: 20 }}>
+        <View style={{ marginTop: 20 }}>
           {selectedImages.map((imageUri, index) => (
-            <View key={index} style={styles.imageContainer}>
-              <Image source={{ uri: imageUri }} style={styles.image} />
-              <TouchableOpacity onPress={() => removeImageFromSelection(imageUri)}>
-                <Text>Delete</Text>
-              </TouchableOpacity>
+          <View key={index} style={styles.imageContainer}>
+            <View>
+
+            <TextInput placeholder='Tittle'/>
             </View>
+          <Image source={{ uri: imageUri }} style={styles.image} />
+          <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', flex: 1 }}>
+          <TouchableOpacity style={{marginHorizontal:10,borderWidth:1,borderColor:'#000',paddingHorizontal:10,borderRadius:5}} >
+              <Text>Edit</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={{marginHorizontal:10,borderWidth:1,borderColor:'#000',paddingHorizontal:10,borderRadius:5}} onPress={() => removeImageFromSelection(imageUri)}>
+              <Text>Delete</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+        
           ))}
         </View>
       </ScrollView>
@@ -128,6 +139,7 @@ const AddNote = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor:'#fff'
   },
   button: {
     borderWidth: 1,
@@ -175,13 +187,11 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     width: '90%',
-    flexDirection: 'row',
-    alignItems: 'flex-start',
     marginBottom: 10,
     borderWidth: 1,
     borderColor: '#000',
     marginHorizontal: 20,
-    paddingVertical: 20
+    paddingVertical: 5
   },
   image: {
     width: 100, // Adjust width as needed

@@ -1,4 +1,4 @@
-import {ADD_SELECTED_IMAGE, ADD_TO_CART, REMOVE_FROM_CART, REMOVE_SELECTED_IMAGE, UPDATE_CART_ITEM,} from '../ActionTypes';
+import {ADD_SELECTED_IMAGE, ADD_TO_CART, ADD_TO_PENDING, REMOVE_FROM_CART, REMOVE_SELECTED_IMAGE, UPDATE_CART_ITEM,} from '../ActionTypes';
 
 export const addItemToCart = data => ({
   type: ADD_TO_CART,
@@ -25,3 +25,11 @@ export const removeSelectedImage = (imageUri) => ({
   type: REMOVE_SELECTED_IMAGE,
   payload: imageUri,
 });
+export const addToPending = (cartItems) => {
+  
+  console.log('Adding to pending:', cartItems);
+  return {
+    type: ADD_TO_PENDING,
+    payload: cartItems,
+  };
+};

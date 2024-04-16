@@ -1,8 +1,9 @@
-import { ADD_SELECTED_IMAGE, ADD_TO_CART, REMOVE_FROM_CART, REMOVE_SELECTED_IMAGE, UPDATE_CART_ITEM } from '../ActionTypes';
+import { ADD_SELECTED_IMAGE, ADD_TO_CART, ADD_TO_PENDING, REMOVE_FROM_CART, REMOVE_SELECTED_IMAGE, UPDATE_CART_ITEM } from '../ActionTypes';
 
 const initialState = {
   cartItems: [], 
    selectedImages: [],
+   pendingItems: [],
   // Add other initial states as needed
 };
 
@@ -42,6 +43,12 @@ const reducers = (state = initialState, action) => {
         ...state,
         selectedImages: state.selectedImages.filter(image => image !== action.payload),
       };
+      case ADD_TO_PENDING:
+        return {
+          ...state,
+          // Concatenate the existing pending items with the new ones
+          pendingItems: state.pendingItems.concat(action.payload),
+        };
     default:
       return state;
       

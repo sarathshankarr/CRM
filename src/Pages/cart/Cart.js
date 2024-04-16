@@ -10,7 +10,7 @@ import {
   View,
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
-import {removeFromCart, updateCartItem} from '../../redux/actions/Actions';
+import {addToPending, removeFromCart, updateCartItem} from '../../redux/actions/Actions';
 import Clipboard from '@react-native-clipboard/clipboard';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { useNavigation } from '@react-navigation/native';
@@ -27,6 +27,13 @@ const Cart = () => {
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
   };
+  const handlePlaceOrder = () => {
+    console.log('Placing order...');
+    console.log('Cart items:', cartItems);
+    dispatch(addToPending(cartItems));
+  };
+  
+
 
   const showDatePicker = () => {
     setDatePickerVisibility(true);
@@ -521,25 +528,28 @@ const Cart = () => {
           source={require('../../../assets/plus.png')}
         />
       </TouchableOpacity>
-        <TouchableOpacity
-          style={{
-            borderWidth: 1,
-            borderColor: 'green',
-            backgroundColor: 'green',
-            marginVertical: 5,
-            paddingVertical: 15,
-            paddingHorizontal: 20,
-          }}>
-          <Text
-            style={{
-              textAlign: 'center',
-              color: '#fff',
-              fontWeight: 'bold',
-              fontSize: 20,
-            }}>
-            PLACE ORDER
-          </Text>
-        </TouchableOpacity>
+      <TouchableOpacity
+  onPress={() => navigation.navigate("Pending", { cartItems: cartItems })}
+  style={{
+    borderWidth: 1,
+    borderColor: 'green',
+    backgroundColor: 'green',
+    marginVertical: 5,
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+  }}>
+  <Text
+    style={{
+      textAlign: 'center',
+      color: '#fff',
+      fontWeight: 'bold',
+      fontSize: 20,
+    }}>
+    PLACE ORDER
+  </Text>
+</TouchableOpacity>
+
+
 
         <DateTimePickerModal
           isVisible={isDatePickerVisible}
