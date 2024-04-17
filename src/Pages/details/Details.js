@@ -12,6 +12,7 @@ import { SliderBox } from 'react-native-image-slider-box';
 import { useDispatch } from 'react-redux';
 import { addItemToCart } from '../../redux/actions/Actions';
 import ModalComponent from '../../components/ModelComponent';
+
 const Details = ({ route }) => {
   const {
     item,
@@ -28,10 +29,10 @@ const Details = ({ route }) => {
 
   const images = [image, image2, image3, image4, image5];
   const dispatch = useDispatch();
-  const [modalVisible, setModalVisible] = useState(false); 
+  const [modalVisible, setModalVisible] = useState(false);
 
   const toggleModal = () => {
-    setModalVisible(!modalVisible); 
+    setModalVisible(!modalVisible);
   };
 
   const addItem = item => {
@@ -72,6 +73,7 @@ const Details = ({ route }) => {
           <Text style={styles.notesLabel}>Notes:</Text>
           <Text style={styles.txt}>{item.disription}</Text>
         </View>
+        
       </ScrollView>
       <TouchableOpacity onPress={toggleModal} style={styles.buttonContainer}>
         <Text style={styles.buttonText}>ADD QUANTITY</Text>
@@ -161,14 +163,13 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: '#000',
     fontWeight: 'bold',
-    marginTop: 10,
-    marginVertical: 10,
+    marginBottom: 30,
   },
   buttonContainer: {
     borderWidth: 1,
     backgroundColor: 'gray',
     width: '100%',
-    paddingVertical: 20,
+    paddingVertical: 15,
     position: 'absolute',
     bottom: 0,
   },

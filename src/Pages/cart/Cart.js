@@ -30,9 +30,15 @@ const Cart = () => {
   const handlePlaceOrder = () => {
     console.log('Placing order...');
     console.log('Cart items:', cartItems);
-    dispatch(addToPending(cartItems));
+    
+    // Navigate to Home screen
+    
+    // Navigate to the Pending screen within the Order stack
+    navigation.navigate('Order', {
+      screen: 'Pending',
+      params: { cartItems: cartItems },
+    });
   };
-  
 
 
   const showDatePicker = () => {
@@ -528,8 +534,7 @@ const Cart = () => {
           source={require('../../../assets/plus.png')}
         />
       </TouchableOpacity>
-      <TouchableOpacity
-  onPress={() => navigation.navigate("Pending", { cartItems: cartItems })}
+      <TouchableOpacity onPress={handlePlaceOrder}
   style={{
     borderWidth: 1,
     borderColor: 'green',
