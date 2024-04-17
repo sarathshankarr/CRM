@@ -1,4 +1,6 @@
-import {ADD_SELECTED_IMAGE, ADD_TO_CART, ADD_TO_PENDING, REMOVE_FROM_CART, REMOVE_SELECTED_IMAGE, UPDATE_CART_ITEM,} from '../ActionTypes';
+// Actions.js
+
+import {ADD_SELECTED_IMAGE, ADD_TO_CART, ADD_TO_PENDING, DELETE_NOTE, REMOVE_FROM_CART, REMOVE_SELECTED_IMAGE, SET_NOTE_DETAILS, UPDATE_CART_ITEM,SET_NOTE_TITLE,SET_NOTE_DESCRIPTION, SET_NOTE_SAVED} from '../ActionTypes';
 
 export const addItemToCart = data => ({
   type: ADD_TO_CART,
@@ -33,3 +35,29 @@ export const addToPending = (cartItems) => {
     payload: cartItems,
   };
 };
+export const setNoteDetails = ({ title, description }) => {
+  return {
+    type: SET_NOTE_DETAILS,
+    payload: { title, description }
+  };
+};
+export const deleteNoteAction = () => { // Define deleteNoteAction
+  console.log("Delete note action dispatched!");
+  return {
+    type: DELETE_NOTE,
+    // Optionally, you can include any payload here if needed
+  };
+};
+export const setNoteTitle = (title) => ({
+  type: SET_NOTE_TITLE,
+  payload: title,
+});
+
+export const setNoteDescription = (description) => ({
+  type: SET_NOTE_DESCRIPTION,
+  payload: description,
+});
+export const setNoteSaved = (isSaved) => ({
+  type: SET_NOTE_SAVED,
+  payload: isSaved,
+});

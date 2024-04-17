@@ -1,10 +1,17 @@
-import { ADD_SELECTED_IMAGE, ADD_TO_CART, ADD_TO_PENDING, REMOVE_FROM_CART, REMOVE_SELECTED_IMAGE, UPDATE_CART_ITEM } from '../ActionTypes';
+// Reducers.js
+
+import { ADD_SELECTED_IMAGE, ADD_TO_CART, ADD_TO_PENDING, DELETE_NOTE, REMOVE_FROM_CART, REMOVE_SELECTED_IMAGE, SET_NOTE_DETAILS, SET_NOTE_SAVED, UPDATE_CART_ITEM } from '../ActionTypes';
 
 const initialState = {
   cartItems: [], 
-   selectedImages: [],
-   pendingItems: [],
-  // Add other initial states as needed
+  selectedImages: [],
+  pendingItems: [],
+  noteDetails: {
+    title: '',
+    description: ''
+  } ,
+  notes: [] ,// Add other initial states as needed
+  noteSaved: false,
 };
 
 const reducers = (state = initialState, action) => {
@@ -24,7 +31,6 @@ const reducers = (state = initialState, action) => {
         ...state,
         cartItems: state.cartItems.map((item, index) => {
           if (index === action.payload.index) {
-            // Update the quantity of the specified field
             return {
               ...item,
               [action.payload.field]: action.payload.quantity,
@@ -33,7 +39,7 @@ const reducers = (state = initialState, action) => {
           return item;
         }),
       };
-      case ADD_SELECTED_IMAGE:
+    case ADD_SELECTED_IMAGE:
       return {
         ...state,
         selectedImages: [...state.selectedImages, action.payload],
@@ -43,18 +49,36 @@ const reducers = (state = initialState, action) => {
         ...state,
         selectedImages: state.selectedImages.filter(image => image !== action.payload),
       };
-      case ADD_TO_PENDING:
+    case ADD_TO_PENDING:
+      return {
+        ...state,
+        pendingItems: state.pendingItems.concat(action.payload),
+      };
+      case SET_NOTE_DETAILS:
         return {
           ...state,
-          // Concatenate the existing pending items with the new ones
-          pendingItems: state.pendingItems.concat(action.payload),
+          noteDetails: {
+            ...state.noteDetails,
+            ...action.payload
+          }
         };
+      
+    case DELETE_NOTE:
+      return {
+        ...state,
+        noteDetails: {
+          title: '',
+          description: '',
+        }
+      };
+      case SET_NOTE_SAVED:
+      return {
+        ...state,
+        noteSaved: action.payload,
+      };
     default:
       return state;
-      
-      
   }
-
 };
 
 export default reducers;
