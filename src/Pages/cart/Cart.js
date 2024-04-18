@@ -113,7 +113,7 @@ const Cart = () => {
   const totalPrice = cartItems.reduce((total, item) => {
     return (
       total +
-      parseInt(item.price) *
+      parseInt(item.mrp) *
         ((parseInt(item.extraSmallQuantity) || 0) +
           (parseInt(item.smallQuantity) || 0) +
           (parseInt(item.mediumQuantity) || 0) +
@@ -135,13 +135,16 @@ const Cart = () => {
           cartItems.map((item, index) => (
             <View key={index}>
               <View style={style.imgContainer}>
-                <TouchableOpacity style={style.itemContainer}>
-                  <Image source={item.image} style={style.image} />
-                  <Text style={{fontSize: 15, fontWeight: 'bold'}}>
-                    {' '}
-                    {item.name}
-                  </Text>
-                </TouchableOpacity>
+              <TouchableOpacity style={style.itemContainer}>
+    {item.imageUrls && item.imageUrls.length > 0 ? ( // Check if imageUrls exists and has at least one URL
+      <Image source={{ uri: item.imageUrls[0] }} style={style.image} /> // Use the first URL from imageUrls
+    ) : (
+      <Text>No Image</Text> // Display a placeholder if no image is available
+    )}
+    <Text style={{ fontSize: 15, fontWeight: 'bold' }}>
+      {item.colorName}
+    </Text>
+  </TouchableOpacity>
                 <View style={style.buttonsContainer}>
                   <TouchableOpacity>
                     <Image
@@ -205,7 +208,7 @@ const Cart = () => {
                       }}></View>
                   </View>
                   <View style={{flex: 0.8}}>
-                    <Text>{item.price}</Text>
+                    <Text>{item.mrp}</Text>
                   </View>
                   <TouchableOpacity
                     style={{marginRight: 10}}
@@ -251,7 +254,7 @@ const Cart = () => {
                       }}></View>
                   </View>
                   <View style={{flex: 1}}>
-                    <Text>{item.price}</Text>
+                    <Text>{item.mrp}</Text>
                   </View>
                 </View>
                 <View
@@ -284,7 +287,7 @@ const Cart = () => {
                       }}></View>
                   </View>
                   <View style={{flex: 1}}>
-                    <Text>{item.price}</Text>
+                    <Text>{item.mrp}</Text>
                   </View>
                 </View>
                 <View
@@ -317,7 +320,7 @@ const Cart = () => {
                       }}></View>
                   </View>
                   <View style={{flex: 1}}>
-                    <Text>{item.price}</Text>
+                    <Text>{item.mrp}</Text>
                   </View>
                 </View>
                 <View
@@ -354,7 +357,7 @@ const Cart = () => {
                       }}></View>
                   </View>
                   <View style={{flex: 1}}>
-                    <Text>{item.price}</Text>
+                    <Text>{item.mrp}</Text>
                   </View>
                 </View>
                 <View
@@ -391,7 +394,7 @@ const Cart = () => {
                       }}></View>
                   </View>
                   <View style={{flex: 1}}>
-                    <Text>{item.price}</Text>
+                    <Text>{item.mrp}</Text>
                   </View>
                 </View>
                 <View
@@ -426,7 +429,7 @@ const Cart = () => {
                       }}></View>
                   </View>
                   <View style={{flex: 1}}>
-                    <Text>{item.price}</Text>
+                    <Text>{item.mrp}</Text>
                   </View>
                 </View>
                 <View
@@ -462,7 +465,7 @@ const Cart = () => {
                       }}></View>
                   </View>
                   <View style={{flex: 1}}>
-                    <Text>{item.price}</Text>
+                    <Text>{item.mrp}</Text>
                   </View>
                 </View>
                 <View

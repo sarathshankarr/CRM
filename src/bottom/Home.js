@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Text,
   View,
@@ -11,20 +11,61 @@ import {
   Keyboard,
   Platform,
   ScrollView,
+  Alert
 } from 'react-native';
-import {PRODUCT_DETAILS} from '../components/ProductDetails';
-import {AllPRODUCT_DETAILS} from '../components/AllProductDetails';
-import {useDispatch, useSelector} from 'react-redux';
-import {addItemToCart} from '../redux/actions/Actions';
+import { PRODUCT_DETAILS } from '../components/ProductDetails';
+import { AllPRODUCT_DETAILS } from '../components/AllProductDetails';
+import { useDispatch, useSelector } from 'react-redux';
+import { addItemToCart } from '../redux/actions/Actions';
 import ModalComponent from '../components/ModelComponent';
+import { API } from '../config/apiConfig';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Apicall from './../utils/serviceApi/serviceAPIComponent';
+import LoaderComponent from './../utils/loaderComponent/loaderComponent';
 
-const Home = ({navigation}) => {
+const Home = ({ navigation }) => {
   const [showSearchInput, setShowSearchInput] = useState(false);
-  const [selectedDetails, setSelectedDetails] = useState(PRODUCT_DETAILS);
+  const [screenCategories, setScreenCategories] = useState(PRODUCT_DETAILS);
+  const [allProducts, setAllProducts] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
-  const handleAddToCart = item => {
-    dispatch(addItemToCart(item)); // Dispatch the action with the item data
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (allProducts.length === 0) {
+      getAllProducts();
+    }
+  }, []);
+
+  const getAllProducts = async () => {
+    const userData = await AsyncStorage.getItem('userdata');
+    console.log("userData:", userData);
+    const token = JSON.parse(userData);
+
+    let json = {
+      "pageNo": "1",
+      "pageSize": "10",
+      "categoryId": ""
+    };
+
+    setIsLoading(true);
+    console.log("Before API call");
+    let allProductsApi = await Apicall.getAllProducts(token.access_token, json);
+    setIsLoading(false);
+
+    if (allProductsApi && allProductsApi.data) {
+      if (allProductsApi.data.error) {
+        // Show the Alert for failure with description
+      } else {
+        setAllProducts(allProductsApi.data.content);
+      }
+
+    } else if (allProductsApi && allProductsApi.error) {
+      // Show the Alert for failure with description
+      console.log('error ', allProductsApi.error)
+    } else {
+      // Show the Alert for failure
+    }
   };
 
   const toggleSearchInput = () => {
@@ -32,7 +73,7 @@ const Home = ({navigation}) => {
   };
 
   const handleCategoryPress = details => {
-    setSelectedDetails(details);
+    setScreenCategories(details);
   };
 
   const openModal = item => {
@@ -41,69 +82,56 @@ const Home = ({navigation}) => {
     setModalVisible(true);
   };
 
- 
   const onFocusTextInput = () => {
     setModalVisible(true);
   };
 
-  const renderProductItem = ({item, onAddToCart}) => {
+  const renderProductItem = ({ item }) => {
+    console.log('Item ', item)
     return (
       <TouchableOpacity
         style={styles.productItem}
         onPress={() =>
-          selectedDetails === PRODUCT_DETAILS
-            ? navigation.navigate('AllCategoriesListed', {
-                item,
-                name: item.name,
-                image: item.image,
-              })
-            : navigation.navigate('Details', {
-                item,
-                name: item.name,
-                image: item.image,
-                image2: item.image2,
-                image3: item.image3,
-                image4: item.image4,
-                image5: item.image5,
-                category: item.category,
-                tags: item.tags,
-                set: item.set,
-              })
-        }>
+          navigation.navigate('Details', {
+            item,
+            name: item.name,
+            image: item.image,
+            image2: item.image2,
+            image3: item.image3,
+            image4: item.image4,
+            image5: item.image5,
+            category: item.category,
+            name: item.styleName,
+            disription: item.disription,
+            set: item.set,
+          })
+        }
+      >
         <View style={styles.productImageContainer}>
-          {item.image && (
-            <Image style={styles.productImage} source={item.image} />
-          )}
-          <Text style={styles.productName}>{item.name}</Text>
+          {item.imageUrls && item.imageUrls.length > 0 ? <Image style={styles.productImage} source={{ uri: item.imageUrls[0] }} /> : <View style={[styles.productImage, { backgroundColor: '#D3D3D3' }]}></View>}
+          <Text style={styles.productName}>{item.colorName}</Text>
         </View>
-        {selectedDetails === AllPRODUCT_DETAILS && (
-          <View style={styles.additionalDetailsContainer}>
-            <Text>Price: {item.price}</Text>
-            <Text>Tags: {item.tags}</Text>
-            <View style={styles.notesContainer}>
-              <Text>Notes: {item.disription}</Text>
-              <View style={styles.buttonsContainer}>
-                <TouchableOpacity style={[styles.button]}>
-                  <Image
-                    style={{height: 20, width: 20}}
-                    source={require('../../assets/heart.png')}
-                  />
-                  <Text>WISHLIST</Text>
-                </TouchableOpacity>
-                <View style={{marginHorizontal: 4}} />
-                <TouchableOpacity
-                  onPress={() => openModal(item)} // Pass the item to openModal
-                  style={styles.buttonqty}>
-                  <Image
-                    style={{height: 20, width: 20}}
-                    source={require('../../assets/qty.png')}
-                  />
-                  <Text>ADD QTY</Text>
-                </TouchableOpacity>
-              </View>
+
+        <View style={styles.additionalDetailsContainer}>
+          <Text>Price: {item.mrp}</Text>
+          <Text>Name: {item.styleName}</Text>
+          <View style={styles.notesContainer}>
+            <Text>Discription: {item.styleDesc}</Text>
+            <View style={styles.buttonsContainer}>
+              <View style={{}} />
+              <TouchableOpacity
+                onPress={() => openModal(item)} // Pass the item to openModal
+                style={styles.buttonqty}>
+                <Image
+                  style={{ height: 20, width: 20 }}
+                  source={require('../../assets/qty.png')}
+                />
+                <Text>ADD QTY</Text>
+              </TouchableOpacity>
             </View>
           </View>
-        )}
+        </View>
+
       </TouchableOpacity>
     );
   };
@@ -111,45 +139,41 @@ const Home = ({navigation}) => {
   return (
     <View style={styles.container}>
       <View style={styles.head}>
-        <View style={styles.titleContainer}>
-          <TouchableOpacity
+        <TouchableOpacity
+          style={[
+            styles.title,
+            screenCategories === PRODUCT_DETAILS
+              ? styles.activeCategory
+              : null,
+          ]}
+          onPress={() => {
+            setScreenCategories(PRODUCT_DETAILS);
+          }}>
+          <Text
             style={[
-              styles.title,
-              selectedDetails === PRODUCT_DETAILS
-                ? styles.activeCategory
-                : null,
-            ]}
-            onPress={() => handleCategoryPress(PRODUCT_DETAILS)}>
-            <Text
-              style={[
-                selectedDetails === PRODUCT_DETAILS ? styles.activeText : null ,
-                { marginHorizontal: 40 }
-              ]}>
-              CATEGORIES
-            </Text>
-          </TouchableOpacity>
-        </View>
+              screenCategories === PRODUCT_DETAILS ? styles.activeText : null,
+              { marginHorizontal: 40 }
+            ]}>
+             CATEGORIES
+          </Text>
+        </TouchableOpacity>
 
-        <View style={styles.titleContainer}>
-          <TouchableOpacity
+        <TouchableOpacity
+          style={[
+            styles.titleone,
+            screenCategories !== PRODUCT_DETAILS ? styles.activeCategory : null,
+          ]}
+          onPress={() => {
+            console.log("Button pressed");
+            setScreenCategories(AllPRODUCT_DETAILS);
+          }}>
+          <Text
             style={[
-              styles.titleone,
-              selectedDetails === AllPRODUCT_DETAILS
-                ? styles.activeCategory
-                : null,
-            ]}
-            onPress={() => handleCategoryPress(AllPRODUCT_DETAILS)}>
-            <Text
-              style={[
-                selectedDetails === AllPRODUCT_DETAILS
-                  ? styles.activeText
-                  : null,
-                  { marginHorizontal: 40 }
-              ]}>
-              ALL PRODUCTS
-            </Text>
-          </TouchableOpacity>
-        </View>
+              { marginHorizontal: 40 }
+            ]}>
+            ALL PRODUCTS
+          </Text>
+        </TouchableOpacity>
       </View>
 
       <View style={styles.searchContainer}>
@@ -162,7 +186,7 @@ const Home = ({navigation}) => {
             placeholder="Search"
           />
         ) : (
-          <Text style={styles.text}>6 Categories Listed</Text>
+          <Text style={styles.text}>{screenCategories ? screenCategories.length + ' Categories Listed' : ''}</Text>
         )}
         <TouchableOpacity
           style={styles.searchButton}
@@ -175,11 +199,11 @@ const Home = ({navigation}) => {
       </View>
 
       <FlatList
-        data={selectedDetails}
-        renderItem={({item}) =>
-          renderProductItem({item, onAddToCart: handleAddToCart})
-        } // Pass handleAddToCart function here
-        keyExtractor={item => item.id.toString()}
+        data={screenCategories === PRODUCT_DETAILS ? screenCategories : allProducts}
+        renderItem={({ item }) =>
+          renderProductItem({ item })
+        }
+        keyExtractor={item => item.styleId}
         numColumns={2}
         contentContainerStyle={styles.productList}
       />
@@ -188,9 +212,13 @@ const Home = ({navigation}) => {
         closeModal={() => setModalVisible(false)}
         selectedItem={selectedItem} // Add this line to pass selectedItem
       />
+
+      {isLoading ? <LoaderComponent loaderText={'Please wait..'} /> : null}
+
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
@@ -200,33 +228,33 @@ const styles = StyleSheet.create({
   head: {
     flexDirection: 'row',
     marginTop: 10,
-    alignItems:"center",
-    justifyContent:"center",
+    alignItems: "center",
+    justifyContent: "center",
   },
   titleContainer: {
-    alignItems:"center",
-    justifyContent:"center",
+    alignItems: "center",
+    justifyContent: "center",
   },
   title: {
     borderWidth: 1,
     borderColor: '#000',
     paddingVertical: 10,
-    borderBottomLeftRadius:20,
-    borderTopLeftRadius:20
+    borderBottomLeftRadius: 20,
+    borderTopLeftRadius: 20
   },
   titleone: {
     borderWidth: 1,
     borderColor: '#000',
     paddingVertical: 10,
-    borderBottomRightRadius:20,
-    borderTopRightRadius:20,
+    borderBottomRightRadius: 20,
+    borderTopRightRadius: 20,
   },
 
   activeCategory: {
     backgroundColor: 'green',
   },
   activeText: {
-    color: '#fff',
+    color: '#000',
     fontWeight: 'bold',
   },
   searchContainer: {
@@ -246,6 +274,7 @@ const styles = StyleSheet.create({
   image: {
     height: 30,
     width: 30,
+
   },
   productList: {
     paddingTop: 10,
@@ -262,6 +291,7 @@ const styles = StyleSheet.create({
   productImageContainer: {
     position: 'relative',
     overflow: 'hidden',
+    // backgroundColor:'red'
   },
   productImage: {
     width: '100%',
@@ -285,9 +315,9 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
   },
   buttonsContainer: {
-    flexDirection: 'row',
+    // flexDirection: 'row',
     marginTop: 5,
-    alignItems: 'center',
+    // alignItems: 'center',
     justifyContent: 'center',
   },
   button: {
@@ -301,6 +331,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 5,
     flexDirection: 'row',
+    justifyContent: 'center'
   },
   modalContainer: {
     flex: 1,

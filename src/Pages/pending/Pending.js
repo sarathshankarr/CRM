@@ -39,12 +39,12 @@ const Pending = ({ route }) => {
     <View>
       {cartItems.map((item, index) => (
         <View style={{ borderWidth: 1, borderColor: '#000', marginHorizontal: 10, marginVertical: 10 }} key={index}>
-          <Text style={{ marginHorizontal: 10 }}>Name: {item.name}</Text>
-          <Text style={{ marginHorizontal: 10 }}>Price: {item.price}</Text>
-          <Text style={{ marginHorizontal: 10 }}>Description: {item.description}</Text>
+          <Text style={{ marginHorizontal: 10 }}>Name: {item.styleName}</Text>
+          <Text style={{ marginHorizontal: 10 }}>Price: {item.mrp}</Text>
           {/* Add more details to display */}
-          <Image source={item.image} style={{ width: 100, height: 100, marginHorizontal: 10, marginVertical: 10 }} />
-          {/* Display image if available */}
+          {item.imageUrls && item.imageUrls.map((imageUrl, imgIndex) => (
+            <Image key={imgIndex} source={{ uri: imageUrl }} style={{ width: 100, height: 100, marginHorizontal: 10, marginVertical: 10 }} />
+          ))}
           <TouchableOpacity style={{ marginHorizontal: 10, marginVertical: 10 }} onPress={() => removeItem(index)}>
             <Text>Remove</Text>
           </TouchableOpacity>

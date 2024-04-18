@@ -11,6 +11,7 @@ import AllCategoriesListed from '../Pages/allcategorieslisted/AllCategoriesListe
 import CommonHeader from '../components/CommonHeader';
 import Notes from '../Pages/notes/AddNote';
 import AddNote from '../Pages/notes/AddNote';
+import LoaderComponent from '../utils/loaderComponent/loaderComponent';
 
 const Stack = createNativeStackNavigator();
 
@@ -87,6 +88,11 @@ const Routes = () => {
         <Stack.Screen
           name="Add Note"
           component={AddNote}
+          options={{ headerShown: true }}
+        />
+         <Stack.Screen
+          name="LoaderComponent"
+          component={LoaderComponent}
           options={{ headerShown: true }}
         />
       </Stack.Navigator>

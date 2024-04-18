@@ -5,7 +5,8 @@ export const BASE_URL = {
 export const API = {
   LOGIN: BASE_URL.SIT + '/erpportal/oauth/token',
   LOCATION: BASE_URL.SIT + '/erpportal/api/style/cedge/getLocationInventory',
-  STYLES:BASE_URL.SIT + '/erpportal/api/style'
+  STYLES:BASE_URL.SIT + '/erpportal/api/style',
+  ALL_PRODUCTS_DATA:BASE_URL.SIT+'/erpportal/api/style/findallstyles'
 };
 
 export const USER_ID = 'adminClientId';
