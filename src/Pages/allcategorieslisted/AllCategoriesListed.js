@@ -1,23 +1,62 @@
-import React, { useState } from 'react';
-import { Text, View, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Text, View, Image, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
 import { useDispatch } from 'react-redux';
 import { addItemToCart } from '../../redux/actions/Actions';
 import ModalComponent from '../../components/ModelComponent';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Apicall from './../../utils/serviceApi/serviceAPIComponent';
 
 const AllCategoriesListed = ({ navigation, route }) => {
-  const { item } = route.params;
+  const { categoryId } = route.params;
   const dispatch = useDispatch();
-  const [modalVisible, setModalVisible] = useState(false); // State for modal visibility
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedDetails, setSelectedDetails] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
 
   const toggleModal = () => {
-    setModalVisible(!modalVisible); // Toggle modal visibility
+    setModalVisible(!modalVisible);
+  };
+  const openModal = item => {
+    console.log('openModal called with item:', item); // Add console log statement to check item
+    setSelectedItem(item);
+    setModalVisible(true);
   };
 
   const addItem = item => {
     dispatch(addItemToCart(item));
   };
 
-  const navigateToDetails = () => {
+  useEffect(() => {
+    if (categoryId) {
+      getAllCategories();
+    }
+  }, [categoryId]);
+
+  const getAllCategories = async () => {
+    const userData = await AsyncStorage.getItem('userdata');
+    const token = JSON.parse(userData);
+
+    let json = {
+      "pageNo": "1",
+      "pageSize": "10",
+      "categoryId": categoryId
+    };
+
+    setIsLoading(true);
+
+    let allProductsApi = await Apicall.getAllProducts(token.access_token, json);
+    setIsLoading(false);
+
+    if (allProductsApi && allProductsApi.data && !allProductsApi.data.error) {
+      setSelectedDetails(allProductsApi.data.content);
+    } else {
+      console.log('Error fetching data:', allProductsApi && allProductsApi.error);
+      // Handle error
+    }
+  };
+
+  const navigateToDetails = (item) => {
     navigation.navigate('Details', {
       item,
       name: item.name,
@@ -30,42 +69,55 @@ const AllCategoriesListed = ({ navigation, route }) => {
       set: item.set,
     });
   };
-
-  return (
-    <TouchableOpacity style={styles.productItem} onPress={navigateToDetails}>
+  const renderProductItem = ({ item }) => (
+    <TouchableOpacity style={styles.productItem} onPress={() => navigateToDetails(item)}>
       <View style={styles.touchableContent}>
         <View style={styles.productImageContainer}>
-          <Image style={styles.productImage} source={item.image} />
-          <Text style={styles.productName}>{item.name}</Text>
+          <Image
+            style={styles.productImage}
+            source={{ uri: item.imageUrls && item.imageUrls.length > 0 ? item.imageUrls[0] : null }}
+            onError={(error) => console.error('Error loading image:', error)}
+          />
+          <Text style={styles.productName}>{item.colorName}</Text>
         </View>
         <View style={styles.detailsContainer}>
-          <Text style={styles.detailText}>Price: {item.price}</Text>
-          <Text style={styles.detailText}>Tags: {item.tags}</Text>
-          <Text style={styles.detailText}>Notes: {item.disription}</Text>
         </View>
       </View>
-      <View style={styles.buttonsContainer}>
-        <TouchableOpacity style={styles.button} onPress={toggleModal}>
-          <Image
-            style={{ height: 20, width: 20 }}
-            source={require('../../../assets/heart.png')}
-          />
-          <Text>WISHLIST</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.buttonqty} onPress={toggleModal}>
-          <Image
-            style={{ height: 20, width: 20 }}
-            source={require('../../../assets/qty.png')}
-          />
-          <Text>ADD QTY</Text>
-        </TouchableOpacity>
+      <View style={styles.additionalDetailsContainer}>
+        <Text>Price: {item.mrp}</Text>
+        <Text>Name: {item.styleName}</Text>
+        <View style={styles.notesContainer}>
+          <Text>Discription: {item.styleDesc}</Text>
+          <View style={styles.buttonsContainer}>
+            <View style={{}} />
+            <TouchableOpacity
+              onPress={() => openModal(item)} // Pass the item to openModal
+              style={styles.buttonqty}>
+              <Image
+                style={{ height: 20, width: 20 }}
+                source={require('../../../assets/qty.png')}
+              />
+              <Text>ADD QTY</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
       </View>
-      <ModalComponent // Render the ModalComponent
+      <ModalComponent
         modalVisible={modalVisible}
         closeModal={() => setModalVisible(false)}
-        selectedItem={item} // Pass the selected item to ModalComponent
+        selectedItem={item}
       />
     </TouchableOpacity>
+  );
+
+  return (
+    <FlatList
+      data={selectedDetails}
+      renderItem={renderProductItem}
+      keyExtractor={(item, index) => index.toString()}
+      numColumns={2}
+      contentContainerStyle={styles.flatListContainer}
+    />
   );
 };
 
@@ -74,13 +126,15 @@ const styles = StyleSheet.create({
     marginHorizontal: 4,
     marginVertical: 5,
     borderRadius: 10,
+    flex: 1,
   },
   touchableContent: {
     width: '100%',
+    flexDirection: 'row',
   },
   productImageContainer: {
     position: 'relative',
-    width: '50%',
+    width: '100%',
   },
   productImage: {
     width: '100%',
@@ -109,23 +163,33 @@ const styles = StyleSheet.create({
     color: '#000',
     marginBottom: 5,
   },
+  additionalDetailsContainer: {
+    paddingTop: 5,
+  },
+  notesContainer: {
+    paddingVertical: 5,
+  },
   buttonsContainer: {
-    flexDirection: 'row',
+    // flexDirection: 'row',
     marginTop: 5,
+    // alignItems: 'center',
+    justifyContent: 'center',
   },
   button: {
     borderWidth: 1,
     paddingVertical: 10,
     borderRadius: 5,
     flexDirection: 'row',
-    marginHorizontal: 5,
   },
   buttonqty: {
     borderWidth: 1,
     paddingVertical: 10,
     borderRadius: 5,
     flexDirection: 'row',
-    paddingHorizontal: 5,
+    justifyContent: 'center'
+  },
+  flatListContainer: {
+    paddingHorizontal: 8,
   },
 });
 

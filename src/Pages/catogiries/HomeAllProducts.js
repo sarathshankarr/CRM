@@ -101,6 +101,7 @@ const HomeAllProducts = ({navigation}) => {
             ? navigation.navigate('AllCategoriesListed', {
                 item,
                 name: item.colorName,
+                categoryId: item.categoryId,
                 image: item.imageUrls[0],
               })
             : navigation.navigate('Details', {
