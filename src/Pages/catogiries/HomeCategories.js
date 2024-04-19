@@ -8,28 +8,14 @@ import {
   TouchableOpacity,
   TextInput,
 } from 'react-native';
-import {PRODUCT_DETAILS} from '../components/ProductDetails';
+import { PRODUCT_DETAILS } from '../../components/ProductDetails';
 
-const Categories = ({navigation}) => {
+const HomeCategories = ({navigation}) => {
   const [selectedDetails, setSelectedDetails] = useState(PRODUCT_DETAILS);
   const [showSearchInput, setShowSearchInput] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
 
 
-  useEffect(() => {
-
-    getCategoriesProducts()
-  }, []);
-
-  const getCategoriesProducts = async () => {
-    try {
-      const response = await ApiClient.get(API.ALL_CATEGORIES_DATA);
-      console.log(response.data); // Assuming the response contains the data you need
-    } catch (error) {
-      console.error(error);
-    }
-  };
-  
   const handleCategoryPress = details => {
     setSelectedDetails(details);
   };
@@ -40,6 +26,7 @@ const Categories = ({navigation}) => {
   const onFocusTextInput = () => {
     setModalVisible(true);
   };
+
   const renderProductItem = ({item}) => {
     return (
       <TouchableOpacity
@@ -58,7 +45,7 @@ const Categories = ({navigation}) => {
 
   return (
     <View style={styles.container}>
-       <View style={styles.searchContainer}>
+        <View style={styles.searchContainer}>
         {showSearchInput ? (
           <TextInput
             style={styles.searchInput}
@@ -75,7 +62,7 @@ const Categories = ({navigation}) => {
           onPress={toggleSearchInput}>
           <Image
             style={styles.image}
-            source={require('../../assets/search.png')}
+            source={require('../../../assets/search.png')}
           />
         </TouchableOpacity>
       </View>
@@ -95,6 +82,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+    marginTop:10
   },
   header: {
     width: '100%',
@@ -245,4 +233,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Categories;
+export default HomeCategories;
