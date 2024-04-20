@@ -1,33 +1,30 @@
-import {API} from '../../config/apiConfig';
+import { API } from '../../config/apiConfig';
 
-export async function getAllProducts(token,jsonValue) {
-    let dataValue = undefined;
-    let errorValue = undefined;
-
-    await fetch(API.ALL_PRODUCTS_DATA,
-        {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Accept: "application/json",
-                Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify(jsonValue),
-        }
-    ).then((response) => response.json()).then(async (data) => {
-
-        console.log('All Products API ',data)
-        dataValue = data;
-       
-    }).catch((error) => {
-        console.log('All Products API error ',error)
-        errorValue = error;
+export async function getAllProducts(token, jsonValue) {
+  try {
+    const response = await fetch(API.ALL_PRODUCTS_DATA, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(jsonValue),
     });
 
-    let returnObj = {data : dataValue, error : errorValue}
-    return returnObj;
+    if (!response.ok) {
+      throw new Error('Failed to fetch all products');
+    }
 
+    const data = await response.json();
+    console.log('All Products API', data);
+    return { data, error: undefined };
+  } catch (error) {
+    console.error('All Products API error', error);
+    return { data: undefined, error };
+  }
 }
+
 
 export async function getAllCategories(token) {
   let dataValue = undefined;
@@ -42,13 +39,12 @@ export async function getAllCategories(token) {
       },
     });
 
-    if (response.ok) {
-      dataValue = await response.json();
-      console.log('All Categories API', dataValue);
-    } else {
-      errorValue = await response.text();
-      console.error('All Categories API error', errorValue);
+    if (!response.ok) {
+      throw new Error('Failed to fetch all categories');
     }
+
+    dataValue = await response.json();
+    console.log('All Categories API', dataValue);
   } catch (error) {
     console.error('All Categories API error', error);
     errorValue = error;
@@ -56,3 +52,4 @@ export async function getAllCategories(token) {
 
   return { data: dataValue, error: errorValue };
 }
+

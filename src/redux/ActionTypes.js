@@ -1,5 +1,3 @@
-// ActionTypes.js
-
 export const ADD_SELECTED_IMAGE = 'ADD_SELECTED_IMAGE';
 export const ADD_TO_CART = 'ADD_TO_CART';
 export const ADD_TO_PENDING = 'ADD_TO_PENDING';

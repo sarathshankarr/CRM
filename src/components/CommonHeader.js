@@ -3,15 +3,15 @@ import { View, TouchableOpacity, Image, Text, StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 
-const CommonHeader = ({ title, showDrawerButton,showMessageIcon,showLocationIcon,showCartIcon }) => {
+const CommonHeader = ({ title, showDrawerButton, showMessageIcon, showLocationIcon, showCartIcon }) => {
   const navigation = useNavigation();
-  const cartItems = useSelector(state => state.cartItems); // Assuming your cart items are stored under 'cartItems' key
+  const cartItems = useSelector(state => state.cartItems);
 
   const goToCart = () => {
     navigation.navigate("Cart");
   }
 
-  const cartItemCount = cartItems.length; // Calculate the number of items in the cart
+  const cartItemCount = cartItems.length;
 
   return (
     <View style={styles.header}>
@@ -34,17 +34,17 @@ const CommonHeader = ({ title, showDrawerButton,showMessageIcon,showLocationIcon
       )}
       <Text style={styles.title}>{title}</Text>
       <View style={styles.rightContainer}>
-      {showLocationIcon && ( // Conditionally render the message icon based on showMessageIcon prop
-        <TouchableOpacity style={styles.iconWrapper}>
-          <Image
-            resizeMode="contain"
-            style={styles.locationimg}
-            source={require('../../assets/location.png')}
-          />
-          
-        </TouchableOpacity>
+        {showLocationIcon && (
+          <TouchableOpacity style={styles.iconWrapper}>
+            <Image
+              resizeMode="contain"
+              style={styles.locationimg}
+              source={require('../../assets/location.png')}
+            />
+
+          </TouchableOpacity>
         )}
-        {showMessageIcon && ( // Conditionally render the message icon based on showMessageIcon prop
+        {showMessageIcon && (
           <TouchableOpacity style={styles.iconWrapper}>
             <Image
               style={styles.msgimg}
@@ -52,20 +52,20 @@ const CommonHeader = ({ title, showDrawerButton,showMessageIcon,showLocationIcon
             />
           </TouchableOpacity>
         )}
-              {showCartIcon && ( // Conditionally render the message icon based on showMessageIcon prop
+        {showCartIcon && (
 
-        <TouchableOpacity style={styles.iconWrapper} onPress={goToCart}>
-          <View style={styles.cartContainer}>
-            <Image
-              resizeMode="contain"
-              style={styles.cartimg}
-              source={require('../../assets/cart.jpg')}
-            />
-            {cartItemCount > 0 && ( // Display the badge only if there are items in the cart
-              <Text style={styles.cartItemCount}>{cartItemCount}</Text>
-            )}
-          </View>
-        </TouchableOpacity>
+          <TouchableOpacity style={styles.iconWrapper} onPress={goToCart}>
+            <View style={styles.cartContainer}>
+              <Image
+                resizeMode="contain"
+                style={styles.cartimg}
+                source={require('../../assets/cart.jpg')}
+              />
+              {cartItemCount > 0 && (
+                <Text style={styles.cartItemCount}>{cartItemCount}</Text>
+              )}
+            </View>
+          </TouchableOpacity>
         )}
       </View>
     </View>

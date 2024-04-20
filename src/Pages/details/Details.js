@@ -29,10 +29,10 @@ const Details = ({ route }) => {
 
   const images = [image, image2, image3, image4, image5];
   const dispatch = useDispatch();
-  const [modalVisible, setModalVisible] = useState(false); 
+  const [modalVisible, setModalVisible] = useState(false);
 
   const toggleModal = () => {
-    setModalVisible(!modalVisible); 
+    setModalVisible(!modalVisible);
   };
 
   const addItem = item => {
@@ -42,12 +42,12 @@ const Details = ({ route }) => {
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollView}>
-      <SliderBox
-  images={item && item.imageUrls ? item.imageUrls : []}
-  sliderBoxHeight={Dimensions.get('window').height * 0.5}
-  resizeMethod={'resize'}
-  resizeMode={'contain'}
-/>
+        <SliderBox
+          images={item && item.imageUrls ? item.imageUrls : []}
+          sliderBoxHeight={Dimensions.get('window').height * 0.5}
+          resizeMethod={'resize'}
+          resizeMode={'contain'}
+        />
         <View style={styles.priceContainer}>
           <Text style={styles.priceText}>Price: {item.mrp}</Text>
           <TouchableOpacity>
@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
     borderBottomColor: '#000',
   },
   tagsContainer: {
-    marginHorizontal:20,
+    marginHorizontal: 20,
     width: '100%',
     borderBottomWidth: 1,
     borderBottomColor: '#000',
@@ -127,15 +127,15 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#000',
     marginVertical: 10,
-    alignItems:"center"
+    alignItems: "center"
   },
   notesContainer: {
     flexDirection: 'row',
     width: '100%',
     borderBottomWidth: 1,
     borderBottomColor: '#000',
-    alignItems:"center",
-    marginHorizontal:20
+    alignItems: "center",
+    marginHorizontal: 20
   },
   priceText: {
     marginVertical: 10,
@@ -163,8 +163,8 @@ const styles = StyleSheet.create({
   txt: {
     fontSize: 20,
     color: '#000',
-  marginHorizontal:5
-    },
+    marginHorizontal: 5
+  },
   buttonContainer: {
     borderWidth: 1,
     backgroundColor: 'gray',

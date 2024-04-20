@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Text, View, Image, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
 import { useDispatch } from 'react-redux';
 import { addItemToCart } from '../../redux/actions/Actions';
-import ModalComponent from '../../components/ModelComponent';
+import ModalComponent from '../../components/ModelComponent'; 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Apicall from './../../utils/serviceApi/serviceAPIComponent';
 
@@ -18,7 +18,7 @@ const AllCategoriesListed = ({ navigation, route }) => {
     setModalVisible(!modalVisible);
   };
   const openModal = item => {
-    console.log('openModal called with item:', item); // Add console log statement to check item
+    console.log('openModal called with item:', item);
     setSelectedItem(item);
     setModalVisible(true);
   };
@@ -52,7 +52,6 @@ const AllCategoriesListed = ({ navigation, route }) => {
       setSelectedDetails(allProductsApi.data.content);
     } else {
       console.log('Error fetching data:', allProductsApi && allProductsApi.error);
-      // Handle error
     }
   };
 
@@ -91,10 +90,10 @@ const AllCategoriesListed = ({ navigation, route }) => {
           <View style={styles.buttonsContainer}>
             <View style={{}} />
             <TouchableOpacity
-              onPress={() => openModal(item)} // Pass the item to openModal
+              onPress={() => openModal(item)}
               style={styles.buttonqty}>
               <Image
-                style={{ height: 20, width: 20 }}
+                style={styles.addqtyimg}
                 source={require('../../../assets/qty.png')}
               />
               <Text>ADD QTY</Text>
@@ -102,24 +101,27 @@ const AllCategoriesListed = ({ navigation, route }) => {
           </View>
         </View>
       </View>
-      <ModalComponent
-        modalVisible={modalVisible}
-        closeModal={() => setModalVisible(false)}
-        selectedItem={item}
-      />
     </TouchableOpacity>
   );
 
   return (
-    <FlatList
-      data={selectedDetails}
-      renderItem={renderProductItem}
-      keyExtractor={(item, index) => index.toString()}
-      numColumns={2}
-      contentContainerStyle={styles.flatListContainer}
-    />
+    <>
+      <FlatList
+        data={selectedDetails}
+        renderItem={renderProductItem}
+        keyExtractor={(item, index) => index.toString()}
+        numColumns={2}
+        contentContainerStyle={styles.flatListContainer}
+      />
+      <ModalComponent
+        modalVisible={modalVisible}
+        closeModal={() => setModalVisible(false)}
+        selectedItem={selectedItem}
+      />
+    </>
   );
 };
+
 
 const styles = StyleSheet.create({
   productItem: {
@@ -187,6 +189,10 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     flexDirection: 'row',
     justifyContent: 'center'
+  },
+  addqtyimg: {
+    height: 20,
+    width: 20
   },
   flatListContainer: {
     paddingHorizontal: 8,

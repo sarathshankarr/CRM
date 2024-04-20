@@ -1,16 +1,14 @@
-// Reducers.js
-
 import { ADD_SELECTED_IMAGE, ADD_TO_CART, ADD_TO_PENDING, DELETE_NOTE, REMOVE_FROM_CART, REMOVE_SELECTED_IMAGE, SET_NOTE_DETAILS, SET_NOTE_SAVED, UPDATE_CART_ITEM } from '../ActionTypes';
 
 const initialState = {
-  cartItems: [], 
+  cartItems: [],
   selectedImages: [],
   pendingItems: [],
   noteDetails: {
     title: '',
     description: ''
-  } ,
-  notes: [] ,// Add other initial states as needed
+  },
+  notes: [],
   noteSaved: false,
 };
 
@@ -54,15 +52,15 @@ const reducers = (state = initialState, action) => {
         ...state,
         pendingItems: state.pendingItems.concat(action.payload),
       };
-      case SET_NOTE_DETAILS:
-        return {
-          ...state,
-          noteDetails: {
-            ...state.noteDetails,
-            ...action.payload
-          }
-        };
-      
+    case SET_NOTE_DETAILS:
+      return {
+        ...state,
+        noteDetails: {
+          ...state.noteDetails,
+          ...action.payload
+        }
+      };
+
     case DELETE_NOTE:
       return {
         ...state,
@@ -71,7 +69,7 @@ const reducers = (state = initialState, action) => {
           description: '',
         }
       };
-      case SET_NOTE_SAVED:
+    case SET_NOTE_SAVED:
       return {
         ...state,
         noteSaved: action.payload,

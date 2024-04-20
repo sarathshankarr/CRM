@@ -1,55 +1,47 @@
 import React, { useState, useEffect } from 'react';
-import {StyleSheet,View, ActivityIndicator,Text} from 'react-native';
+import { StyleSheet, View, ActivityIndicator, Text } from 'react-native';
 
-const LoaderComponent = ({loaderText,...props }) => {
+const LoaderComponent = ({ loaderText, ...props }) => {
 
     const [lMsg, set_lMsg] = useState('');
-
     return (
-
-        <View style={[styles.mainActivity,{zIndex:999}]}>
-
-            <View style = {styles.loaderBckViewStyle}>
-                <ActivityIndicator size="large" color="black"/>
+        <View style={[styles.mainActivity, { zIndex: 999 }]}>
+            <View style={styles.loaderBckViewStyle}>
+                <ActivityIndicator size="large" color="black" />
                 <Text style={styles.textStyle}>{loaderText}</Text>
-            </View>       
-            
+            </View>
         </View>
-        
+
     );
 };
 
 export default LoaderComponent;
 
 const styles = StyleSheet.create({
-
-    mainActivity : {
+    mainActivity: {
         position: 'absolute',
         justifyContent: "center",
         alignItems: "center",
         backgroundColor: 'transparent',
-        width:400,
-        height:800,
+        width: 400,
+        height: 800,
     },
-
-    textStyle : {
+    textStyle: {
         fontWeight: 'normal',
         fontSize: 30,
-        color:'black',
+        color: 'black',
         marginRight: 2,
-        marginTop : 2,
-        marginBottom : 2,
-        textAlign:'center',
-        justifyContent:'center'
+        marginTop: 2,
+        marginBottom: 2,
+        textAlign: 'center',
+        justifyContent: 'center'
     },
-
-    loaderBckViewStyle : {
-        width : 220,
-        minHeight : 150,
+    loaderBckViewStyle: {
+        width: 220,
+        minHeight: 150,
         justifyContent: "center",
         alignItems: "center",
-        backgroundColor:'#D3D3D3',
-        borderRadius:10
+        backgroundColor: '#D3D3D3',
+        borderRadius: 10
     },
-
 });

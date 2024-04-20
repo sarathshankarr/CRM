@@ -101,47 +101,32 @@ const Sidebar = ({ userName, companyName }) => {
       </View>
       <TouchableOpacity
         onPress={goToHome}
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          marginHorizontal: 10,
-          marginVertical: 25,
-        }}>
+        style={styles.homeheader}>
         <Image
-          style={{ height: 40, width: 40 }}
+          style={styles.homeimg}
           source={require('../assets/store.png')}
         />
-        <Text style={{ fontSize: 16, marginLeft: 10 }}>Home</Text>
+        <Text style={styles.hometxt}>Home</Text>
       </TouchableOpacity>
       <TouchableOpacity
         onPress={goToCategories}
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          marginHorizontal: 10,
-        }}>
+        style={styles.categorieshead}>
         <Image
-          style={{ height: 40, width: 40 }}
+          style={styles.categoriesimg}
           source={require('../assets/cate.png')}
         />
-        <Text style={{ fontSize: 16, marginLeft: 10 }}>Categories</Text>
+        <Text style={styles.categoriestxt}>Categories</Text>
       </TouchableOpacity>
       <TouchableOpacity
         onPress={goToOrder}
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          marginHorizontal: 10,
-          marginVertical: 25,
-        }}>
+        style={styles.orderhead}>
         <Image
-          style={{ height: 40, width: 40 }}
+          style={styles.orderimg}
           source={require('../assets/order.png')}
         />
-        <Text style={{ fontSize: 16, marginLeft: 10 }}>Order</Text>
+        <Text style={styles.ordertxt}>Order</Text>
       </TouchableOpacity>
 
-      {/* Profile Image Modal */}
       <Modal
         animationType="slide"
         transparent={true}
@@ -170,7 +155,6 @@ const Sidebar = ({ userName, companyName }) => {
         </View>
       </Modal>
 
-      {/* Logout box positioned at the bottom */}
       <View style={styles.logoutContainer}>
         <TouchableOpacity onPress={handleLogout} style={styles.logoutbox}>
           <Image
@@ -231,6 +215,50 @@ const styles = StyleSheet.create({
     color: '#fff',
     marginBottom: 10,
   },
+  homeheader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 10,
+    marginVertical: 25,
+  },
+  homeimg: {
+    height: 40,
+    width: 40
+  },
+  hometxt:
+  {
+    fontSize: 16,
+    marginLeft: 10
+  },
+  categorieshead: {
+
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 10,
+  },
+  categoriesimg:
+  {
+    height: 40,
+    width: 40
+  },
+  categoriestxt: {
+    fontSize: 16,
+    marginLeft: 10
+  },
+  orderhead: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 10,
+    marginVertical: 25,
+  },
+  orderimg: {
+    height: 40,
+    width: 40
+  },
+  ordertxt: {
+    fontSize: 16,
+    marginLeft: 10
+  },
   logoutContainer: {
     position: 'absolute',
     bottom: 0,
@@ -246,7 +274,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginHorizontal: 30,
     justifyContent: 'center',
-    marginBottom:10
+    marginBottom: 10
   },
   logoutimg: {
     height: 20,

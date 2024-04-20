@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Text, View, Image, StyleSheet, FlatList, TouchableOpacity, TextInput } from 'react-native';
-import { PRODUCT_DETAILS } from '../components/ProductDetails';
-import { API } from '../../config/apiConfig';
 import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
 import { getAllCategories } from '../utils/serviceApi/serviceAPIComponent';
 
@@ -27,7 +25,7 @@ const Categories = ({ navigation }) => {
       console.log('Received data from getAllCategories:', data);
 
       if (data) {
-        setSelectedDetails(data); // Update state with received data
+        setSelectedDetails(data);
       } else {
         console.error('Error fetching categories:', error);
       }
@@ -50,20 +48,15 @@ const Categories = ({ navigation }) => {
   };
 
   const renderProductItem = ({ item }) => {
-    // Destructure item
     const { categoryDesc, imageUrls } = item;
-
     return (
-
       <TouchableOpacity
         style={styles.productItem}
         onPress={() => {
           console.log('Pressed item:', item);
           navigation.navigate('AllCategoriesListed', { item, categoryId: item.categoryId });
         }}
-        
       >
-
         <View style={styles.productImageContainer}>
           {imageUrls && imageUrls.length > 0 ? (
             <Image
@@ -112,7 +105,6 @@ const Categories = ({ navigation }) => {
         numColumns={2}
         contentContainerStyle={styles.productList}
       />
-
     </View>
   );
 };

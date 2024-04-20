@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
   Image,
   Modal,
@@ -9,8 +9,8 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {useDispatch, useSelector} from 'react-redux';
-import {addToPending, removeFromCart, updateCartItem} from '../../redux/actions/Actions';
+import { useDispatch, useSelector } from 'react-redux';
+import { addToPending, removeFromCart, updateCartItem } from '../../redux/actions/Actions';
 import Clipboard from '@react-native-clipboard/clipboard';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { useNavigation } from '@react-navigation/native';
@@ -27,19 +27,15 @@ const Cart = () => {
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
   };
+
   const handlePlaceOrder = () => {
     console.log('Placing order...');
     console.log('Cart items:', cartItems);
-    
-    // Navigate to Home screen
-    
-    // Navigate to the Pending screen within the Order stack
     navigation.navigate('Order', {
       screen: 'Pending',
       params: { cartItems: cartItems },
     });
   };
-
 
   const showDatePicker = () => {
     setDatePickerVisibility(true);
@@ -67,7 +63,6 @@ const Cart = () => {
   };
 
   const handleCopyToClipboard = (quantity, field, index) => {
-    // Update all quantity fields
     [
       'smallQuantity',
       'mediumQuantity',
@@ -80,7 +75,7 @@ const Cart = () => {
       dispatch(updateCartItem(index, quantityField, quantity));
     });
 
-    Clipboard.setString(quantity.toString()); // Set the value to clipboard
+    Clipboard.setString(quantity.toString());
   };
 
   const handleRemoveItem = itemIndex => {
@@ -89,8 +84,8 @@ const Cart = () => {
 
   const handleQuantityChange = (index, field, text) => {
     const currentItem = cartItems[index];
-    const newQuantity = text === '' ? '' : parseInt(text).toString(); // Convert empty string to actual empty string or integer
-    const newCartItem = {...currentItem, [field]: newQuantity};
+    const newQuantity = text === '' ? '' : parseInt(text).toString();
+    const newCartItem = { ...currentItem, [field]: newQuantity };
     dispatch(updateCartItem(index, field, newQuantity));
   };
 
@@ -114,19 +109,19 @@ const Cart = () => {
     return (
       total +
       parseInt(item.mrp) *
-        ((parseInt(item.extraSmallQuantity) || 0) +
-          (parseInt(item.smallQuantity) || 0) +
-          (parseInt(item.mediumQuantity) || 0) +
-          (parseInt(item.largeQuantity) || 0) +
-          (parseInt(item.extralargeQuantity) || 0) +
-          (parseInt(item.doublelargeQuantity) || 0) +
-          (parseInt(item.triblelargeQuantity) || 0) +
-          (parseInt(item.fivelargeQuantity) || 0))
+      ((parseInt(item.extraSmallQuantity) || 0) +
+        (parseInt(item.smallQuantity) || 0) +
+        (parseInt(item.mediumQuantity) || 0) +
+        (parseInt(item.largeQuantity) || 0) +
+        (parseInt(item.extralargeQuantity) || 0) +
+        (parseInt(item.doublelargeQuantity) || 0) +
+        (parseInt(item.triblelargeQuantity) || 0) +
+        (parseInt(item.fivelargeQuantity) || 0))
     );
   }, 0);
 
   return (
-    <View style={{flex: 1}}>
+    <View style={{ flex: 1 }}>
       <ScrollView style={style.container}>
         <View style={style.header}>
           <Text style={style.txt}>Total Items: {totalItems}</Text>
@@ -135,16 +130,16 @@ const Cart = () => {
           cartItems.map((item, index) => (
             <View key={index}>
               <View style={style.imgContainer}>
-              <TouchableOpacity style={style.itemContainer}>
-    {item.imageUrls && item.imageUrls.length > 0 ? ( // Check if imageUrls exists and has at least one URL
-      <Image source={{ uri: item.imageUrls[0] }} style={style.image} /> // Use the first URL from imageUrls
-    ) : (
-      <Text>No Image</Text> // Display a placeholder if no image is available
-    )}
-    <Text style={{ fontSize: 15, fontWeight: 'bold' }}>
-      {item.colorName}
-    </Text>
-  </TouchableOpacity>
+                <TouchableOpacity style={style.itemContainer}>
+                  {item.imageUrls && item.imageUrls.length > 0 ? (
+                    <Image source={{ uri: item.imageUrls[0] }} style={style.image} />
+                  ) : (
+                    <Text>No Image</Text>
+                  )}
+                  <Text style={{ fontSize: 15, fontWeight: 'bold' }}>
+                    {item.colorName}
+                  </Text>
+                </TouchableOpacity>
                 <View style={style.buttonsContainer}>
                   <TouchableOpacity>
                     <Image
@@ -152,7 +147,7 @@ const Cart = () => {
                       source={require('../../../assets/edit.png')}
                     />
                   </TouchableOpacity>
-                  <TouchableOpacity onPress={()=>{
+                  <TouchableOpacity onPress={() => {
                     navigation.navigate("Add Note")
                   }}>
                     <Image
@@ -169,32 +164,27 @@ const Cart = () => {
                 </View>
               </View>
               <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  backgroundColor: 'lightgray',
-                  paddingVertical: 5,
-                }}>
-                <View style={{flex: 1}}>
-                  <Text style={{marginLeft: 10}}>COLOR/SIZE</Text>
+                style={style.sizehead}>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ marginLeft: 10 }}>COLOR/SIZE</Text>
                 </View>
-                <View style={{flex: 1}}>
+                <View style={{ flex: 1 }}>
                   <Text>QUANTITY</Text>
                 </View>
-                <View style={{flex: 1}}>
+                <View style={{ flex: 1 }}>
                   <Text>PRICE</Text>
                 </View>
               </View>
 
               <View>
-                <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                  <View style={{flex: 1}}>
-                    <Text>.Extra Small</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{marginLeft:10}}>.Extra Small</Text>
                   </View>
-                  <View style={{flex: 0.7, justifyContent: 'center'}}>
+                  <View style={{ flex: 0.7, justifyContent: 'center' }}>
                     <TextInput
-                      style={{alignItems: 'center', marginLeft: 17}}
-                      value={item.extraSmallQuantity.toString()} // Assuming extraSmallQuantity is a string
+                      style={{ alignItems: 'center', marginLeft: 17 }}
+                      value={item.extraSmallQuantity.toString()}
                       onChangeText={text =>
                         handleQuantityChange(index, 'extraSmallQuantity', text)
                       }
@@ -207,11 +197,11 @@ const Cart = () => {
                         marginRight: 50,
                       }}></View>
                   </View>
-                  <View style={{flex: 0.8}}>
-                    <Text>{item.mrp}</Text>
+                  <View style={{ flex: 0.8 }}>
+                    <Text  style={{marginLeft:20}}>{item.mrp}</Text>
                   </View>
                   <TouchableOpacity
-                    style={{marginRight: 10}}
+                    style={{ marginRight: 10 }}
                     onPress={() =>
                       handleCopyToClipboard(
                         item.extraSmallQuantity,
@@ -220,7 +210,7 @@ const Cart = () => {
                       )
                     }>
                     <Image
-                      style={{height: 20, width: 20}}
+                      style={{ height: 20, width: 20 }}
                       source={require('../../../assets/copy.png')}
                     />
                   </TouchableOpacity>
@@ -231,13 +221,13 @@ const Cart = () => {
                     borderBottomWidth: 1,
                     borderBottomColor: 'gray',
                   }}></View>
-                <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                  <View style={{flex: 1}}>
-                    <Text>Small Quantity:</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{marginLeft:10}}>Small Quantity:</Text>
                   </View>
-                  <View style={{flex: 0.7, justifyContent: 'center'}}>
+                  <View style={{ flex: 0.7, justifyContent: 'center' }}>
                     <TextInput
-                      style={{alignItems: 'center', marginLeft: 17}}
+                      style={{ alignItems: 'center', marginLeft: 17 }}
                       value={item.smallQuantity.toString()}
                       onChangeText={
                         text =>
@@ -253,8 +243,8 @@ const Cart = () => {
                         marginRight: 50,
                       }}></View>
                   </View>
-                  <View style={{flex: 1}}>
-                    <Text>{item.mrp}</Text>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{marginLeft:20}}>{item.mrp}</Text>
                   </View>
                 </View>
                 <View
@@ -264,13 +254,13 @@ const Cart = () => {
                     borderBottomColor: 'gray',
                   }}></View>
 
-                <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                  <View style={{flex: 1}}>
-                    <Text>Medium Quantity:</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{marginLeft:10}}>Medium Quantity:</Text>
                   </View>
-                  <View style={{flex: 0.7, justifyContent: 'center'}}>
+                  <View style={{ flex: 0.7, justifyContent: 'center' }}>
                     <TextInput
-                      style={{alignItems: 'center', marginLeft: 17}}
+                      style={{ alignItems: 'center', marginLeft: 17 }}
                       value={item.mediumQuantity.toString()}
                       onChangeText={
                         text =>
@@ -286,8 +276,8 @@ const Cart = () => {
                         marginRight: 50,
                       }}></View>
                   </View>
-                  <View style={{flex: 1}}>
-                    <Text>{item.mrp}</Text>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{marginLeft:20}}>{item.mrp}</Text>
                   </View>
                 </View>
                 <View
@@ -297,13 +287,13 @@ const Cart = () => {
                     borderBottomColor: 'gray',
                   }}></View>
 
-                <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                  <View style={{flex: 1}}>
-                    <Text>Large Quantity:</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{marginLeft:10}}>Large Quantity:</Text>
                   </View>
-                  <View style={{flex: 0.7, justifyContent: 'center'}}>
+                  <View style={{ flex: 0.7, justifyContent: 'center' }}>
                     <TextInput
-                      style={{alignItems: 'center', marginLeft: 17}}
+                      style={{ alignItems: 'center', marginLeft: 17 }}
                       value={item.largeQuantity.toString()}
                       onChangeText={
                         text =>
@@ -319,8 +309,8 @@ const Cart = () => {
                         marginRight: 50,
                       }}></View>
                   </View>
-                  <View style={{flex: 1}}>
-                    <Text>{item.mrp}</Text>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{marginLeft:20}}>{item.mrp}</Text>
                   </View>
                 </View>
                 <View
@@ -330,13 +320,13 @@ const Cart = () => {
                     borderBottomColor: 'gray',
                   }}></View>
 
-                <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                  <View style={{flex: 1}}>
-                    <Text>Extra Large Quantity:</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{marginLeft:10}}>Extra Large Quantity:</Text>
                   </View>
-                  <View style={{flex: 0.7, justifyContent: 'center'}}>
+                  <View style={{ flex: 0.7, justifyContent: 'center' }}>
                     <TextInput
-                      style={{alignItems: 'center', marginLeft: 17}}
+                      style={{ alignItems: 'center', marginLeft: 17 }}
                       value={item.extralargeQuantity?.toString()}
                       onChangeText={
                         text =>
@@ -344,7 +334,7 @@ const Cart = () => {
                             index,
                             'extralargeQuantity',
                             text,
-                          ) // Use 'smallQuantity' as the field parameter
+                          )
                       }
                       keyboardType="numeric"
                     />
@@ -356,8 +346,8 @@ const Cart = () => {
                         marginRight: 50,
                       }}></View>
                   </View>
-                  <View style={{flex: 1}}>
-                    <Text>{item.mrp}</Text>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{marginLeft:20}}>{item.mrp}</Text>
                   </View>
                 </View>
                 <View
@@ -367,13 +357,13 @@ const Cart = () => {
                     borderBottomColor: 'gray',
                   }}></View>
 
-                <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                  <View style={{flex: 1}}>
-                    <Text>2x Large Quantity:</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{marginLeft:10}}>2x Large Quantity:</Text>
                   </View>
-                  <View style={{flex: 0.7, justifyContent: 'center'}}>
+                  <View style={{ flex: 0.7, justifyContent: 'center' }}>
                     <TextInput
-                      style={{alignItems: 'center', marginLeft: 17}}
+                      style={{ alignItems: 'center', marginLeft: 17 }}
                       value={item.doublelargeQuantity?.toString()}
                       onChangeText={
                         text =>
@@ -381,7 +371,7 @@ const Cart = () => {
                             index,
                             'doublelargeQuantity',
                             text,
-                          ) // Use 'smallQuantity' as the field parameter
+                          )
                       }
                       keyboardType="numeric"
                     />
@@ -393,8 +383,8 @@ const Cart = () => {
                         marginRight: 50,
                       }}></View>
                   </View>
-                  <View style={{flex: 1}}>
-                    <Text>{item.mrp}</Text>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{marginLeft:20}}>{item.mrp}</Text>
                   </View>
                 </View>
                 <View
@@ -403,13 +393,13 @@ const Cart = () => {
                     borderBottomWidth: 1,
                     borderBottomColor: 'gray',
                   }}></View>
-                <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                  <View style={{flex: 1}}>
-                    <Text>3x Large Quantity:</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{marginLeft:10}}>3x Large Quantity:</Text>
                   </View>
-                  <View style={{flex: 0.7, justifyContent: 'center'}}>
+                  <View style={{ flex: 0.7, justifyContent: 'center' }}>
                     <TextInput
-                      style={{alignItems: 'center', marginLeft: 17}}
+                      style={{ alignItems: 'center', marginLeft: 17 }}
                       value={
                         item && item.triblelargeQuantity !== undefined
                           ? item.triblelargeQuantity.toString()
@@ -428,8 +418,8 @@ const Cart = () => {
                         marginRight: 50,
                       }}></View>
                   </View>
-                  <View style={{flex: 1}}>
-                    <Text>{item.mrp}</Text>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{marginLeft:20}}>{item.mrp}</Text>
                   </View>
                 </View>
                 <View
@@ -439,13 +429,13 @@ const Cart = () => {
                     borderBottomColor: 'gray',
                   }}></View>
 
-                <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                  <View style={{flex: 1}}>
-                    <Text>5x Large Quantity: </Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{marginLeft:10}}>5x Large Quantity: </Text>
                   </View>
-                  <View style={{flex: 0.7, justifyContent: 'center'}}>
+                  <View style={{ flex: 0.7, justifyContent: 'center' }}>
                     <TextInput
-                      style={{alignItems: 'center', marginLeft: 17}}
+                      style={{ alignItems: 'center', marginLeft: 17 }}
                       value={
                         item && item.fivelargeQuantity
                           ? item.fivelargeQuantity.toString()
@@ -464,8 +454,8 @@ const Cart = () => {
                         marginRight: 50,
                       }}></View>
                   </View>
-                  <View style={{flex: 1}}>
-                    <Text>{item.mrp}</Text>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{marginLeft:20}}>{item.mrp}</Text>
                   </View>
                 </View>
                 <View
@@ -481,13 +471,13 @@ const Cart = () => {
             </View>
           ))}
       </ScrollView>
-      <View style={{backgroundColor: '#fff'}}>
-        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+      <View style={{ backgroundColor: '#fff' }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
           <TouchableOpacity
             onPress={showDatePicker}
-            style={{flexDirection: 'row', alignItems: 'center'}}>
-            <View style={{paddingVertical: 10}}>
-              <Text>{selatedDate}</Text>
+            style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <View style={{ paddingVertical: 10 }}>
+              <Text style={{marginLeft:10}}>{selatedDate}</Text>
             </View>
           </TouchableOpacity>
           <TouchableOpacity
@@ -511,7 +501,7 @@ const Cart = () => {
             marginTop: 10,
           }}></View>
         <View>
-          <TextInput placeholder="Add Note" />
+          <TextInput style={{marginLeft:10}} placeholder="Add Note" />
         </View>
         <View
           style={{
@@ -521,84 +511,80 @@ const Cart = () => {
           }}></View>
 
         <View style={style.bottomContainer}>
-          <View style={{flex: 1}}>
+          <View style={{ flex: 1 }}>
             <Text>Total Qty: {totalQty}</Text>
           </View>
-          <View style={{flex: 1}}>
+          <View style={{ flex: 1 }}>
             <Text>Total Set: {totalItems}</Text>
           </View>
-          <View style={{flex: 1}}>
+          <View style={{ flex: 1 }}>
             <Text>Total Amt: {totalPrice}</Text>
           </View>
         </View>
         <TouchableOpacity onPress={toggleModal} style={style.plusButton}>
-        <Image
-          style={{height: 30, width: 30, justifyContent: 'center', alignItems: 'center'}}
-          source={require('../../../assets/plus.png')}
-        />
-      </TouchableOpacity>
-      <TouchableOpacity onPress={handlePlaceOrder}
-  style={{
-    borderWidth: 1,
-    borderColor: 'green',
-    backgroundColor: 'green',
-    marginVertical: 5,
-    paddingVertical: 15,
-    paddingHorizontal: 20,
-  }}>
-  <Text
-    style={{
-      textAlign: 'center',
-      color: '#fff',
-      fontWeight: 'bold',
-      fontSize: 20,
-    }}>
-    PLACE ORDER
-  </Text>
-</TouchableOpacity>
-
-
-
-
+          <Image
+            style={{ height: 30, width: 30, justifyContent: 'center', alignItems: 'center' }}
+            source={require('../../../assets/plus.png')}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={handlePlaceOrder}
+          style={{
+            borderWidth: 1,
+            borderColor: 'green',
+            backgroundColor: 'green',
+            marginVertical: 5,
+            paddingVertical: 15,
+            paddingHorizontal: 20,
+          }}>
+          <Text
+            style={{
+              textAlign: 'center',
+              color: '#fff',
+              fontWeight: 'bold',
+              fontSize: 20,
+            }}>
+            PLACE ORDER
+          </Text>
+        </TouchableOpacity>
         <DateTimePickerModal
           isVisible={isDatePickerVisible}
           mode="date"
           onConfirm={handleDateConfirm}
           onCancel={hideDatePicker}
         />
-     <Modal
-        animationType="fade"
-        transparent={true}
-        visible={isModalVisible}
-        onRequestClose={() => {
-          toggleModal();
-        }}>
-        <View style={style.modalContainer}>
-          <View style={style.modalContent}>
-            <Text style={style.modalTitle}>Customer Details</Text>
-            <TextInput
-              style={style.input}
-              placeholder="Customer Name"
-            />
-            <TextInput
-              style={style.input}
-              placeholder="Address"
-            />
-            <TextInput
-              style={style.input}
-              placeholder="Gst Number"
-            />
-            <TouchableOpacity
-              style={style.saveButton}
-              onPress={() => {
-                // Logic to save customer details
-                toggleModal();
-              }}>
-              <Text style={style.saveButtonText}>Save</Text>
-            </TouchableOpacity>
+        <Modal
+          animationType="fade"
+          transparent={true}
+          visible={isModalVisible}
+          onRequestClose={() => {
+            toggleModal();
+          }}>
+          <View style={style.modalContainer}>
+            <View style={style.modalContent}>
+              <Text style={style.modalTitle}>Customer Details</Text>
+              <TextInput
+                style={style.input}
+                placeholder="Customer Name"
+              />
+              <TextInput
+                style={style.input}
+                placeholder="Address"
+              />
+              <TextInput
+                style={style.input}
+                placeholder="Gst Number"
+              />
+              <TouchableOpacity
+                style={style.saveButton}
+                onPress={() => {
+                  // Logic to save customer details
+                  toggleModal();
+                }}>
+                <Text style={style.saveButtonText}>Save</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
-      </Modal>
+        </Modal>
       </View>
     </View>
   );
@@ -641,6 +627,12 @@ const style = StyleSheet.create({
     height: 25,
     marginLeft: 10,
   },
+  sizehead: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'lightgray',
+    paddingVertical: 5,
+  },
   bottomContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -651,8 +643,8 @@ const style = StyleSheet.create({
     backgroundColor: '#fff',
   },
   dateIconContainer: {
-    justifyContent: 'center', // Center the icon vertically
-    paddingLeft: 20, // Add some padding to the left
+    justifyContent: 'center',
+    paddingLeft: 20,
     marginHorizontal: 15,
   },
   dateIcon: {
@@ -698,10 +690,10 @@ const style = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
   },
-  plusButton:{
-    alignItems:'center',
-    justifyContent:'center',
-    textAlign:'center'
+  plusButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    textAlign: 'center'
   }
 });
 

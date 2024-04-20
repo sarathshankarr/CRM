@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Text,
   View,
@@ -11,8 +11,8 @@ import {
   StyleSheet,
 } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
-import {useDispatch, useSelector} from 'react-redux';
-import {addItemToCart} from '../redux/actions/Actions';
+import { useDispatch, useSelector } from 'react-redux';
+import { addItemToCart } from '../redux/actions/Actions';
 
 const ProductRow = ({
   label,
@@ -45,34 +45,38 @@ const ProductRow = ({
   };
   return (
     <View style={styles.rowContainer}>
-      <Text style={styles.label}>{label}</Text>
+      <View style={styles.labelContainer}>
+        <Text style={styles.label}>{label}</Text>
+      </View>
       <View style={styles.inputContainer}>
         <TextInput
-          style={{textAlign: 'center'}}
+          style={{ textAlign: 'center' }}
           keyboardType="numeric"
           value={quantity}
           onChangeText={handleQuantityChange}
         />
         <View style={styles.underline}></View>
+
       </View>
-      <View style={styles.spaceBetweenContainer}>
-        <Text style={{alignItems: 'center', marginLeft: 30}}>
-          {item && item.price}
+      <View style={{ flex: 0.4 }}>
+        <Text style={{ alignItems: 'center', marginLeft: 50 }}>
+          {item && item.mrp}
         </Text>
-        <Text style={{alignItems: 'center', marginLeft: 10}}>{value2}</Text>
-        <Text style={{alignItems: 'center', marginLeft: 10}}>{value3}</Text>
-        <TouchableOpacity onPress={copyValueToClipboard}>
-          <Image style={{height: 20, width: 20}} source={copyImageSource} />
-        </TouchableOpacity>
       </View>
+
+      {label === ".Extra Small" && (
+        <TouchableOpacity onPress={copyValueToClipboard} style={styles.copyButton}>
+          <Image style={styles.copyImage} source={copyImageSource} />
+        </TouchableOpacity>
+      )}
     </View>
+
   );
 };
 
-const ModalComponent = ({modalVisible, closeModal, selectedItem}) => {
+const ModalComponent = ({ modalVisible, closeModal, selectedItem }) => {
   useEffect(() => {
     if (selectedItem) {
-      // Initialize each quantity state with the initial quantity value passed from props
       setExtraSmallQuantity(selectedItem.extraSmallQuantity || '');
       setSmallQuantity(selectedItem.smallQuantity || '');
       setMediumQuantity(selectedItem.mediumQuantity || '');
@@ -151,7 +155,7 @@ const ModalComponent = ({modalVisible, closeModal, selectedItem}) => {
   };
 
   const handleAddToCart = item => {
-    dispatch(addItemToCart(item)); // Dispatch the action with the item data
+    dispatch(addItemToCart(item));
   };
 
   const handleCategoryPress = details => {
@@ -206,46 +210,34 @@ const ModalComponent = ({modalVisible, closeModal, selectedItem}) => {
       <ScrollView
         contentContainerStyle={[
           styles.modalContainer,
-          {marginBottom: keyboardSpace},
+          { marginBottom: keyboardSpace },
         ]}
         keyboardShouldPersistTaps="handled">
         <View style={styles.modalContent}>
-          <View style={{backgroundColor: 'green', padding: 10}}>
-            <Text style={{color: 'white', fontWeight: 'bold'}}>
+          <View style={styles.addqtyhead}>
+            <Text style={styles.addqtytxt}>
               Add Quantity
             </Text>
           </View>
 
           <View
-            style={{
-              padding: 1,
-              backgroundColor: '#E7E7E7',
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-            }}>
-            <Text style={{marginLeft: 5, color: '#000', fontWeight: 'bold'}}>
+            style={styles.sizehead}>
+            <Text style={styles.sizetxt}>
               Size/Color
             </Text>
-            <Text style={{color: '#000', fontWeight: 'bold'}}>Quantity</Text>
-            <Text style={{color: '#000', fontWeight: 'bold'}}>Price</Text>
-            <Text style={{color: '#000', fontWeight: 'bold'}}>
-              1day {'\n'}stock
-            </Text>
-            <Text style={{marginRight: 50, color: '#000', fontWeight: 'bold'}}>
-              3day {'\n'}stock
-            </Text>
+            <Text style={styles.quantitytxt}>Quantity</Text>
+            <Text style={styles.quantitytxt}>Price</Text>
           </View>
           {selectedItem && (
-            <View style={{marginHorizontal: 10, marginVertical: 10}}>
-              <Text style={{color: '#000', fontWeight: 'bold'}}>
+            <View style={styles.selectedItemhead}>
+              <Text style={styles.selectedItemtext}>
                 {selectedItem.name}
               </Text>
             </View>
           )}
-          <ScrollView style={{maxHeight: '70%'}}>
+          <ScrollView style={{ maxHeight: '70%' }}>
             <ProductRow
-              item={selectedItem} // Pass the item object here
+              item={selectedItem}
               label=".Extra Small"
               copyImageSource={require('../../assets/copy.png')}
               quantity={extraSmallQuantity}
@@ -268,12 +260,10 @@ const ModalComponent = ({modalVisible, closeModal, selectedItem}) => {
                 borderBottomColor: 'gray',
               }}></View>
             <ProductRow
-              item={selectedItem} // Pass the item object here
+              item={selectedItem}
               label="1.Small"
               quantity={smallQuantity}
               handleQuantityChange={handleSmallQuantityChange}
-              value2="N/A"
-              value3="N/A"
             />
             <View
               style={{
@@ -281,12 +271,10 @@ const ModalComponent = ({modalVisible, closeModal, selectedItem}) => {
                 borderBottomColor: 'gray',
               }}></View>
             <ProductRow
-              item={selectedItem} // Pass the item object here
+              item={selectedItem}
               label="2.Medium"
               quantity={mediumQuantity}
               handleQuantityChange={handleMediumQuantityChange}
-              value2="61"
-              value3="4"
             />
             <View
               style={{
@@ -294,12 +282,10 @@ const ModalComponent = ({modalVisible, closeModal, selectedItem}) => {
                 borderBottomColor: 'gray',
               }}></View>
             <ProductRow
-              item={selectedItem} // Pass the item object here
+              item={selectedItem}
               label="3.Large"
               quantity={largeQuantity}
               handleQuantityChange={handleLargeQuantityChange}
-              value2="61"
-              value3="4"
             />
             <View
               style={{
@@ -307,12 +293,10 @@ const ModalComponent = ({modalVisible, closeModal, selectedItem}) => {
                 borderBottomColor: 'gray',
               }}></View>
             <ProductRow
-              item={selectedItem} // Pass the item object here
+              item={selectedItem}
               label="4.Extra Large"
               quantity={extralargeQuantity}
               handleQuantityChange={handleExtraQuantityChange}
-              value2="61"
-              value3="4"
             />
             <View
               style={{
@@ -320,12 +304,10 @@ const ModalComponent = ({modalVisible, closeModal, selectedItem}) => {
                 borderBottomColor: 'gray',
               }}></View>
             <ProductRow
-              item={selectedItem} // Pass the item object here
+              item={selectedItem}
               label="5.2x Large"
               quantity={doublelargeQuantity}
               handleQuantityChange={handlDoubleQuantityChange}
-              value2="61"
-              value3="4"
             />
             <View
               style={{
@@ -333,12 +315,10 @@ const ModalComponent = ({modalVisible, closeModal, selectedItem}) => {
                 borderBottomColor: 'gray',
               }}></View>
             <ProductRow
-              item={selectedItem} // Pass the item object here
+              item={selectedItem}
               label="6.3x Large"
               quantity={triblelargeQuantity}
               handleQuantityChange={handleTribleQuantityChange}
-              value2="61"
-              value3="4"
             />
             <View
               style={{
@@ -346,12 +326,10 @@ const ModalComponent = ({modalVisible, closeModal, selectedItem}) => {
                 borderBottomColor: 'gray',
               }}></View>
             <ProductRow
-              item={selectedItem} // Pass the item object here
+              item={selectedItem}
               label="7.5x Large"
               quantity={fivelargeQuantity}
               handleQuantityChange={handleFiveQuantityChange}
-              value2="61"
-              value3="4"
             />
             <View
               style={{
@@ -378,7 +356,7 @@ const ModalComponent = ({modalVisible, closeModal, selectedItem}) => {
                 paddingHorizontal: 10,
                 borderRadius: 5,
               }}>
-              <Text style={{color: 'white', fontWeight: 'bold'}}>
+              <Text style={{ color: 'white', fontWeight: 'bold' }}>
                 CLEAR ALL
               </Text>
             </TouchableOpacity>
@@ -394,7 +372,7 @@ const ModalComponent = ({modalVisible, closeModal, selectedItem}) => {
                 paddingHorizontal: 35,
                 borderRadius: 5,
               }}>
-              <Text style={{color: 'white', fontWeight: 'bold'}}>SAVE</Text>
+              <Text style={{ color: 'white', fontWeight: 'bold' }}>SAVE</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -412,7 +390,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginTop: 10,
     alignItems: 'center',
-    justifyContent: 'center', // Center the content horizontally
+    justifyContent: 'center',
   },
   titleContainer: {
     alignItems: 'center',
@@ -421,7 +399,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#000',
     paddingVertical: 10,
-    paddingHorizontal: 45, // Adjust the width here
+    paddingHorizontal: 45,
     borderTopLeftRadius: 20,
     borderBottomLeftRadius: 20,
   },
@@ -429,7 +407,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#000',
     paddingVertical: 10,
-    paddingHorizontal: 45, // Adjust the width here
+    paddingHorizontal: 45,
     borderTopRightRadius: 20,
     borderBottomRightRadius: 20,
   },
@@ -519,6 +497,36 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'flex-end',
   },
+  addqtyhead: {
+    backgroundColor: 'green',
+    padding: 10
+  },
+  addqtytxt:
+  {
+    color: 'white',
+    fontWeight: 'bold'
+  },
+  sizehead: {
+    padding: 1,
+    backgroundColor: '#E7E7E7',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 10
+  },
+  sizetxt:
+  {
+    flex: 0.6,
+    color: '#000',
+    fontWeight: 'bold',
+    marginLeft: 5
+  },
+  quantitytxt: {
+    color: '#000',
+    fontWeight: 'bold',
+    flex: 0.4
+  },
+
   modalContent: {
     backgroundColor: '#fff',
     borderRadius: 10,
@@ -526,23 +534,33 @@ const styles = StyleSheet.create({
   rowContainer: {
     flexDirection: 'row',
     marginHorizontal: 10,
-    alignItems: 'center',
     marginBottom: 10,
+    alignItems: 'center',
   },
+
+  labelContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 0.4,
+  },
+
   label: {
-    flex: 0.3,
-    marginTop: 10,
     color: '#000',
     fontWeight: 'bold',
   },
+
+  copyButton: {
+    position: 'absolute',
+    right: 0,
+  },
+
+  copyImage: {
+    height: 20,
+    width: 18,
+  },
+
   inputContainer: {
     flex: 0.2,
-    marginLeft: 30,
-  },
-  spaceBetweenContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    flex: 1,
   },
   underline: {
     borderBottomWidth: 1,

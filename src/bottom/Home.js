@@ -2,9 +2,6 @@ import React from 'react';
 import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import Pending from '../Pages/pending/Pending';
-import Completed from '../Pages/completed/Completed';
-import Unapproved from '../Pages/unapproved/Unapproved';
 import HomeCategories from '../Pages/catogiries/HomeCategories';
 import HomeAllProducts from '../Pages/catogiries/HomeAllProducts';
 
@@ -43,25 +40,25 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-evenly',
     backgroundColor: '#ffffff',
-    marginTop:10,
-    marginHorizontal:20,
-    borderRadius:30
+    marginTop: 10,
+    marginHorizontal: 20,
+    borderRadius: 30
 
   },
   tabButton: {
-    flex: 1, // Each tab button takes up 50% of the available space
+    flex: 1,
     paddingVertical: 10,
     paddingHorizontal: 20,
-    alignItems: 'center', // Center the text horizontally
+    alignItems: 'center',
   },
   activeTabButton: {
-    backgroundColor:"green",
+    backgroundColor: "green",
     borderWidth: 1,
-    borderBottomColor: '#000', // Change to your desired active tab color
-    borderTopLeftRadius:25,
-    borderTopRightRadius:25,
-    borderBottomRightRadius:25,
-    borderBottomLeftRadius:25
+    borderBottomColor: '#000',
+    borderTopLeftRadius: 25,
+    borderTopRightRadius: 25,
+    borderBottomRightRadius: 25,
+    borderBottomLeftRadius: 25
   },
   tabText: {
     fontSize: 16,
@@ -69,7 +66,7 @@ const styles = StyleSheet.create({
   },
   activeTabText: {
     fontWeight: 'bold',
-    color:"#fff"
+    color: "#fff"
   },
 });
 

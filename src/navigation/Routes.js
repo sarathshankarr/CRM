@@ -9,7 +9,6 @@ import Cart from '../Pages/cart/Cart';
 import Profile from '../Pages/editprofile/EditProfile';
 import AllCategoriesListed from '../Pages/allcategorieslisted/AllCategoriesListed';
 import CommonHeader from '../components/CommonHeader';
-import Notes from '../Pages/notes/AddNote';
 import AddNote from '../Pages/notes/AddNote';
 import LoaderComponent from '../utils/loaderComponent/loaderComponent';
 
@@ -62,7 +61,7 @@ const Routes = () => {
               />
             ),
             headerBackVisible: true,
-          })}          
+          })}
         />
         <Stack.Screen
           name="Profile"
@@ -90,7 +89,7 @@ const Routes = () => {
           component={AddNote}
           options={{ headerShown: true }}
         />
-         <Stack.Screen
+        <Stack.Screen
           name="LoaderComponent"
           component={LoaderComponent}
           options={{ headerShown: true }}

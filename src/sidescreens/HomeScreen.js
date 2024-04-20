@@ -21,7 +21,7 @@ const HomeScreen = ({navigation}) => {
             />
           ),
           headerShown: true,
-          headerTitle: 'Home', // Set the title for Order screen
+          headerTitle: 'Home', 
           header: ({navigation}) => {
             const showDrawerButton = !['Login', 'Main', 'Cart'].includes(
               route.name,
@@ -50,7 +50,7 @@ const HomeScreen = ({navigation}) => {
           />
           ),
           headerShown: true,
-          headerTitle: 'Categories', // Set the title for Order screen
+          headerTitle: 'Categories',
           header: ({navigation}) => {
             const showDrawerButton = !['Login', 'Main', 'Cart'].includes(
               route.name,
@@ -79,7 +79,7 @@ const HomeScreen = ({navigation}) => {
             />
           ),
           headerShown: true,
-          headerTitle: 'Order', // Set the title for Order screen
+          headerTitle: 'Order', 
           header: ({navigation}) => {
             const showDrawerButton = !['Login', 'Main', 'Cart'].includes(
               route.name,

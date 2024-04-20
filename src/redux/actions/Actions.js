@@ -1,5 +1,3 @@
-// Actions.js
-
 import {ADD_SELECTED_IMAGE, ADD_TO_CART, ADD_TO_PENDING, DELETE_NOTE, REMOVE_FROM_CART, REMOVE_SELECTED_IMAGE, SET_NOTE_DETAILS, UPDATE_CART_ITEM,SET_NOTE_TITLE,SET_NOTE_DESCRIPTION, SET_NOTE_SAVED} from '../ActionTypes';
 
 export const addItemToCart = data => ({
@@ -41,11 +39,10 @@ export const setNoteDetails = ({ title, description }) => {
     payload: { title, description }
   };
 };
-export const deleteNoteAction = () => { // Define deleteNoteAction
+export const deleteNoteAction = () => {
   console.log("Delete note action dispatched!");
   return {
     type: DELETE_NOTE,
-    // Optionally, you can include any payload here if needed
   };
 };
 export const setNoteTitle = (title) => ({
