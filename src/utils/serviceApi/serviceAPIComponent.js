@@ -17,10 +17,10 @@ export async function getAllProducts(token, jsonValue) {
     }
 
     const data = await response.json();
-    console.log('All Products API', data);
+    // console.log('All Products API', data);
     return { data, error: undefined };
   } catch (error) {
-    console.error('All Products API error', error);
+    // console.error('All Products API error', error);
     return { data: undefined, error };
   }
 }
@@ -44,9 +44,9 @@ export async function getAllCategories(token) {
     }
 
     dataValue = await response.json();
-    console.log('All Categories API', dataValue);
+    // console.log('All Categories API', dataValue);
   } catch (error) {
-    console.error('All Categories API error', error);
+    // console.error('All Categories API error', error);
     errorValue = error;
   }
 

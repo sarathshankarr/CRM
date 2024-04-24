@@ -27,7 +27,7 @@ export const removeSelectedImage = (imageUri) => ({
 });
 export const addToPending = (cartItems) => {
   
-  console.log('Adding to pending:', cartItems);
+  // console.log('Adding to pending:', cartItems);
   return {
     type: ADD_TO_PENDING,
     payload: cartItems,
@@ -40,7 +40,7 @@ export const setNoteDetails = ({ title, description }) => {
   };
 };
 export const deleteNoteAction = () => {
-  console.log("Delete note action dispatched!");
+  // console.log("Delete note action dispatched!");
   return {
     type: DELETE_NOTE,
   };

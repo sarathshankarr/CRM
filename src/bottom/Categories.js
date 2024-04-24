@@ -7,7 +7,7 @@ const Categories = ({ navigation }) => {
   const [selectedDetails, setSelectedDetails] = useState([]);
   const [showSearchInput, setShowSearchInput] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
-  console.log("Number of categories:", selectedDetails.length);
+  // console.log("Number of categories:", selectedDetails.length);
 
   useEffect(() => {
     getCategoriesProducts();
@@ -15,14 +15,14 @@ const Categories = ({ navigation }) => {
 
   const getCategoriesProducts = async () => {
     try {
-      console.log('Attempting to retrieve token from AsyncStorage...');
+      // console.log('Attempting to retrieve token from AsyncStorage...');
       const tokenString = await AsyncStorage.getItem('userdata');
-      console.log('Retrieved token from AsyncStorage:', tokenString);
+      // console.log('Retrieved token from AsyncStorage:', tokenString);
       const token = JSON.parse(tokenString);
 
-      console.log('Calling getAllCategories API...');
+      // console.log('Calling getAllCategories API...');
       const { data, error } = await getAllCategories(token.access_token);
-      console.log('Received data from getAllCategories:', data);
+      // console.log('Received data from getAllCategories:', data);
 
       if (data) {
         setSelectedDetails(data);
@@ -53,7 +53,7 @@ const Categories = ({ navigation }) => {
       <TouchableOpacity
         style={styles.productItem}
         onPress={() => {
-          console.log('Pressed item:', item);
+          // console.log('Pressed item:', item);
           navigation.navigate('AllCategoriesListed', { item, categoryId: item.categoryId });
         }}
       >

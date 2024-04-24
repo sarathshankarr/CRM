@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   Text,
   View,
@@ -11,93 +11,21 @@ import {
   StyleSheet,
 } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { useDispatch, useSelector } from 'react-redux';
-import { addItemToCart } from '../redux/actions/Actions';
+import {useDispatch, useSelector} from 'react-redux';
+import {addItemToCart} from '../redux/actions/Actions';
+import axios from 'axios';
+import {API} from '../config/apiConfig';
+import Cart from '../Pages/cart/Cart';
 
-const ProductRow = ({
-  label,
-  copyImageSource,
-  quantity,
-  handleQuantityChange,
-  item,
-  value2,
-  value3,
-  setExtraSmallQuantity,
-  setSmallQuantity,
-  setMediumQuantity,
-  setLargeQuantity,
-  setExtraLargeQuantity,
-  setDoubleLargeQuantity,
-  setTribleLargeQuantity,
-  setFiveLargeQuantity,
-}) => {
-  const copyValueToClipboard = () => {
-    setExtraSmallQuantity(quantity);
-    setSmallQuantity(quantity);
-    setMediumQuantity(quantity);
-    setLargeQuantity(quantity);
-    setExtraLargeQuantity(quantity);
-    setDoubleLargeQuantity(quantity);
-    setTribleLargeQuantity(quantity);
-    setFiveLargeQuantity(quantity);
+const dynamicPart = 0; // Need to change this as a dynamic
 
-    Clipboard.setString(quantity);
-  };
-  return (
-    <View style={styles.rowContainer}>
-      <View style={styles.labelContainer}>
-        <Text style={styles.label}>{label}</Text>
-      </View>
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={{ textAlign: 'center' }}
-          keyboardType="numeric"
-          value={quantity}
-          onChangeText={handleQuantityChange}
-        />
-        <View style={styles.underline}></View>
-
-      </View>
-      <View style={{ flex: 0.4 }}>
-        <Text style={{ alignItems: 'center', marginLeft: 50 }}>
-          {item && item.mrp}
-        </Text>
-      </View>
-
-      {label === ".Extra Small" && (
-        <TouchableOpacity onPress={copyValueToClipboard} style={styles.copyButton}>
-          <Image style={styles.copyImage} source={copyImageSource} />
-        </TouchableOpacity>
-      )}
-    </View>
-
-  );
-};
-
-const ModalComponent = ({ modalVisible, closeModal, selectedItem }) => {
-  useEffect(() => {
-    if (selectedItem) {
-      setExtraSmallQuantity(selectedItem.extraSmallQuantity || '');
-      setSmallQuantity(selectedItem.smallQuantity || '');
-      setMediumQuantity(selectedItem.mediumQuantity || '');
-      setLargeQuantity(selectedItem.largeQuantity || '');
-      setExtraLargeQuantity(selectedItem.extralargeQuantity || '');
-      setDoubleLargeQuantity(selectedItem.doublelargeQuantity || '');
-      setTribleLargeQuantity(selectedItem.triblelargeQuantity || '');
-      setFiveLargeQuantity(selectedItem.fivelargeQuantity || '');
-    }
-  }, [selectedItem]);
+const ModalComponent = ({modalVisible, closeModal, selectedItem}) => {
+  const [selectedItemState, setSelectedItem] = useState(selectedItem);
+  const [keyboardSpace, setKeyboardSpace] = useState(0);
+  const [stylesData, setStylesData] = useState([]);
+  const [inputValues, setInputValues] = useState({});
 
   const dispatch = useDispatch();
-  const [keyboardSpace, setKeyboardSpace] = useState(0);
-  const [extraSmallQuantity, setExtraSmallQuantity] = useState('');
-  const [smallQuantity, setSmallQuantity] = useState('');
-  const [mediumQuantity, setMediumQuantity] = useState('');
-  const [largeQuantity, setLargeQuantity] = useState('');
-  const [extralargeQuantity, setExtraLargeQuantity] = useState('');
-  const [doublelargeQuantity, setDoubleLargeQuantity] = useState('');
-  const [triblelargeQuantity, setTribleLargeQuantity] = useState('');
-  const [fivelargeQuantity, setFiveLargeQuantity] = useState('');
   const cartItems = useSelector(state => state.cartItems);
 
   useEffect(() => {
@@ -121,85 +49,111 @@ const ModalComponent = ({ modalVisible, closeModal, selectedItem }) => {
     };
   }, []);
 
-  const clearAllInputs = () => {
-    setExtraSmallQuantity('');
-    setSmallQuantity('');
-    setMediumQuantity('');
-    setLargeQuantity('');
-    setExtraLargeQuantity('');
-    setDoubleLargeQuantity('');
-    setTribleLargeQuantity('');
-    setFiveLargeQuantity('');
-  };
-  const handleSaveItem = () => {
-    console.log('handleSaveItem called');
-    console.log('selectedItem:', selectedItem);
+  useEffect(() => {
     if (selectedItem) {
-      const itemWithQuantity = {
-        ...selectedItem,
-        extraSmallQuantity,
-        smallQuantity,
-        mediumQuantity,
-        largeQuantity,
-        extralargeQuantity,
-        doublelargeQuantity,
-        triblelargeQuantity,
-        fivelargeQuantity,
-      };
-      console.log('Item with Quantity:', itemWithQuantity);
-      dispatch(addItemToCart(itemWithQuantity));
-      closeModal();
-    } else {
-      console.log('No selectedItem found!');
+      getQuantityStyles();
+      console.log(getQuantityStyles);
+    }
+  }, [selectedItem]);
+
+  const clearAllInputs = () => {
+    const updatedItem = {...selectedItemState};
+    console.log('Before clearing:', updatedItem); // Log before clearing
+
+    stylesData.forEach(style => {
+      if (style.sizeList) {
+        style.sizeList.forEach(size => {
+          const sizeDesc = size.sizeDesc;
+          updatedItem[sizeDesc] = ''; // Clear the quantity
+        });
+      }
+    });
+
+    // console.log('After clearing:', updatedItem); // Log after clearing
+    setSelectedItem(updatedItem);
+    setInputValues({}); // Clear inputValues as well
+  };
+
+  // console.log('inputValue:', JSON.stringify(inputValues));
+
+  const handleSaveItem = () => {
+    console.log(
+      'Selected size before saving:',
+      selectedItemState?.selectedSize,
+    );
+    const sizeDesc = selectedItemState?.selectedSize || 'Default Size'; // Set a default size if not available
+    const inputValue = inputValues[sizeDesc] || ''; // Get inputValue based on sizeDesc
+    const itemWithDetails = {
+      styleId: selectedItem.styleId,
+      styleDesc: selectedItem.styleDesc,
+      sizeDesc: sizeDesc,
+      price: selectedItem.mrp,
+      discount: selectedItem.discount,
+      inputValue: inputValues, // Use the entire inputValues object
+      quantity: Object.values(inputValues).reduce(
+        (acc, cur) => acc + Number(cur),
+        0,
+      ), // Calculate total quantity
+      imageUrls: selectedItem.imageUrls,
+      styleName: selectedItem.styleName,
+    };
+    dispatch(addItemToCart(itemWithDetails));
+    closeModal();
+    setInputValues({}); // Clear inputValues after saving
+  };
+
+  const handleQuantityChange = (text, index) => {
+    if (stylesData.length > index && stylesData[index].sizeList) {
+      const updatedItem = {...selectedItemState};
+      const sizeDesc = stylesData[index].sizeList[index].sizeDesc; // Get sizeDesc from styleList
+      updatedItem.selectedSize = sizeDesc; // Update selectedSize
+      updatedItem[sizeDesc] = text;
+      setSelectedItem(updatedItem);
+      console.log('Selected size:', sizeDesc); // Log selected size
     }
   };
 
-  const handleAddToCart = item => {
-    dispatch(addItemToCart(item));
+  const getQuantityStyles = () => {
+    const apiUrl = `${API.STYLE_QUNTITY_DATA}/${selectedItem.styleId}/${dynamicPart}`;
+    axios
+      .get(apiUrl, {
+        headers: {
+          Authorization: `Bearer ${global.userData.access_token}`,
+        },
+      })
+      .then(response => {
+        // Handle success
+        // console.log('Response data:', response?.data);
+        setStylesData(response?.data?.response?.stylesList || []);
+      })
+      .catch(error => {
+        // Handle error
+        console.error('Error:', error);
+      });
   };
 
-  const handleCategoryPress = details => {
-    setSelectedDetails(details);
+  const copyValueToClipboard = () => {
+    const copiedText = inputValues[stylesData[0]?.sizeList[0]?.sizeDesc] || ''; // Get the value from the first TextInput
+    Clipboard.setString(copiedText); // Copy text to clipboard
+    const updatedItem = {...selectedItemState};
+    const updatedInputValues = {...inputValues};
+
+    stylesData.forEach(style => {
+      if (style.sizeList) {
+        style.sizeList.forEach(size => {
+          const sizeDesc = size.sizeDesc;
+          updatedItem[sizeDesc] = copiedText; // Set the same text to all other TextInputs
+          updatedInputValues[sizeDesc] = copiedText; // Update input values as well
+        });
+      }
+    });
+
+    setSelectedItem(updatedItem); // Update the state
+    setInputValues(updatedInputValues); // Update input values
   };
 
-  const addItem = item => {
-    dispatch(addItemToCart(item));
-  };
-
-  const openModal = item => {
-    setSelectedItem(item);
-    setModalVisible(true);
-  };
-
-  const onFocusTextInput = () => {
-    setModalVisible(true);
-  };
-
-  const handleExtraSmallQuantityChange = text => {
-    setExtraSmallQuantity(text);
-  };
-
-  const handleSmallQuantityChange = text => {
-    setSmallQuantity(text);
-  };
-  const handleMediumQuantityChange = text => {
-    setMediumQuantity(text);
-  };
-  const handleLargeQuantityChange = text => {
-    setLargeQuantity(text);
-  };
-  const handleExtraQuantityChange = text => {
-    setExtraLargeQuantity(text);
-  };
-  const handlDoubleQuantityChange = text => {
-    setDoubleLargeQuantity(text);
-  };
-  const handleTribleQuantityChange = text => {
-    setTribleLargeQuantity(text);
-  };
-  const handleFiveQuantityChange = text => {
-    setFiveLargeQuantity(text);
-  };
+  // console.log('selectedItem:', selectedItem);
+  // console.log('inputValue:', inputValues);
 
   return (
     <Modal
@@ -210,133 +164,93 @@ const ModalComponent = ({ modalVisible, closeModal, selectedItem }) => {
       <ScrollView
         contentContainerStyle={[
           styles.modalContainer,
-          { marginBottom: keyboardSpace },
+          {marginBottom: keyboardSpace},
         ]}
         keyboardShouldPersistTaps="handled">
         <View style={styles.modalContent}>
           <View style={styles.addqtyhead}>
-            <Text style={styles.addqtytxt}>
-              Add Quantity
-            </Text>
+            <Text style={styles.addqtytxt}>Add Quantity</Text>
           </View>
 
-          <View
-            style={styles.sizehead}>
-            <Text style={styles.sizetxt}>
-              Size/Color
-            </Text>
+          <View style={styles.sizehead}>
+            <Text style={styles.sizetxt}>Size/Color</Text>
             <Text style={styles.quantitytxt}>Quantity</Text>
             <Text style={styles.quantitytxt}>Price</Text>
           </View>
-          {selectedItem && (
-            <View style={styles.selectedItemhead}>
-              <Text style={styles.selectedItemtext}>
-                {selectedItem.name}
-              </Text>
-            </View>
-          )}
-          <ScrollView style={{ maxHeight: '70%' }}>
-            <ProductRow
-              item={selectedItem}
-              label=".Extra Small"
-              copyImageSource={require('../../assets/copy.png')}
-              quantity={extraSmallQuantity}
-              handleQuantityChange={handleExtraSmallQuantityChange}
-              value2="N/A"
-              value3="N/A"
-              setExtraSmallQuantity={setExtraSmallQuantity}
-              setSmallQuantity={setSmallQuantity}
-              setMediumQuantity={setMediumQuantity}
-              setLargeQuantity={setLargeQuantity}
-              setExtraLargeQuantity={setExtraLargeQuantity}
-              setDoubleLargeQuantity={setDoubleLargeQuantity}
-              setTribleLargeQuantity={setTribleLargeQuantity}
-              setFiveLargeQuantity={setFiveLargeQuantity}
-            />
+          <ScrollView style={{maxHeight: '70%'}}>
+            {stylesData &&
+              stylesData.map((style, index) => (
+                <View key={index} style={{marginBottom: 10}}>
+                  <View
+                    style={{
+                      position: 'absolute',
+                      right: 0,
+                      marginHorizontal: 10,
+                      
+                    }}>
+                    <TouchableOpacity
+                      onPress={() =>
+                        copyValueToClipboard(
+                          selectedItemState[style.sizeList[0]?.sizeDesc],
+                        )
+                      }>
+                      <Image
+                        style={{height: 25, width: 25,marginTop:10}}
+                        source={require('../../assets/copy.png')}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                  {style.sizeList &&
+                    style.sizeList.map((size, sizeIndex) => (
+                      <View
+                        key={sizeIndex}
+                        style={{flexDirection: 'row', marginRight: 10}}>
+                        <View style={{flex: 1}}>
+                          <Text style={{marginTop: 15, marginHorizontal: 5}}>
+                            {style.styleDesc}
+                          </Text>
+                          <Text style={{marginTop: 2, marginHorizontal: 5}}>
+                            Size - {size.sizeDesc}
+                          </Text>
+                        </View>
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            flex: 1.7,
+                          }}>
+                          <TextInput
+                            style={{
+                              flex: 0.4,
+                              borderBottomWidth: 1,
+                              borderColor: 'gray',
+                              textAlign: 'center',
+                            }}
+                            keyboardType="numeric"
+                            value={
+                              inputValues[size.sizeDesc] !== undefined
+                                ? inputValues[size.sizeDesc]
+                                : ''
+                            }
+                            onChangeText={text => {
+                              const updatedInputValues = {...inputValues};
+                              updatedInputValues[size.sizeDesc] = text;
+                              setInputValues(updatedInputValues);
+                              handleQuantityChange(text, index); // Pass index instead of sizeDesc
+                            }}
+                          />
 
-            <View
-              style={{
-                borderBottomWidth: 1,
-                borderBottomColor: 'gray',
-              }}></View>
-            <ProductRow
-              item={selectedItem}
-              label="1.Small"
-              quantity={smallQuantity}
-              handleQuantityChange={handleSmallQuantityChange}
-            />
-            <View
-              style={{
-                borderBottomWidth: 1,
-                borderBottomColor: 'gray',
-              }}></View>
-            <ProductRow
-              item={selectedItem}
-              label="2.Medium"
-              quantity={mediumQuantity}
-              handleQuantityChange={handleMediumQuantityChange}
-            />
-            <View
-              style={{
-                borderBottomWidth: 1,
-                borderBottomColor: 'gray',
-              }}></View>
-            <ProductRow
-              item={selectedItem}
-              label="3.Large"
-              quantity={largeQuantity}
-              handleQuantityChange={handleLargeQuantityChange}
-            />
-            <View
-              style={{
-                borderBottomWidth: 1,
-                borderBottomColor: 'gray',
-              }}></View>
-            <ProductRow
-              item={selectedItem}
-              label="4.Extra Large"
-              quantity={extralargeQuantity}
-              handleQuantityChange={handleExtraQuantityChange}
-            />
-            <View
-              style={{
-                borderBottomWidth: 1,
-                borderBottomColor: 'gray',
-              }}></View>
-            <ProductRow
-              item={selectedItem}
-              label="5.2x Large"
-              quantity={doublelargeQuantity}
-              handleQuantityChange={handlDoubleQuantityChange}
-            />
-            <View
-              style={{
-                borderBottomWidth: 1,
-                borderBottomColor: 'gray',
-              }}></View>
-            <ProductRow
-              item={selectedItem}
-              label="6.3x Large"
-              quantity={triblelargeQuantity}
-              handleQuantityChange={handleTribleQuantityChange}
-            />
-            <View
-              style={{
-                borderBottomWidth: 1,
-                borderBottomColor: 'gray',
-              }}></View>
-            <ProductRow
-              item={selectedItem}
-              label="7.5x Large"
-              quantity={fivelargeQuantity}
-              handleQuantityChange={handleFiveQuantityChange}
-            />
-            <View
-              style={{
-                borderBottomWidth: 1,
-                borderBottomColor: 'gray',
-              }}></View>
+                          <View style={{flex: 0.4}}>
+                            <Text>{style.price}</Text>
+                          </View>
+                        </View>
+                      </View>
+                    ))}
+                </View>
+              ))}
           </ScrollView>
+
           <View
             style={{
               flexDirection: 'row',
@@ -346,7 +260,7 @@ const ModalComponent = ({ modalVisible, closeModal, selectedItem }) => {
               marginBottom: 30,
             }}>
             <TouchableOpacity
-              onPress={clearAllInputs}
+              onPress={() => clearAllInputs()}
               style={{
                 borderWidth: 1,
                 borderColor: '#000',
@@ -356,11 +270,10 @@ const ModalComponent = ({ modalVisible, closeModal, selectedItem }) => {
                 paddingHorizontal: 10,
                 borderRadius: 5,
               }}>
-              <Text style={{ color: 'white', fontWeight: 'bold' }}>
+              <Text style={{color: 'white', fontWeight: 'bold'}}>
                 CLEAR ALL
               </Text>
             </TouchableOpacity>
-
             <TouchableOpacity
               onPress={handleSaveItem}
               style={{
@@ -372,7 +285,7 @@ const ModalComponent = ({ modalVisible, closeModal, selectedItem }) => {
                 paddingHorizontal: 35,
                 borderRadius: 5,
               }}>
-              <Text style={{ color: 'white', fontWeight: 'bold' }}>SAVE</Text>
+              <Text style={{color: 'white', fontWeight: 'bold'}}>SAVE</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -499,12 +412,11 @@ const styles = StyleSheet.create({
   },
   addqtyhead: {
     backgroundColor: 'green',
-    padding: 10
+    padding: 10,
   },
-  addqtytxt:
-  {
+  addqtytxt: {
     color: 'white',
-    fontWeight: 'bold'
+    fontWeight: 'bold',
   },
   sizehead: {
     padding: 1,
@@ -512,19 +424,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 10
+    paddingVertical: 10,
   },
-  sizetxt:
-  {
+  sizetxt: {
     flex: 0.6,
     color: '#000',
     fontWeight: 'bold',
-    marginLeft: 5
+    marginLeft: 5,
   },
   quantitytxt: {
     color: '#000',
     fontWeight: 'bold',
-    flex: 0.4
+    flex: 0.4,
   },
 
   modalContent: {
@@ -539,8 +450,6 @@ const styles = StyleSheet.create({
   },
 
   labelContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
     flex: 0.4,
   },
 
@@ -557,6 +466,7 @@ const styles = StyleSheet.create({
   copyImage: {
     height: 20,
     width: 18,
+    marginHorizontal: 5,
   },
 
   inputContainer: {
@@ -567,4 +477,5 @@ const styles = StyleSheet.create({
     borderBottomColor: 'gray',
   },
 });
+
 export default ModalComponent;

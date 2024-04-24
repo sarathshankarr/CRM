@@ -17,17 +17,14 @@ const Sidebar = ({ userName, companyName }) => {
   const [image, setImage] = useState(require('../assets/profile.png'));
 
   const goToHome = () => {
-    console.log('Navigating to Home');
     navigation.navigate('Home');
   };
 
   const goToCategories = () => {
-    console.log('Navigating to Categories');
     navigation.navigate('Categories');
   };
 
   const goToOrder = () => {
-    console.log('Navigating to Order');
     navigation.navigate('Order');
   };
 
@@ -43,7 +40,6 @@ const Sidebar = ({ userName, companyName }) => {
       compressImageQuality: 0.7,
     })
       .then((image) => {
-        console.log(image);
         setImage({ uri: image.path });
         setModalVisible(false);
       })
@@ -61,7 +57,6 @@ const Sidebar = ({ userName, companyName }) => {
       compressImageQuality: 0.7,
     })
       .then((image) => {
-        console.log(image);
         setImage({ uri: image.path });
         setModalVisible(false);
       })

@@ -18,7 +18,7 @@ const AllCategoriesListed = ({ navigation, route }) => {
     setModalVisible(!modalVisible);
   };
   const openModal = item => {
-    console.log('openModal called with item:', item);
+    // console.log('openModal called with item:', item);
     setSelectedItem(item);
     setModalVisible(true);
   };

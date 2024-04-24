@@ -1,15 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import { Text, View, Image, StyleSheet, FlatList, TouchableOpacity, TextInput } from 'react-native';
-import { PRODUCT_DETAILS } from '../components/ProductDetails';
-import { API } from '../../config/apiConfig';
+import React, {useState, useEffect} from 'react';
+import {
+  Text,
+  View,
+  Image,
+  StyleSheet,
+  FlatList,
+  TouchableOpacity,
+  TextInput,
+} from 'react-native';
+import {PRODUCT_DETAILS} from '../components/ProductDetails';
+import {API} from '../../config/apiConfig';
 import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
-import { getAllCategories } from '../../utils/serviceApi/serviceAPIComponent';
+import {getAllCategories} from '../../utils/serviceApi/serviceAPIComponent';
 
-const HomeCategories = ({ navigation }) => {
+const HomeCategories = ({navigation}) => {
   const [selectedDetails, setSelectedDetails] = useState([]);
   const [showSearchInput, setShowSearchInput] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
-  console.log("Number of categories:", selectedDetails.length);
+  // console.log("Number of categories:", selectedDetails.length);
 
   useEffect(() => {
     getCategoriesProducts();
@@ -17,14 +25,14 @@ const HomeCategories = ({ navigation }) => {
 
   const getCategoriesProducts = async () => {
     try {
-      console.log('Attempting to retrieve token from AsyncStorage...');
+      // console.log('Attempting to retrieve token from AsyncStorage...');
       const tokenString = await AsyncStorage.getItem('userdata');
-      console.log('Retrieved token from AsyncStorage:', tokenString);
+      // console.log('Retrieved token from AsyncStorage:', tokenString);
       const token = JSON.parse(tokenString);
 
-      console.log('Calling getAllCategories API...');
-      const { data, error } = await getAllCategories(token.access_token);
-      console.log('Received data from getAllCategories:', data);
+      // console.log('Calling getAllCategories API...');
+      const {data, error} = await getAllCategories(token.access_token);
+      // console.log('Received data from getAllCategories:', data);
 
       if (data) {
         setSelectedDetails(data); // Update state with received data
@@ -36,8 +44,7 @@ const HomeCategories = ({ navigation }) => {
     }
   };
 
-
-  const handleCategoryPress = (details) => {
+  const handleCategoryPress = details => {
     setSelectedDetails(details);
   };
 
@@ -49,27 +56,26 @@ const HomeCategories = ({ navigation }) => {
     setModalVisible(true);
   };
 
-  const renderProductItem = ({ item }) => {
+  const renderProductItem = ({item}) => {
     // Destructure item
-    const { categoryDesc, imageUrls } = item;
+    const {categoryDesc, imageUrls} = item;
 
     return (
-
       <TouchableOpacity
         style={styles.productItem}
         onPress={() => {
           console.log('Pressed item:', item);
-          navigation.navigate('AllCategoriesListed', { item, categoryId: item.categoryId });
-        }}
-        
-      >
-
+          navigation.navigate('AllCategoriesListed', {
+            item,
+            categoryId: item.categoryId,
+          });
+        }}>
         <View style={styles.productImageContainer}>
           {imageUrls && imageUrls.length > 0 ? (
             <Image
               style={styles.productImage}
-              source={{ uri: imageUrls[0] }}
-              onError={(error) => console.error('Error loading image:', error)}
+              source={{uri: imageUrls[0]}}
+              onError={error => console.error('Error loading image:', error)}
             />
           ) : (
             <Text>No Image</Text>
@@ -92,7 +98,11 @@ const HomeCategories = ({ navigation }) => {
             placeholder="Search"
           />
         ) : (
-          <Text style={styles.text}>{selectedDetails ? selectedDetails.length + ' Categories Listed' : ''}</Text>
+          <Text style={styles.text}>
+            {selectedDetails
+              ? selectedDetails.length + ' Categories Listed'
+              : ''}
+          </Text>
         )}
         <TouchableOpacity
           style={styles.searchButton}
@@ -112,7 +122,6 @@ const HomeCategories = ({ navigation }) => {
         numColumns={2}
         contentContainerStyle={styles.productList}
       />
-
     </View>
   );
 };
@@ -121,6 +130,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+    marginTop:10
   },
   header: {
     width: '100%',

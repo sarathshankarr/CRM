@@ -11,6 +11,7 @@ import AllCategoriesListed from '../Pages/allcategorieslisted/AllCategoriesListe
 import CommonHeader from '../components/CommonHeader';
 import AddNote from '../Pages/notes/AddNote';
 import LoaderComponent from '../utils/loaderComponent/loaderComponent';
+import CustomDropDown from '../components/CustomDropDown';
 
 const Stack = createNativeStackNavigator();
 
@@ -56,7 +57,7 @@ const Routes = () => {
             header: () => (
               <CommonHeader
                 navigation={navigation}
-                title="Order Priview"
+                title="Order Preview"
                 showMessageIcon={true}
               />
             ),
@@ -92,6 +93,11 @@ const Routes = () => {
         <Stack.Screen
           name="LoaderComponent"
           component={LoaderComponent}
+          options={{ headerShown: true }}
+        />
+         <Stack.Screen
+          name="CustomDropDown"
+          component={CustomDropDown}
           options={{ headerShown: true }}
         />
       </Stack.Navigator>

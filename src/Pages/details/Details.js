@@ -12,6 +12,7 @@ import { SliderBox } from 'react-native-image-slider-box';
 import { useDispatch } from 'react-redux';
 import { addItemToCart } from '../../redux/actions/Actions';
 import ModalComponent from '../../components/ModelComponent';
+
 const Details = ({ route }) => {
   const {
     item,
@@ -30,7 +31,17 @@ const Details = ({ route }) => {
   const images = [image, image2, image3, image4, image5];
   const dispatch = useDispatch();
   const [modalVisible, setModalVisible] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
 
+  const openModal = item => {
+    if (item && item.styleId) {
+      setSelectedItem(item);
+      setModalVisible(true);
+    } else {
+      console.error('Invalid item format:', item);
+    }
+  };
+  
   const toggleModal = () => {
     setModalVisible(!modalVisible);
   };
@@ -74,13 +85,14 @@ const Details = ({ route }) => {
           <Text style={styles.txt}>{item.styleDesc}</Text>
         </View>
       </ScrollView>
-      <TouchableOpacity onPress={toggleModal} style={styles.buttonContainer}>
-        <Text style={styles.buttonText}>ADD QUANTITY</Text>
-      </TouchableOpacity>
+      <TouchableOpacity onPress={() => openModal(item)} style={styles.buttonContainer}>
+  <Text style={styles.buttonText}>ADD QUANTITY</Text>
+</TouchableOpacity>
+
       <ModalComponent
         modalVisible={modalVisible}
         closeModal={() => setModalVisible(false)}
-        selectedItem={item}
+        selectedItem={selectedItem}
       />
     </View>
   );

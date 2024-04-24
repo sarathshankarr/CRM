@@ -19,11 +19,11 @@ import {useDispatch, useSelector} from 'react-redux';
 import {API} from '../config/apiConfig';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Apicall from './../../utils/serviceApi/serviceAPIComponent';
-import ModalComponent from '../../components/ModelComponent';
 import LoaderComponent from '../../utils/loaderComponent/loaderComponent';
 import { addItemToCart } from '../../redux/actions/Actions';
 import { PRODUCT_DETAILS } from '../../components/ProductDetails';
 import { AllPRODUCT_DETAILS } from '../../components/AllProductDetails';
+import ModalComponent from '../../components/ModelComponent';
 
 const HomeAllProducts = ({navigation}) => {
   const [showSearchInput, setShowSearchInput] = useState(false);
@@ -81,7 +81,7 @@ const HomeAllProducts = ({navigation}) => {
   };
 
   const openModal = item => {
-    console.log('openModal called with item:', item); // Add console log statement to check item
+    // console.log('openModal called with item:', item); // Add console log statement to check item
     setSelectedItem(item);
     setModalVisible(true);
   };
@@ -92,7 +92,7 @@ const HomeAllProducts = ({navigation}) => {
   };
 
   const renderProductItem = ({item, onAddToCart}) => {
-    console.log('Item ', item)
+    // console.log('Item ', item)
     return (
       <TouchableOpacity
         style={styles.productItem}
