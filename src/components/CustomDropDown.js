@@ -8,8 +8,6 @@ import {
   } from 'react-native';
   import React, {useRef, useState} from 'react';
  
-
-  
   const CustomDropDown = () => {
     const [clicked, setClicked] = useState(false);
   
