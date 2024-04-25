@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Text,
   View,
@@ -11,10 +11,10 @@ import {
   StyleSheet,
 } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
-import {useDispatch, useSelector} from 'react-redux';
-import {addItemToCart} from '../redux/actions/Actions';
+import { useDispatch, useSelector } from 'react-redux';
+import { addItemToCart, updateCartItem } from '../redux/actions/Actions';
 import axios from 'axios';
-import {API} from '../config/apiConfig';
+import { API } from '../config/apiConfig';
 import Cart from '../Pages/cart/Cart';
 
 const dynamicPart = 0; // Need to change this as a dynamic
@@ -50,12 +50,28 @@ const ModalComponent = ({modalVisible, closeModal, selectedItem}) => {
   }, []);
 
   useEffect(() => {
+    console.log('selectedItem:', selectedItem);
     if (selectedItem) {
       getQuantityStyles();
-      console.log(getQuantityStyles);
     }
   }, [selectedItem]);
+  useEffect(() => {
+    setSelectedItem(selectedItem);
+  }, [selectedItem]);
+  
+  useEffect(() => {
+    console.log('inputValues:', inputValues);
+  }, [inputValues]);
+  
+  useEffect(() => {
+    console.log('selectedItemState:', selectedItemState);
+  }, [selectedItemState]);
 
+  useEffect(() => {
+    console.log('inputValues:', inputValues);
+    console.log('selectedItemState:', selectedItemState);
+  }, [inputValues, selectedItemState]);
+  
   const clearAllInputs = () => {
     const updatedItem = {...selectedItemState};
     console.log('Before clearing:', updatedItem); // Log before clearing
@@ -77,30 +93,31 @@ const ModalComponent = ({modalVisible, closeModal, selectedItem}) => {
   // console.log('inputValue:', JSON.stringify(inputValues));
 
   const handleSaveItem = () => {
-    console.log(
-      'Selected size before saving:',
-      selectedItemState?.selectedSize,
-    );
-    const sizeDesc = selectedItemState?.selectedSize || 'Default Size'; // Set a default size if not available
-    const inputValue = inputValues[sizeDesc] || ''; // Get inputValue based on sizeDesc
+    const sizeDesc = selectedItemState?.selectedSize || 'Default Size';
+    const inputValue = inputValues[sizeDesc] || '';
     const itemWithDetails = {
       styleId: selectedItem.styleId,
       styleDesc: selectedItem.styleDesc,
       sizeDesc: sizeDesc,
       price: selectedItem.mrp,
       discount: selectedItem.discount,
-      inputValue: inputValues, // Use the entire inputValues object
-      quantity: Object.values(inputValues).reduce(
-        (acc, cur) => acc + Number(cur),
-        0,
-      ), // Calculate total quantity
+      inputValue: inputValues,
+      quantity: Object.values(inputValues).reduce((acc, cur) => acc + Number(cur), 0),
       imageUrls: selectedItem.imageUrls,
       styleName: selectedItem.styleName,
     };
-    dispatch(addItemToCart(itemWithDetails));
+    const existingItemIndex = cartItems.findIndex(item => item.styleId === selectedItem.styleId && item.sizeDesc === sizeDesc);
+    if (existingItemIndex !== -1) {
+      // If item exists in cart, update its quantity
+      dispatch(updateCartItem(existingItemIndex, 'inputValue', inputValues));
+    } else {
+      // Otherwise, add it to the cart
+      dispatch(addItemToCart(itemWithDetails));
+    }
     closeModal();
-    setInputValues({}); // Clear inputValues after saving
+    setInputValues({});
   };
+  
 
   const handleQuantityChange = (text, index) => {
     if (stylesData.length > index && stylesData[index].sizeList) {

@@ -1,38 +1,32 @@
-import React, {useState} from 'react';
-import {
-  Image,
-  Modal,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import {useDispatch, useSelector} from 'react-redux';
-import {
-  addToPending,
-  removeFromCart,
-  updateCartItem,
-} from '../../redux/actions/Actions';
+import React, { useState } from 'react';
+import { Image, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
+import { addToPending, removeFromCart, updateCartItem } from '../../redux/actions/Actions';
 import Clipboard from '@react-native-clipboard/clipboard';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import CustomDropDown from '../../components/CustomDropDown';
+import ModalComponent from '../../components/ModelComponent';
+
 
 const Cart = () => {
   const [inputValues, setInputValues] = useState({}); // Move inside Cart component
   const cartItems = useSelector(state => state.cartItems);
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [selatedDate, setSelectedDate] = useState('Expexted Delivery Date');
-  const [isModalVisible, setModalVisible] = useState(false);
-
+  const [modalVisible, setModalVisible] = useState(false); // State to manage modal visibility
+  const [selectedItem, setSelectedItem] = useState(null);
   const totalItems = cartItems.length;
 
   const dispatch = useDispatch();
   const navigation = useNavigation();
-  const toggleModal = () => {
-    setModalVisible(!isModalVisible);
+  const openModal = (item) => {
+    setSelectedItem(item);
+    setModalVisible(true);
+  };
+  const closeModal = () => {
+    setModalVisible(false);
+    setSelectedItem(null);
   };
 
   const handlePlaceOrder = () => {
@@ -44,6 +38,12 @@ const Cart = () => {
     });
   };
 
+  const handleInputValueChange = (size, value) => {
+    setInputValues(prevState => ({
+      ...prevState,
+      [size]: value,
+    }));
+  };
   const showDatePicker = () => {
     setDatePickerVisibility(true);
   };
@@ -75,7 +75,7 @@ const Cart = () => {
 
   const handleQuantityChange = (index, field, text) => {
     const currentItem = cartItems[index];
-    const updatedInputValue = {...currentItem.inputValue};
+    const updatedInputValue = { ...currentItem.inputValue };
     updatedInputValue[field] = text.trim() !== '' ? text.trim() : undefined;
     dispatch(updateCartItem(index, 'inputValue', updatedInputValue));
     setInputValues(updatedInputValue); // Update inputValue state
@@ -126,8 +126,8 @@ const Cart = () => {
   }, 0);
 
   return (
-    <View style={{flex: 1,backgroundColor:"#fff"}}>
-      <View style={{marginVertical:10,backgroundColor:"#fff"}}>
+    <View style={{ flex: 1, backgroundColor: "#fff" }}>
+      <View style={{ marginVertical: 10, backgroundColor: "#fff" }}>
         <CustomDropDown />
       </View>
       <ScrollView style={style.container}>
@@ -135,13 +135,13 @@ const Cart = () => {
           <Text style={style.txt}>Total Items: {cartItems.length}</Text>
         </View>
         {cartItems.map((item, index) => (
-          <View key={index} style={{marginBottom: 20}}>
+          <View key={index} style={{ marginBottom: 20 }}>
             <View style={style.imgContainer}>
               <TouchableOpacity style={style.itemContainer}>
-                <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
                   {item.imageUrls.length > 0 && (
                     <Image
-                      source={{uri: item.imageUrls[0]}}
+                      source={{ uri: item.imageUrls[0] }}
                       style={{
                         width: 100,
                         height: 100,
@@ -151,12 +151,12 @@ const Cart = () => {
                     />
                   )}
                 </View>
-                <Text style={{fontSize: 15, fontWeight: 'bold'}}>
+                <Text style={{ fontSize: 15, fontWeight: 'bold' }}>
                   {item.styleDesc}
                 </Text>
               </TouchableOpacity>
               <View style={style.buttonsContainer}>
-                <TouchableOpacity>
+                <TouchableOpacity onPress={() => openModal(item)}>
                   <Image
                     style={style.buttonIcon}
                     source={require('../../../assets/edit.png')}
@@ -179,24 +179,24 @@ const Cart = () => {
               </View>
             </View>
             <View style={style.sizehead}>
-              <View style={{flex: 0.7}}>
-                <Text style={{marginLeft: 10}}>COLOR/SIZE</Text>
+              <View style={{ flex: 0.7 }}>
+                <Text style={{ marginLeft: 10 }}>COLOR/SIZE</Text>
               </View>
-              <View style={{flex: 0.5}}>
+              <View style={{ flex: 0.5 }}>
                 <Text>QUANTITY</Text>
               </View>
-              <View style={{flex: 0.4}}>
+              <View style={{ flex: 0.4 }}>
                 <Text>PRICE</Text>
               </View>
               <TouchableOpacity onPress={() => copyValueToClipboard(index)}>
                 <Image
-                  style={{height: 25, width: 25, marginRight: 10}}
+                  style={{ height: 25, width: 25, marginRight: 10 }}
                   source={require('../../../assets/copy.png')}
                 />
               </TouchableOpacity>
             </View>
-            <View style={{marginHorizontal: 10, marginVertical: 5}}>
-              <Text style={{color: '#000', fontWeight: 'bold'}}>
+            <View style={{ marginHorizontal: 10, marginVertical: 5 }}>
+              <Text style={{ color: '#000', fontWeight: 'bold' }}>
                 {item.styleName}
               </Text>
             </View>
@@ -210,7 +210,7 @@ const Cart = () => {
                     justifyContent: 'space-between',
                     paddingVertical: 6,
                   }}>
-                  <View style={{flex: 0.4}}>
+                  <View style={{ flex: 0.4 }}>
                     <Text>Size - {size}</Text>
                   </View>
                   <View
@@ -237,8 +237,9 @@ const Cart = () => {
                       }}
                     />
                   </View>
-                  <View style={{flex: 0.5}}>
+                  <View style={{ flex: 0.5 }}>
                     <Text>{item.price}</Text>
+                    {console.log("Price for item:", item.price)}
                   </View>
                 </View>
                 <View
@@ -253,12 +254,12 @@ const Cart = () => {
           </View>
         ))}
 
-        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
           <TouchableOpacity
             onPress={showDatePicker}
-            style={{flexDirection: 'row', alignItems: 'center'}}>
-            <View style={{paddingVertical: 10}}>
-              <Text style={{marginLeft: 10}}>{selatedDate}</Text>
+            style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <View style={{ paddingVertical: 10 }}>
+              <Text style={{ marginLeft: 10 }}>{selatedDate}</Text>
             </View>
           </TouchableOpacity>
           <TouchableOpacity
@@ -282,7 +283,7 @@ const Cart = () => {
             marginTop: 10,
           }}></View>
         <View>
-          <TextInput style={{marginLeft: 10}} placeholder="Add Note" />
+          <TextInput style={{ marginLeft: 10 }} placeholder="Add Note" />
         </View>
         <View
           style={{
@@ -291,26 +292,20 @@ const Cart = () => {
             paddingVertical: 10,
           }}></View>
       </ScrollView>
-      
-      <View style={{backgroundColor: '#fff'}}>
+
+      <View style={{ backgroundColor: '#fff' }}>
         <View style={style.bottomContainer}>
-          <View style={{flex: 1}}>
+          <View style={{ flex: 1 }}>
             <Text>Total Qty: {totalQty}</Text>
           </View>
-          <View style={{flex: 1}}>
+          <View style={{ flex: 1 }}>
             <Text>Total Set: {totalItems}</Text>
           </View>
-          <View style={{flex: 1}}>
+          <View style={{ flex: 1 }}>
             <Text>Total Amt: {totalPrice}</Text>
           </View>
         </View>
 
-        {/* <TouchableOpacity onPress={toggleModal} style={style.plusButton}>
-          <Image
-            style={{ height: 30, width: 30, justifyContent: 'center', alignItems: 'center' }}
-            source={require('../../../assets/plus.png')}
-          />
-        </TouchableOpacity> */}
         <TouchableOpacity
           onPress={handlePlaceOrder}
           style={{
@@ -331,36 +326,20 @@ const Cart = () => {
           </Text>
         </TouchableOpacity>
 
+        <ModalComponent
+          modalVisible={modalVisible}
+          closeModal={closeModal}
+          selectedItem={selectedItem}
+          inputValues={inputValues}
+          onInputValueChange={handleInputValueChange} // Pass the function to handle input value changes
+        />
+
         <DateTimePickerModal
           isVisible={isDatePickerVisible}
           mode="date"
           onConfirm={handleDateConfirm}
           onCancel={hideDatePicker}
         />
-        <Modal
-          animationType="fade"
-          transparent={true}
-          visible={isModalVisible}
-          onRequestClose={() => {
-            toggleModal();
-          }}>
-          <View style={style.modalContainer}>
-            <View style={style.modalContent}>
-              <Text style={style.modalTitle}>Customer Details</Text>
-              <TextInput style={style.input} placeholder="Customer Name" />
-              <TextInput style={style.input} placeholder="Address" />
-              <TextInput style={style.input} placeholder="Gst Number" />
-              <TouchableOpacity
-                style={style.saveButton}
-                onPress={() => {
-                  // Logic to save customer details
-                  toggleModal();
-                }}>
-                <Text style={style.saveButtonText}>Save</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </Modal>
       </View>
     </View>
   );
