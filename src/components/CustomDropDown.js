@@ -1,64 +1,104 @@
-import {
-    View,
-    Text,
-    TouchableOpacity,
-    Image,
-    TextInput,
-    FlatList,
-  } from 'react-native';
-  import React, {useRef, useState} from 'react';
- 
-  const CustomDropDown = () => {
-    const [clicked, setClicked] = useState(false);
-  
-    return (
-      <View style={{}}>
-        <TouchableOpacity
-          style={{
-            width: '90%',
-            height: 50,
-            borderRadius: 10,
-            borderWidth: 0.5,
-            alignSelf: 'center',
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            paddingLeft: 15,
-            paddingRight: 15,
-          }}
-          onPress={() => {
-            setClicked(!clicked);
-          }}>
-          <Text style={{fontWeight:'600'}}>
-            Customer
-          </Text>
-          {clicked ? (
-            <Image
-              source={require('../../assets/upload.png')}
-              style={{width: 20, height: 20}}
-            />
-          ) : (
-            <Image
-              source={require('../../assets/dropdown.png')}
-              style={{width: 20, height: 20}}
-            />
-          )}
-        </TouchableOpacity>
-        {clicked ? (
-          <View
-            style={{
-              elevation: 5,
-              height: 300,
-              alignSelf: 'center',
-              width: '90%',
-              backgroundColor: '#fff',
-              borderRadius: 10,
-            }}>
-           
-          </View>
-        ) : null}
-      </View>
-    );
+import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, Image, FlatList } from 'react-native';
+import axios from 'axios';
+import { API } from '../config/apiConfig';
+
+const CustomDropDown = () => {
+  const [clicked, setClicked] = useState(false);
+  const [customers, setCustomers] = useState([]);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
+
+  useEffect(() => {
+    if (clicked) {
+      getCustomersDetails();
+    }
+  }, [clicked]);
+
+  const getCustomersDetails = () => {
+    const companyId = 1; // Company ID
+    const apiUrl = `${API.ADD_CUSTOMER_LIST}/${companyId}`;
+    axios
+      .get(apiUrl, {
+        headers: {
+          Authorization: `Bearer ${global.userData.access_token}`,
+        },
+      })
+      .then(response => {
+        setCustomers(response?.data?.response?.customerList || []);
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
   };
-  
-  export default CustomDropDown;
+
+  const handleDropdownClick = () => {
+    setClicked(!clicked);
+  };
+
+  const handleCustomerSelection = (firstName, lastName) => {
+    setSelectedCustomer(`${firstName} ${lastName}`);
+    setClicked(false);
+  };
+
+  return (
+    <View style={{}}>
+      <TouchableOpacity
+        style={{
+          width: '90%',
+          height: 50,
+          borderRadius: 10,
+          borderWidth: 0.5,
+          alignSelf: 'center',
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          paddingLeft: 15,
+          paddingRight: 15,
+        }}
+        onPress={handleDropdownClick}>
+        <Text style={{ fontWeight: '600' }}>{selectedCustomer || 'Customer'}</Text>
+        <Image
+          source={require('../../assets/dropdown.png')}
+          style={{ width: 20, height: 20 }}
+        />
+      </TouchableOpacity>
+      {clicked && (
+        <View
+          style={{
+            elevation: 5,
+            height: 300,
+            alignSelf: 'center',
+            width: '90%',
+            backgroundColor: '#fff',
+            borderRadius: 10,
+          }}>
+          <FlatList
+            data={customers}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                style={{
+                  width: '100%',
+                  height: 50,
+                  justifyContent: 'center',
+                  borderBottomWidth: 0.5,
+                  borderColor: '#8e8e8e',
+                }}
+                onPress={() => {
+                  handleCustomerSelection(item.firstName, item.lastName);
+                  console.log(item);
+                }}>
+                <Text style={{ fontWeight: '600',marginHorizontal:15 }}>
+                  {item.firstName} {item.lastName}
+                </Text>
+                {/* <Text>{item.phoneNumber}</Text> */}
+              </TouchableOpacity>
+            )}
+            keyExtractor={(item, index) => index.toString()}
+          />
+        </View>
+      )}
+    </View>
+  );
+};
+
+export default CustomDropDown;
