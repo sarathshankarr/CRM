@@ -144,6 +144,7 @@ const Cart = () => {
         // Handle success
         const ordersList = response?.data?.response?.ordersList || [];
         console.log('response', response);
+        navigation.navigate('Home');
       })
       .catch(error => {
         // Handle error
