@@ -106,6 +106,7 @@ const ModalComponent = ({modalVisible, closeModal, selectedItem}) => {
       quantity: Object.values(inputValues).reduce((acc, cur) => acc + Number(cur), 0),
       imageUrls: selectedItem.imageUrls,
       styleName: selectedItem.styleName,
+      colorId: stylesData[0]?.colorId || '', // Add colorId here
     };
     const existingItemIndex = cartItems.findIndex(item => item.styleId === selectedItem.styleId && item.sizeDesc === sizeDesc);
     if (existingItemIndex !== -1) {
@@ -118,6 +119,7 @@ const ModalComponent = ({modalVisible, closeModal, selectedItem}) => {
     closeModal();
     setInputValues({});
   };
+  
   
 
   const handleQuantityChange = (text, index) => {
@@ -228,9 +230,11 @@ const ModalComponent = ({modalVisible, closeModal, selectedItem}) => {
                           <Text style={{marginTop: 15, marginHorizontal: 5}}>
                             {style.styleDesc}
                           </Text>
+                          
                           <Text style={{marginTop: 2, marginHorizontal: 5}}>
                             Size - {size.sizeDesc}
                           </Text>
+                          {/* <Text>colorId{style.colorId}</Text> */}
                         </View>
                         <View
                           style={{

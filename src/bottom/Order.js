@@ -25,7 +25,7 @@ const Order = () => {
     })
     .then(response => {
       // Handle success
-      console.log('Response:', response.data);
+      // console.log('Response:', response.data);
       if (pageNo === 1) {
         setOrders(response.data.content);
       } else {
@@ -70,6 +70,8 @@ const Order = () => {
       <Text>Total Amount: {item.totalAmount}</Text>
       <Text>Total Qty: {item.totalQty}</Text>
       <Text>Customer Name: {item.customerName}</Text>
+      <Text>ColorId - {item.colorId}</Text>
+      <Text>{item.sizeDesc}</Text>
     </TouchableOpacity>
   );
 

@@ -111,7 +111,7 @@ const Cart = () => {
         locationId: '1',
       };
     });
-  
+  console.log(orderLineItems)
     axios
       .post(
         apiUrl,
@@ -143,7 +143,7 @@ const Cart = () => {
       .then(response => {
         // Handle success
         const ordersList = response?.data?.response?.ordersList || [];
-        console.log('response', response);
+        console.log('response', response.data.response.ordersList);
         navigation.navigate('Home');
       })
       .catch(error => {
@@ -368,6 +368,7 @@ const Cart = () => {
                 </TouchableOpacity>
               </View>
             </View>
+            <Text>colorId - {item.colorId}</Text>
             <View style={style.sizehead}>
               <View style={{flex: 0.7}}>
                 <Text style={{marginLeft: 10}}>COLOR/SIZE</Text>
