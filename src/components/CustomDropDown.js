@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, Image, FlatList } from 'react-native';
+import { View, Text, TouchableOpacity, Image } from 'react-native';
 import axios from 'axios';
 import { API } from '../config/apiConfig';
 
@@ -72,29 +72,26 @@ const CustomDropDown = () => {
             backgroundColor: '#fff',
             borderRadius: 10,
           }}>
-          <FlatList
-            data={customers}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                style={{
-                  width: '100%',
-                  height: 50,
-                  justifyContent: 'center',
-                  borderBottomWidth: 0.5,
-                  borderColor: '#8e8e8e',
-                }}
-                onPress={() => {
-                  handleCustomerSelection(item.firstName, item.lastName);
-                  console.log(item);
-                }}>
-                <Text style={{ fontWeight: '600',marginHorizontal:15 }}>
-                  {item.firstName} {item.lastName}
-                </Text>
-                {/* <Text>{item.phoneNumber}</Text> */}
-              </TouchableOpacity>
-            )}
-            keyExtractor={(item, index) => index.toString()}
-          />
+          {customers.map((item, index) => (
+            <TouchableOpacity
+              key={index}
+              style={{
+                width: '100%',
+                height: 50,
+                justifyContent: 'center',
+                borderBottomWidth: 0.5,
+                borderColor: '#8e8e8e',
+              }}
+              onPress={() => {
+                handleCustomerSelection(item.firstName, item.lastName);
+                console.log(item);
+              }}>
+              <Text style={{ fontWeight: '600', marginHorizontal: 15 }}>
+                {item.firstName} {item.lastName}
+              </Text>
+              {/* <Text>{item.phoneNumber}</Text> */}
+            </TouchableOpacity>
+          ))}
         </View>
       )}
     </View>

@@ -1,75 +1,59 @@
-import React from 'react';
-import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import Pending from '../Pages/pending/Pending';
-import Completed from '../Pages/completed/Completed';
-import Unapproved from '../Pages/unapproved/Unapproved';
+import React, { useEffect, useState } from "react";
+import { Text, View, FlatList } from "react-native";
+import axios from "axios";
+import { API } from "../config/apiConfig";
 
-const Tab = createMaterialTopTabNavigator();
+const Order = () => {
+  const [orders, setOrders] = useState([]);
 
-const CustomTabBar = ({ state, descriptors }) => {
-  const navigation = useNavigation();
-  const route = useRoute();
+  useEffect(() => {
+    getAllOrders();
+  }, []);
 
-  const onPress = (routeName) => {
-    navigation.navigate(routeName);
+  const getAllOrders = () => {
+    axios.post(API.GET_ALL_ORDER, {
+      pageNo: "1",
+      pageSize: "20",
+      userId: "1",
+      orderId: ""
+    }, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${global.userData.access_token}`
+      }
+    })
+    .then(response => {
+      // Handle success
+      console.log('Response:', response.data);
+      setOrders(response.data.content);
+    })
+    .catch(error => {
+      // Handle error
+      console.error('Error:', error);
+    });
   };
 
-  return (
-    <View style={styles.tabContainer}>
-      {state.routes.map((route, index) => {
-        const { options } = descriptors[route.key];
-        const label = route.name;
-        const isFocused = route.key === state.routes[state.index].key;
+  const renderItem = ({ item }) => (
+    <View style={{ marginBottom: 20 }}>
+      <Text>Order ID: {item.orderId}</Text>
+      <Text>Ship Date{item.shipDate}</Text>
+      <Text>Order Date: {item.orderDate}</Text>
+      <Text>Total Amount: {item.totalAmount}</Text>
+      <Text>Total Qty:{item.totalQty}</Text>
+      <Text>Customer Name: {item.customerName}</Text>
+    </View>
+  );
 
-        return (
-          <TouchableOpacity
-            key={index}
-            onPress={() => onPress(route.name)}
-            style={[styles.tabButton, isFocused && styles.activeTabButton]}
-          >
-            <Text style={[styles.tabText, isFocused && styles.activeTabText]}>{label}</Text>
-          </TouchableOpacity>
-        );
-      })}
+  return (
+    <View>
+      <Text>Orders</Text>
+      <FlatList
+        data={orders}
+        renderItem={renderItem}
+        keyExtractor={item => item.orderId.toString()}
+      />
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  tabContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    backgroundColor: '#ffffff',
-  },
-  tabButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-  },
-  activeTabButton: {
-    borderBottomWidth: 2,
-    borderBottomColor: '#000',
-  },
-  tabText: {
-    fontSize: 16,
-    color: '#000000',
-  },
-  activeTabText: {
-    fontWeight: 'bold',
-  },
-});
-
-function Order() {
-  return (
-    <Tab.Navigator
-      tabBar={(props) => <CustomTabBar {...props} />}
-    >
-      <Tab.Screen name="Pending" component={Pending} />
-      <Tab.Screen name="Completed" component={Completed} />
-      <Tab.Screen name="Unapproved" component={Unapproved} />
-    </Tab.Navigator>
-  );
-}
 
 export default Order;

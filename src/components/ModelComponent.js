@@ -15,7 +15,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { addItemToCart, updateCartItem } from '../redux/actions/Actions';
 import axios from 'axios';
 import { API } from '../config/apiConfig';
-import Cart from '../Pages/cart/Cart';
 
 const dynamicPart = 0; // Need to change this as a dynamic
 
@@ -55,22 +54,23 @@ const ModalComponent = ({modalVisible, closeModal, selectedItem}) => {
       getQuantityStyles();
     }
   }, [selectedItem]);
-  useEffect(() => {
-    setSelectedItem(selectedItem);
-  }, [selectedItem]);
-  
-  useEffect(() => {
-    console.log('inputValues:', inputValues);
-  }, [inputValues]);
-  
-  useEffect(() => {
-    console.log('selectedItemState:', selectedItemState);
-  }, [selectedItemState]);
 
-  useEffect(() => {
-    console.log('inputValues:', inputValues);
-    console.log('selectedItemState:', selectedItemState);
-  }, [inputValues, selectedItemState]);
+  // useEffect(() => {
+  //   setSelectedItem(selectedItem);
+  // }, [selectedItem]);
+  
+  // useEffect(() => {
+  //   // console.log('inputValues:', inputValues);
+  // }, [inputValues]);
+  
+  // useEffect(() => {
+  //   // console.log('selectedItemState:', selectedItemState);
+  // }, [selectedItemState]);
+
+  // useEffect(() => {
+  //   console.log('inputValues:', inputValues);
+  //   console.log('selectedItemState:', selectedItemState);
+  // }, [inputValues, selectedItemState]);
   
   const clearAllInputs = () => {
     const updatedItem = {...selectedItemState};
@@ -93,6 +93,7 @@ const ModalComponent = ({modalVisible, closeModal, selectedItem}) => {
   // console.log('inputValue:', JSON.stringify(inputValues));
 
   const handleSaveItem = () => {
+    console.log("item",selectedItem)
     const sizeDesc = selectedItemState?.selectedSize || 'Default Size';
     const inputValue = inputValues[sizeDesc] || '';
     const itemWithDetails = {
@@ -126,7 +127,7 @@ const ModalComponent = ({modalVisible, closeModal, selectedItem}) => {
       updatedItem.selectedSize = sizeDesc; // Update selectedSize
       updatedItem[sizeDesc] = text;
       setSelectedItem(updatedItem);
-      console.log('Selected size:', sizeDesc); // Log selected size
+      // console.log('Selected size:', sizeDesc); // Log selected size
     }
   };
 
@@ -206,6 +207,7 @@ const ModalComponent = ({modalVisible, closeModal, selectedItem}) => {
                       
                     }}>
                     <TouchableOpacity
+                    style={{borderWidth:1,borderColor:'#fff',padding:8}}
                       onPress={() =>
                         copyValueToClipboard(
                           selectedItemState[style.sizeList[0]?.sizeDesc],
@@ -292,6 +294,7 @@ const ModalComponent = ({modalVisible, closeModal, selectedItem}) => {
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
+            
               onPress={handleSaveItem}
               style={{
                 borderWidth: 1,

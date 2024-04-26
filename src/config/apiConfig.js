@@ -9,7 +9,8 @@ export const API = {
   ALL_CATEGORIES_DATA:BASE_URL.SIT+'/erpportal/api/category',
   STYLE_QUNTITY_DATA:BASE_URL.SIT + '/erpportal/api/style',
   ADD_ORDER_DATA:BASE_URL.SIT+ '/erpportal/api/ordermgmt/addorder',
-  ADD_CUSTOMER_LIST:BASE_URL.SIT+'/erpportal/api/customers'
+  ADD_CUSTOMER_LIST:BASE_URL.SIT+'/erpportal/api/customers',
+  GET_ALL_ORDER:BASE_URL.SIT+'/erpportal/api/ordermgmt/findallorders'
 };
 
 export const USER_ID = 'adminClientId';
