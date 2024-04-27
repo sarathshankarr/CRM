@@ -70,8 +70,10 @@ const Order = () => {
       <Text>Total Amount: {item.totalAmount}</Text>
       <Text>Total Qty: {item.totalQty}</Text>
       <Text>Customer Name: {item.customerName}</Text>
-      <Text>ColorId - {item.colorId}</Text>
-      <Text>{item.sizeDesc}</Text>
+      <Text>Size: {item.size}</Text>
+    <Text>Color ID: {item.colorId}</Text>
+    <Text>Style ID: {item.styleId}</Text>
+      <Text>{item.size}</Text>
     </TouchableOpacity>
   );
 

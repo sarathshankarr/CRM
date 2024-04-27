@@ -142,18 +142,20 @@ const Cart = () => {
       )
       .then(response => {
         // Handle success
-        const ordersList = response?.data?.response?.ordersList || [];
-        console.log('response', response.data.response.ordersList);
-        navigation.navigate('Home');
+        console.log('Response data:', response?.data.response.ordersList);
+        const ordersList = response?.data?.response?.ordersList || []; // Access ordersList
+        if (ordersList.length > 0) {
+          const orderLineItems = ordersList[0]?.orderLineItems || []; // Access orderLineItems from the first object in ordersList
+          console.log('Order Line Items:', orderLineItems);
+          navigation.navigate('Home');
+          // Further handling of orderLineItems as needed
+        } else {
+          console.log('No orders found in the response.');
+        }
       })
       .catch(error => {
         // Handle error
-        if (error.response && error.response.status === 401) {
-          console.error('Token expired or invalid. Need to reauthenticate.');
-          // You might want to handle token expiration here
-        } else {
-          console.error('Error:', error);
-        }
+        console.error('Error:', error);
       });
   };
   
