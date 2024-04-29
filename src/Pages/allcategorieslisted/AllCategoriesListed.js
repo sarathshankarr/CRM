@@ -103,20 +103,20 @@ const AllCategoriesListed = ({navigation, route}) => {
         <Text>color Name: {item.colorName}</Text>
 
         <View style={styles.notesContainer}>
-          <Text>Discription: {item.styleDesc}</Text>
-          <View style={styles.buttonsContainer}>
-            <View style={{}} />
-            <TouchableOpacity
-              onPress={() => openModal(item)}
-              style={styles.buttonqty}>
-              <Image
-                style={styles.addqtyimg}
-                source={require('../../../assets/qty.png')}
-              />
-              <Text>ADD QTY</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+  <Text numberOfLines={1} ellipsizeMode="tail" style={styles.descriptionText}>
+    Discription: {item.styleDesc}
+  </Text>
+  <TouchableOpacity
+    onPress={() => openModal(item)}
+    style={styles.buttonqty}>
+    <Image
+      style={styles.addqtyimg}
+      source={require('../../../assets/qty.png')}
+    />
+    <Text>ADD QTY</Text>
+  </TouchableOpacity>
+</View>
+
       </View>
     </TouchableOpacity>
   );
@@ -187,11 +187,12 @@ const styles = StyleSheet.create({
   notesContainer: {
     paddingVertical: 5,
   },
+  descriptionText: {
+    flex: 1,
+  },
   buttonsContainer: {
-    // flexDirection: 'row',
-    marginTop: 5,
-    // alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
   },
   button: {
     borderWidth: 1,
@@ -200,6 +201,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   buttonqty: {
+    marginTop:7,
     borderWidth: 1,
     paddingVertical: 10,
     borderRadius: 5,

@@ -17,7 +17,6 @@ const CustomTabBar = ({ state, descriptors }) => {
   return (
     <View style={styles.tabContainer}>
       {state.routes.map((route, index) => {
-        const { options } = descriptors[route.key];
         const label = route.name;
         const isFocused = route.key === state.routes[state.index].key;
 
@@ -42,7 +41,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     marginTop: 10,
     marginHorizontal: 20,
-    borderRadius: 30
+    borderRadius: 30,
+    
 
   },
   tabButton: {

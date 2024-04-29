@@ -12,12 +12,14 @@ const Order = () => {
   const [firstLoad, setFirstLoad] = useState(true);
 
   const getAllOrders = useCallback(() => {
-    axios.post(API.GET_ALL_ORDER, {
+    const queryParams = new URLSearchParams({
       pageNo: pageNo.toString(),
       pageSize: pageSize.toString(),
       userId: "1",
       orderId: ""
-    }, {
+    });
+  
+    axios.get(`${API.GET_ALL_ORDER}?${queryParams}`, {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${global.userData.access_token}`
@@ -25,11 +27,10 @@ const Order = () => {
     })
     .then(response => {
       // Handle success
-      // console.log('Response:', response.data);
       if (pageNo === 1) {
-        setOrders(response.data.content);
+        setOrders(response.data.response.ordersList);
       } else {
-        setOrders(prevOrders => [...prevOrders, ...response.data.content]);
+        setOrders(prevOrders => [...prevOrders, ...response.data.response.ordersList]);
       }
       setLoading(false);
     })
@@ -39,6 +40,7 @@ const Order = () => {
       setLoading(false);
     });
   }, [pageNo, pageSize]);
+  
 
   useEffect(() => {
     if (firstLoad) {
@@ -64,22 +66,21 @@ const Order = () => {
 
   const renderItem = ({ item }) => (
     <TouchableOpacity style={{ marginBottom: 6, borderWidth: 1, marginHorizontal: 10 }}>
+      <View style={{marginHorizontal:10,marginVertical:5}}>
       <Text>Order ID: {item.orderId}</Text>
       <Text>Ship Date: {item.shipDate}</Text>
       <Text>Order Date: {item.orderDate}</Text>
       <Text>Total Amount: {item.totalAmount}</Text>
       <Text>Total Qty: {item.totalQty}</Text>
       <Text>Customer Name: {item.customerName}</Text>
-      <Text>Size: {item.size}</Text>
-    <Text>Color ID: {item.colorId}</Text>
-    <Text>Style ID: {item.styleId}</Text>
-      <Text>{item.size}</Text>
+      </View>
+      
     </TouchableOpacity>
   );
 
   return (
     <View style={{ backgroundColor: "#fff" }}>
-      <Text>Orders</Text>
+      <Text style={{marginHorizontal:10,marginVertical:5}}>Orders</Text>
       <FlatList
         data={orders}
         renderItem={renderItem}

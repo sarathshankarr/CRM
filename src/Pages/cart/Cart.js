@@ -34,8 +34,8 @@ const Cart = () => {
   const [clicked, setClicked] = useState(false);
   const [customers, setCustomers] = useState([]);
   const [comments, setComments] = useState('');
-  const [shipDate, setShipDate] = useState(null)
-  
+  const [shipDate, setShipDate] = useState(null);
+
   const handleCommentsChange = text => {
     setComments(text);
   };
@@ -81,85 +81,104 @@ const Cart = () => {
   console.log('selecteditem', selectedItem);
 
   const PlaceAddOrder = () => {
-    
-    const apiUrl = `${API.ADD_ORDER_DATA}`;
-  
     const currentDate = new Date().toISOString().split('T')[0];
-  
+
     const selectedCustomerObj = customers.find(customer => {
       return `${customer.firstName} ${customer.lastName}` === selectedCustomer;
     });
-  
-    const customerId = selectedCustomerObj ? selectedCustomerObj.customerId : '';
+
+    const customerId = selectedCustomerObj
+      ? selectedCustomerObj.customerId
+      : '';
     const selectedShipDate = shipDate || currentDate;
 
-    const orderLineItems = cartItems.map(item => {
-      const size = Object.keys(item.inputValue)[0]; // Assuming size is the first key in inputValue object
-      return {
+    const requestData = {
+      totalAmount: totalPrice.toString(),
+      totalDiscount: '0',
+      totalDiscountSec: '0',
+      totalDiscountThird: '0',
+      totalGst: '0',
+      totalQty: totalQty.toString(),
+      orderStatus: 'Open',
+      comments: comments,
+      customerId: customerId,
+      billingAddressId: '2',
+      shippingAddressId: '2',
+      shipDate: selectedShipDate,
+      orderDate: currentDate,
+      companyLocId: '0',
+      agentId: '0',
+      subAgentId: '0',
+      orderLineItems: cartItems.map(item => ({
+        qty: totalQty.toString(),
         styleId: item.styleId,
         colorId: item.colorId,
-        size: size,
-        gsCode: '8907535008964',
-        qty: totalQty.toString(),
-        unitPrice: '12',
-        gross: '144',
+        gscodeMapId: 42, // Assuming constant gscodeMapId
+        sizeDesc: item.sizeDesc,
+        gsCode: '8907536002462',
+        availQty: totalQty.toString(),
+        price: totalPrice.toString(),
+        gross: '9660',
         discountPercentage: '0',
         discountAmount: '0',
-        gst: '0',
+        gst: 5,
         total: totalPrice.toString(),
         itemStatus: 'OPEN',
-        locationId: '1',
-      };
-    });
-    console.log("orderlineitems", JSON.stringify(orderLineItems));
+        locationId: 0,
+        pcqty: '0',
+        pack_qty: 0,
+        sizeId: 0,
+        packageId: 0,
+        cedgeFlag: '0',
+        cedgeStyleId: 0,
+        discountPercentageSec: 0.0,
+        discountPercentageThird: 200.0,
+        closeFlag: 0,
+        statusFlag: 0,
+        poId: 0,
+      })),
+      comments: comments,
+      customerType: 2,
+      distributorId: 0,
+      invoiceNo: '',
+      deliveryNote: '',
+      mop: '',
+      refNo: '',
+      refDate: '',
+      otherRefs: '',
+      buyersNo: '',
+      dispatchNo: '',
+      delNoteDate: '',
+      dispatch: 1,
+      retailerId: '',
+      tsiId: 0,
+      approveFlag: 0,
+      returnReasonId: 0,
+      returnRemarks: '',
+      appComments: '',
+      gTranspExp: 0,
+      gOtherExp: 0,
+      companyId: '1',
+    };
+
     axios
-      .post(
-        apiUrl,
-        {
-          orderDate: currentDate,
-          shipDate: selectedShipDate,
-          customerId: customerId,
-          shippingAddressId: '22',
-          billingAddressId: '23',
-          comments: comments,
-          orderStatus: 'PENDING',
-          totalQty: totalQty.toString(),
-          totalGst: '0',
-          totalDiscount: '0',
-          transportCost: '0',
-          lumpsumDiscount: '0',
-          totalAmount: totalPrice.toString(),
-          createBy: 1,
-          orderSource: 'ONLINE',
-          orderLineItems: orderLineItems,
+      .post(API.ADD_ORDER_DATA, requestData, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${global.userData.access_token}`,
         },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${global.userData.access_token}`,
-          },
-        },
-      )
-      .then(response => {
-        // Handle success
-        console.log('Response data:', response?.data.response.ordersList);
-        const ordersList = response?.data?.response?.ordersList || []; // Access ordersList
-        if (ordersList.length > 0) {
-          const orderLineItems = ordersList[0]?.orderLineItems || []; // Access orderLineItems from the first object in ordersList
-          console.log('Order Line Items:', orderLineItems);
-          navigation.navigate('Home');
-          // Further handling of orderLineItems as needed
-        } else {
-          console.log('No orders found in the response.');
-        }
       })
+      .then(response => {
+        console.log('Order placement response:', response);
+        navigation.navigate('Home');
+        // Here you can navigate to the success screen or perform other actions
+      })
+
       .catch(error => {
-        // Handle error
-        console.error('Error:', error);
+        console.error('Error placing order:', error);
+        // Handle error, e.g., show an error message to the user
       });
   };
-  
-  
 
   const openModal = item => {
     setSelectedItem(item);
@@ -204,7 +223,6 @@ const Cart = () => {
     hideDatePicker();
     setShipDate(date.toISOString().split('T')[0]);
   };
-  
 
   const handleRemoveItem = itemIndex => {
     dispatch(removeFromCart(itemIndex));

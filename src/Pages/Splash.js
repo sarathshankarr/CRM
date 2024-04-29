@@ -1,5 +1,5 @@
 import React, {isValidElement, useEffect} from 'react';
-import {Text, View} from 'react-native';
+import {Image, StyleSheet, Text, View} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useNavigation} from '@react-navigation/native';
 import {isValidString} from '../Helper/Helper';
@@ -23,10 +23,23 @@ const Splash = props => {
     });
   }, []);
   return (
-    <View>
-      <Text>Splash</Text>
+    <View style={styles.container}>
+      <Image style={styles.logo} source={require('../../assets/Logo.png')} />
     </View>
   );
 };
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor:"#fff"
+  },
+  logo: {
+    width: '95%', // Adjust the width as needed
+    height: '95%', // Adjust the height as needed
+    resizeMode: 'contain', // This ensures the image fits within the bounds
+  },
+});
 
 export default Splash;

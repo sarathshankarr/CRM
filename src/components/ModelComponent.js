@@ -204,19 +204,17 @@ const ModalComponent = ({modalVisible, closeModal, selectedItem}) => {
                   <View
                     style={{
                       position: 'absolute',
-                      right: 0,
-                      marginHorizontal: 10,
-                      
+                      right: 0,                      
                     }}>
                     <TouchableOpacity
-                    style={{borderWidth:1,borderColor:'#fff',padding:8}}
+                    style={{borderWidth:1,borderColor:'#fff',marginLeft:15,paddingHorizontal:10}}
                       onPress={() =>
                         copyValueToClipboard(
                           selectedItemState[style.sizeList[0]?.sizeDesc],
                         )
                       }>
                       <Image
-                        style={{height: 25, width: 25,marginTop:10}}
+                        style={{height: 30, width: 30}}
                         source={require('../../assets/copy.png')}
                       />
                     </TouchableOpacity>
