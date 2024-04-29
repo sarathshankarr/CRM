@@ -67,11 +67,11 @@ const Order = () => {
   const renderItem = ({ item }) => (
     <TouchableOpacity style={{ marginBottom: 6, borderWidth: 1, marginHorizontal: 10 }}>
       <View style={{marginHorizontal:10,marginVertical:5}}>
-      <Text>Order ID: {item.orderId}</Text>
-      <Text>Ship Date: {item.shipDate}</Text>
+      {/* <Text>Order ID: {item.orderId}</Text> */}
       <Text>Order Date: {item.orderDate}</Text>
+      <Text>Ship Date: {item.shipDate}</Text>
       <Text>Total Amount: {item.totalAmount}</Text>
-      <Text>Total Qty: {item.totalQty}</Text>
+      {/* <Text>Total Qty: {item.totalQty}</Text> */}
       <Text>Customer Name: {item.customerName}</Text>
       </View>
       

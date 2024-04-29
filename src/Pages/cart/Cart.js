@@ -138,7 +138,7 @@ const Cart = () => {
         poId: 0,
       })),
       comments: comments,
-      customerType: 2,
+      customerType: 1,
       distributorId: 0,
       invoiceNo: '',
       deliveryNote: '',
@@ -170,6 +170,8 @@ const Cart = () => {
       })
       .then(response => {
         console.log('Order placement response:', response);
+        // Clear the cart after successfully placing the order
+        dispatch({ type: 'CLEAR_CART' }); // Dispatch action to clear the cart
         navigation.navigate('Home');
         // Here you can navigate to the success screen or perform other actions
       })

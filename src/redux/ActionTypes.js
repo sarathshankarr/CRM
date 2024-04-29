@@ -9,3 +9,4 @@ export const UPDATE_CART_ITEM = 'UPDATE_CART_ITEM';
 export const SET_NOTE_TITLE = 'SET_NOTE_TITLE';
 export const SET_NOTE_DESCRIPTION = 'SET_NOTE_DESCRIPTION';
 export const SET_NOTE_SAVED = 'SET_NOTE_SAVED';
+export const CLEAR_CART = 'CLEAR_CART';

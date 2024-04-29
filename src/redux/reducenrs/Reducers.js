@@ -1,4 +1,4 @@
-import { ADD_SELECTED_IMAGE, ADD_TO_CART, ADD_TO_PENDING, DELETE_NOTE, REMOVE_FROM_CART, REMOVE_SELECTED_IMAGE, SET_NOTE_DETAILS, SET_NOTE_SAVED, UPDATE_CART_ITEM } from '../ActionTypes';
+import { ADD_SELECTED_IMAGE, ADD_TO_CART, ADD_TO_PENDING, CLEAR_CART, DELETE_NOTE, REMOVE_FROM_CART, REMOVE_SELECTED_IMAGE, SET_NOTE_DETAILS, SET_NOTE_SAVED, UPDATE_CART_ITEM } from '../ActionTypes';
 
 const initialState = {
   cartItems: [],
@@ -10,6 +10,7 @@ const initialState = {
   },
   notes: [],
   noteSaved: false,
+  cartItems: [],
 };
 
 const reducers = (state = initialState, action) => {
@@ -73,6 +74,11 @@ const reducers = (state = initialState, action) => {
       return {
         ...state,
         noteSaved: action.payload,
+      };
+      case CLEAR_CART:
+      return {
+        ...state,
+        cartItems: [],
       };
     default:
       return state;

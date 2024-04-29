@@ -1,4 +1,4 @@
-import {ADD_SELECTED_IMAGE, ADD_TO_CART, ADD_TO_PENDING, DELETE_NOTE, REMOVE_FROM_CART, REMOVE_SELECTED_IMAGE, SET_NOTE_DETAILS, UPDATE_CART_ITEM,SET_NOTE_TITLE,SET_NOTE_DESCRIPTION, SET_NOTE_SAVED} from '../ActionTypes';
+import {ADD_SELECTED_IMAGE, ADD_TO_CART, ADD_TO_PENDING, DELETE_NOTE, REMOVE_FROM_CART, REMOVE_SELECTED_IMAGE, SET_NOTE_DETAILS, UPDATE_CART_ITEM,SET_NOTE_TITLE,SET_NOTE_DESCRIPTION, SET_NOTE_SAVED, CLEAR_CART} from '../ActionTypes';
 
 export const addItemToCart = data => ({
   type: ADD_TO_CART,
@@ -57,4 +57,7 @@ export const setNoteDescription = (description) => ({
 export const setNoteSaved = (isSaved) => ({
   type: SET_NOTE_SAVED,
   payload: isSaved,
+});
+export const clearCart = () => ({
+  type: CLEAR_CART,
 });
