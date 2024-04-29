@@ -1,13 +1,20 @@
-import React, { useEffect, useState } from 'react';
-import { Text, View, Image, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
-import { useDispatch } from 'react-redux';
-import { addItemToCart } from '../../redux/actions/Actions';
-import ModalComponent from '../../components/ModelComponent'; 
+import React, {useEffect, useState} from 'react';
+import {
+  Text,
+  View,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  FlatList,
+} from 'react-native';
+import {useDispatch} from 'react-redux';
+import {addItemToCart} from '../../redux/actions/Actions';
+import ModalComponent from '../../components/ModelComponent';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Apicall from './../../utils/serviceApi/serviceAPIComponent';
 
-const AllCategoriesListed = ({ navigation, route }) => {
-  const { categoryId } = route.params;
+const AllCategoriesListed = ({navigation, route}) => {
+  const {categoryId} = route.params;
   const dispatch = useDispatch();
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedDetails, setSelectedDetails] = useState([]);
@@ -38,9 +45,9 @@ const AllCategoriesListed = ({ navigation, route }) => {
     const token = JSON.parse(userData);
 
     let json = {
-      "pageNo": "1",
-      "pageSize": "10",
-      "categoryId": categoryId
+      pageNo: '1',
+      pageSize: '10',
+      categoryId: categoryId,
     };
 
     setIsLoading(true);
@@ -51,11 +58,14 @@ const AllCategoriesListed = ({ navigation, route }) => {
     if (allProductsApi && allProductsApi.data && !allProductsApi.data.error) {
       setSelectedDetails(allProductsApi.data.content);
     } else {
-      console.log('Error fetching data:', allProductsApi && allProductsApi.error);
+      console.log(
+        'Error fetching data:',
+        allProductsApi && allProductsApi.error,
+      );
     }
   };
 
-  const navigateToDetails = (item) => {
+  const navigateToDetails = item => {
     navigation.navigate('Details', {
       item,
       name: item.name,
@@ -68,23 +78,30 @@ const AllCategoriesListed = ({ navigation, route }) => {
       set: item.set,
     });
   };
-  const renderProductItem = ({ item }) => (
-    <TouchableOpacity style={styles.productItem} onPress={() => navigateToDetails(item)}>
+  const renderProductItem = ({item}) => (
+    <TouchableOpacity
+      style={styles.productItem}
+      onPress={() => navigateToDetails(item)}>
       <View style={styles.touchableContent}>
         <View style={styles.productImageContainer}>
           <Image
             style={styles.productImage}
-            source={{ uri: item.imageUrls && item.imageUrls.length > 0 ? item.imageUrls[0] : null }}
-            onError={(error) => console.error('Error loading image:', error)}
+            source={{
+              uri:
+                item.imageUrls && item.imageUrls.length > 0
+                  ? item.imageUrls[0]
+                  : null,
+            }}
+            onError={error => console.error('Error loading image:', error)}
           />
-          <Text style={styles.productName}>{item.colorName}</Text>
+          <Text style={styles.productName}>{item.styleName}</Text>
         </View>
-        <View style={styles.detailsContainer}>
-        </View>
+        <View style={styles.detailsContainer}></View>
       </View>
       <View style={styles.additionalDetailsContainer}>
         <Text>Price: {item.mrp}</Text>
-        <Text>Name: {item.styleName}</Text>
+        <Text>color Name: {item.colorName}</Text>
+
         <View style={styles.notesContainer}>
           <Text>Discription: {item.styleDesc}</Text>
           <View style={styles.buttonsContainer}>
@@ -121,7 +138,6 @@ const AllCategoriesListed = ({ navigation, route }) => {
     </>
   );
 };
-
 
 const styles = StyleSheet.create({
   productItem: {
@@ -188,11 +204,11 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 5,
     flexDirection: 'row',
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
   addqtyimg: {
     height: 20,
-    width: 20
+    width: 20,
   },
   flatListContainer: {
     paddingHorizontal: 8,

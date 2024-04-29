@@ -111,7 +111,7 @@ const Cart = () => {
         locationId: '1',
       };
     });
-  console.log(orderLineItems)
+    console.log("orderlineitems", JSON.stringify(orderLineItems));
     axios
       .post(
         apiUrl,
