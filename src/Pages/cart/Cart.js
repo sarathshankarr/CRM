@@ -499,6 +499,7 @@ const Cart = () => {
             placeholder="Enter comments"
             value={comments}
             onChangeText={handleCommentsChange}
+            placeholderTextColor="#000"
           />
         </View>
         <View

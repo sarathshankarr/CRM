@@ -91,6 +91,7 @@ const HomeCategories = ({ navigation }) => {
             autoFocus={true}
             onBlur={toggleSearchInput}
             onChangeText={onChangeText}
+            placeholderTextColor="#000"
             placeholder="Search"
           />
         ) : (

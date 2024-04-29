@@ -161,6 +161,7 @@ const HomeAllProducts = ({ navigation }) => {
             onBlur={toggleSearchInput}
             onChangeText={text => setSearchQuery(text)} // Update search query
             placeholder="Search"
+            placeholderTextColor="#000"
           />
         ) : (
             <Text style={styles.text}>{selectedDetails ? selectedDetails.length + ' Products Listed' : ''}</Text>
