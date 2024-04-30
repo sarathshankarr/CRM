@@ -171,7 +171,7 @@ const Cart = () => {
       .then(response => {
         console.log('Order placement response:', response);
         // Clear the cart after successfully placing the order
-        dispatch({ type: 'CLEAR_CART' }); // Dispatch action to clear the cart
+        dispatch({type: 'CLEAR_CART'}); // Dispatch action to clear the cart
         navigation.navigate('Home');
         // Here you can navigate to the success screen or perform other actions
       })
@@ -285,6 +285,9 @@ const Cart = () => {
   return (
     <View style={{flex: 1, backgroundColor: '#fff'}}>
       <View style={{marginVertical: 10, backgroundColor: '#fff'}}>
+        <View style={{marginHorizontal: 10, marginVertical: 2}}>
+          <Text style={{color: '#000', fontWeight: 'bold'}}>Customers</Text>
+        </View>
         <View style={{}}>
           <TouchableOpacity
             style={{
@@ -342,6 +345,52 @@ const Cart = () => {
           )}
         </View>
       </View>
+      <View style={{flexDirection: 'row'}}>
+        <View style={{flex: 1}}>
+          <TouchableOpacity
+            style={{
+              width: '90%',
+              height: 50,
+              borderRadius: 10,
+              borderWidth: 0.5,
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              paddingLeft: 15,
+              paddingRight: 15,
+              marginLeft: 18,
+            }}
+           >
+            <Text style={{fontWeight: '600'}}>From to</Text>
+            <Image
+              source={require('../../../assets/dropdown.png')}
+              style={{width: 20, height: 20}}
+            />
+          </TouchableOpacity>
+        </View>
+        <View style={{flex: 1}}>
+          <TouchableOpacity
+            style={{
+              width: '90%',
+              height: 50,
+              borderRadius: 10,
+              borderWidth: 0.5,
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              paddingLeft: 15,
+              paddingRight: 15,
+            }}
+            >
+            <Text style={{fontWeight: '600'}}>Ship to</Text>
+            <Image
+              source={require('../../../assets/dropdown.png')}
+              style={{width: 20, height: 20}}
+            />
+          </TouchableOpacity>
+        </View>
+      </View>
+
       <ScrollView style={style.container}>
         <View style={style.header}>
           <Text style={style.txt}>Total Items: {cartItems.length}</Text>
