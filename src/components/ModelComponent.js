@@ -49,7 +49,7 @@ const ModalComponent = ({modalVisible, closeModal, selectedItem}) => {
   }, []);
 
   useEffect(() => {
-    console.log('selectedItem:', selectedItem);
+    // console.log('selectedItem:', selectedItem);
     if (selectedItem) {
       getQuantityStyles();
     }
@@ -93,7 +93,7 @@ const ModalComponent = ({modalVisible, closeModal, selectedItem}) => {
   // console.log('inputValue:', JSON.stringify(inputValues));
 
   const handleSaveItem = () => {
-    console.log("item",selectedItem)
+    // console.log("item",selectedItem)
     const sizeDesc = selectedItemState?.selectedSize || 'Default Size';
     const inputValue = inputValues[sizeDesc] || '';
     const itemWithDetails = {
@@ -247,6 +247,8 @@ const ModalComponent = ({modalVisible, closeModal, selectedItem}) => {
                               borderBottomWidth: 1,
                               borderColor: 'gray',
                               textAlign: 'center',
+                              color:"#000"
+                              
                             }}
                             keyboardType="numeric"
                             value={

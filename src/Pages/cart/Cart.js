@@ -24,17 +24,23 @@ import {API} from '../../config/apiConfig';
 import axios from 'axios';
 
 const Cart = () => {
-  const [inputValues, setInputValues] = useState({}); // Move inside Cart component
+  const [inputValues, setInputValues] = useState({});
   const cartItems = useSelector(state => state.cartItems);
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [selatedDate, setSelectedDate] = useState('Expexted Delivery Date');
-  const [modalVisible, setModalVisible] = useState(false); // State to manage modal visibility
+  const [modalVisible, setModalVisible] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [clicked, setClicked] = useState(false);
   const [customers, setCustomers] = useState([]);
   const [comments, setComments] = useState('');
   const [shipDate, setShipDate] = useState(null);
+  const [customerLocations, setCustomerLocations] = useState([]);
+  const [fromToClicked, setFromToClicked] = useState(false);
+  const [selectedLocation, setSelectedLocation] = useState('');
+  const [selectedCustomerId, setSelectedCustomerId] = useState(null);
+  const [shipFromToClicked, setShipFromToClicked] = useState(false);
+  const [selectedShipLocation, setSelectedShipLocation] = useState('');
 
   const handleCommentsChange = text => {
     setComments(text);
@@ -46,8 +52,54 @@ const Cart = () => {
     }
   }, [clicked]);
 
+  const getCustomerLocations = customerId => {
+    const custometType = 1;
+    const companyId = 1;
+
+    console.log('customerId:', customerId);
+
+    if (!customerId) {
+      console.error('customerId is undefined or null');
+      return;
+    }
+
+    const apiUrl = `${API.GET_CUSTOMER_LOCATION}/${customerId}/${custometType}/${companyId}`;
+
+    console.log('API URL:', apiUrl);
+
+    axios
+      .get(apiUrl, {
+        headers: {
+          Authorization: `Bearer ${global.userData.access_token}`,
+        },
+      })
+      .then(response => {
+        setCustomerLocations(response.data);
+        console.log('location response', response.data);
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        if (error.response && error.response.status === 401) {
+        }
+      });
+  };
+
+  const handleFromDropdownClick = () => {
+    setFromToClicked(!fromToClicked);
+    if (!fromToClicked) {
+      getCustomerLocations(selectedCustomerId);
+    }
+  };
+
+  const handleShipDropdownClick = () => {
+    setShipFromToClicked(!shipFromToClicked);
+    if (!shipFromToClicked) {
+      getCustomerLocations(selectedCustomerId);
+    }
+  };
+
   const getCustomersDetails = () => {
-    const companyId = 1; // Company ID
+    const companyId = 1;
     const apiUrl = `${API.ADD_CUSTOMER_LIST}/${companyId}`;
     axios
       .get(apiUrl, {
@@ -67,18 +119,30 @@ const Cart = () => {
     setClicked(!clicked);
   };
 
-  const handleCustomerSelection = (firstName, lastName) => {
+  const handleCustomerSelection = (firstName, lastName, customerId) => {
     setSelectedCustomer(`${firstName} ${lastName}`);
     setClicked(false);
+    setSelectedCustomerId(customerId);
+    getCustomerLocations(customerId);
+  };
+
+  const handleLocationSelection = locationName => {
+    setSelectedLocation(locationName);
+    setFromToClicked(false);
+  };
+
+  const handleShipLocation = locationName => {
+    setSelectedShipLocation(locationName);
+    setShipFromToClicked(false);
   };
 
   const totalItems = cartItems.length;
 
-  console.log('cart', cartItems);
+  // console.log('cart', cartItems);
 
   const dispatch = useDispatch();
   const navigation = useNavigation();
-  console.log('selecteditem', selectedItem);
+  // console.log('selecteditem', selectedItem);
 
   const PlaceAddOrder = () => {
     const currentDate = new Date().toISOString().split('T')[0];
@@ -90,7 +154,21 @@ const Cart = () => {
     const customerId = selectedCustomerObj
       ? selectedCustomerObj.customerId
       : '';
+
+    const billingAddressId = selectedLocation
+      ? selectedLocation.locationId.toString()
+      : ''; // Empty string if no billing location selected
+
+    const shippingAddressId = selectedShipLocation
+      ? selectedShipLocation.locationId.toString()
+      : ''; // Empty string if no shipping location selected
     const selectedShipDate = shipDate || currentDate;
+
+    console.log('customerId:', customerId);
+    console.log('selectedBillingLocation:', selectedLocation);
+    console.log('selectedShippingLocation:', selectedShipLocation);
+    console.log('billingAddressId:', billingAddressId);
+    console.log('shippingAddressId:', shippingAddressId);
 
     const requestData = {
       totalAmount: totalPrice.toString(),
@@ -102,8 +180,8 @@ const Cart = () => {
       orderStatus: 'Open',
       comments: comments,
       customerId: customerId,
-      billingAddressId: '2',
-      shippingAddressId: '2',
+      billingAddressId: selectedLocation.locationId.toString(), // Set billingAddressId with selectedLocation's locationId
+      shippingAddressId: selectedShipLocation.locationId.toString(), // Set shippingAddressId with selectedShipLocation's locationId
       shipDate: selectedShipDate,
       orderDate: currentDate,
       companyLocId: '0',
@@ -113,7 +191,7 @@ const Cart = () => {
         qty: totalQty.toString(),
         styleId: item.styleId,
         colorId: item.colorId,
-        gscodeMapId: 42, // Assuming constant gscodeMapId
+        gscodeMapId: 42,
         sizeDesc: item.sizeDesc,
         gsCode: '8907536002462',
         availQty: totalQty.toString(),
@@ -124,7 +202,6 @@ const Cart = () => {
         gst: 5,
         total: totalPrice.toString(),
         itemStatus: 'OPEN',
-        locationId: 0,
         pcqty: '0',
         pack_qty: 0,
         sizeId: 0,
@@ -169,16 +246,13 @@ const Cart = () => {
         },
       })
       .then(response => {
-        console.log('Order placement response:', response);
-        // Clear the cart after successfully placing the order
-        dispatch({type: 'CLEAR_CART'}); // Dispatch action to clear the cart
+        // console.log('Order placement response:', response);
+        dispatch({type: 'CLEAR_CART'});
         navigation.navigate('Home');
-        // Here you can navigate to the success screen or perform other actions
       })
 
       .catch(error => {
         console.error('Error placing order:', error);
-        // Handle error, e.g., show an error message to the user
       });
   };
 
@@ -191,14 +265,14 @@ const Cart = () => {
     setSelectedItem(null);
   };
 
-  const handlePlaceOrder = () => {
-    console.log('Placing order...');
-    console.log('Cart items:', cartItems);
-    navigation.navigate('Order', {
-      screen: 'Pending',
-      params: {cartItems: cartItems},
-    });
-  };
+  // const handlePlaceOrder = () => {
+  //   console.log('Placing order...');
+  //   console.log('Cart items:', cartItems);
+  //   navigation.navigate('Order', {
+  //     screen: 'Pending',
+  //     params: {cartItems: cartItems},
+  //   });
+  // };
 
   const handleInputValueChange = (size, value) => {
     setInputValues(prevState => ({
@@ -256,7 +330,7 @@ const Cart = () => {
       ...cartItems[index],
       inputValue: updatedInputValue,
     };
-    console.log('Updated cart item:', updatedCartItem);
+    // console.log('Updated cart item:', updatedCartItem);
 
     dispatch(updateCartItem(index, 'inputValue', updatedCartItem.inputValue));
     setInputValues(updatedCartItem.inputValue); // Update inputValue state
@@ -332,13 +406,16 @@ const Cart = () => {
                     borderColor: '#8e8e8e',
                   }}
                   onPress={() => {
-                    handleCustomerSelection(item.firstName, item.lastName);
+                    handleCustomerSelection(
+                      item.firstName,
+                      item.lastName,
+                      item.customerId,
+                    );
                     console.log(item);
                   }}>
                   <Text style={{fontWeight: '600', marginHorizontal: 15}}>
                     {item.firstName} {item.lastName}
                   </Text>
-                  {/* <Text>{item.phoneNumber}</Text> */}
                 </TouchableOpacity>
               ))}
             </View>
@@ -348,6 +425,7 @@ const Cart = () => {
       <View style={{flexDirection: 'row'}}>
         <View style={{flex: 1}}>
           <TouchableOpacity
+            onPress={handleFromDropdownClick}
             style={{
               width: '90%',
               height: 50,
@@ -359,17 +437,47 @@ const Cart = () => {
               paddingLeft: 15,
               paddingRight: 15,
               marginLeft: 18,
-            }}
-           >
-            <Text style={{fontWeight: '600'}}>From to</Text>
+            }}>
+            <Text>{selectedLocation.locationName || 'Billing to'}</Text>
             <Image
               source={require('../../../assets/dropdown.png')}
               style={{width: 20, height: 20}}
             />
           </TouchableOpacity>
+          {fromToClicked && (
+            <View
+              style={{
+                elevation: 5,
+                height: 300,
+                alignSelf: 'center',
+                width: '85%',
+                backgroundColor: '#fff',
+                borderRadius: 10,
+                marginLeft: 15,
+              }}>
+              {/* Here you can render your dropdown content */}
+              <ScrollView>
+                {customerLocations.map(location => (
+                  <TouchableOpacity
+                    key={location.locationId}
+                    style={{
+                      paddingHorizontal: 10,
+                      paddingVertical: 15,
+                      borderBottomWidth: 1,
+                      borderBottomColor: '#ccc',
+                    }}
+                    onPress={() => handleLocationSelection(location)}>
+                    <Text>{location.locationName}</Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
+          )}
         </View>
+
         <View style={{flex: 1}}>
           <TouchableOpacity
+            onPress={handleShipDropdownClick}
             style={{
               width: '90%',
               height: 50,
@@ -380,17 +488,45 @@ const Cart = () => {
               alignItems: 'center',
               paddingLeft: 15,
               paddingRight: 15,
-            }}
-            >
-            <Text style={{fontWeight: '600'}}>Ship to</Text>
+              marginRight: 18,
+            }}>
+            <Text>{selectedShipLocation.locationName || 'Ship to'}</Text>
             <Image
               source={require('../../../assets/dropdown.png')}
               style={{width: 20, height: 20}}
             />
           </TouchableOpacity>
+          {shipFromToClicked && (
+            <View
+              style={{
+                elevation: 5,
+                height: 300,
+                alignSelf: 'center',
+                width: '85%',
+                backgroundColor: '#fff',
+                borderRadius: 10,
+                marginRight: 17,
+              }}>
+              {/* Here you can render your dropdown content */}
+              <ScrollView>
+                {customerLocations.map(location => (
+                  <TouchableOpacity
+                    key={location.locationId}
+                    style={{
+                      paddingHorizontal: 10,
+                      paddingVertical: 15,
+                      borderBottomWidth: 1,
+                      borderBottomColor: '#ccc',
+                    }}
+                    onPress={() => handleShipLocation(location)}>
+                    <Text>{location.locationName}</Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
+          )}
         </View>
       </View>
-
       <ScrollView style={style.container}>
         <View style={style.header}>
           <Text style={style.txt}>Total Items: {cartItems.length}</Text>
@@ -501,7 +637,7 @@ const Cart = () => {
                   </View>
                   <View style={{flex: 0.5}}>
                     <Text>{item.price}</Text>
-                    {console.log('Price for item:', item.price)}
+                    {/* {console.log('Price for item:', item.price)} */}
                   </View>
                 </View>
                 <View
