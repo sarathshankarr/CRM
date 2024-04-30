@@ -155,13 +155,16 @@ const Cart = () => {
       ? selectedCustomerObj.customerId
       : '';
 
-    const billingAddressId = selectedLocation
-      ? selectedLocation.locationId.toString()
-      : ''; // Empty string if no billing location selected
+    const billingAddressId =
+      selectedLocation && selectedLocation.locationId
+        ? selectedLocation.locationId
+        : '';
 
-    const shippingAddressId = selectedShipLocation
-      ? selectedShipLocation.locationId.toString()
-      : ''; // Empty string if no shipping location selected
+    const shippingAddressId =
+      selectedShipLocation && selectedShipLocation.locationId
+        ? selectedShipLocation.locationId
+        : '';
+
     const selectedShipDate = shipDate || currentDate;
 
     console.log('customerId:', customerId);
@@ -180,8 +183,8 @@ const Cart = () => {
       orderStatus: 'Open',
       comments: comments,
       customerId: customerId,
-      billingAddressId: selectedLocation.locationId.toString(), // Set billingAddressId with selectedLocation's locationId
-      shippingAddressId: selectedShipLocation.locationId.toString(), // Set shippingAddressId with selectedShipLocation's locationId
+      billingAddressId: billingAddressId, // Set billingAddressId with selectedLocation's locationId
+      shippingAddressId: shippingAddressId,
       shipDate: selectedShipDate,
       orderDate: currentDate,
       companyLocId: '0',
@@ -490,7 +493,7 @@ const Cart = () => {
               paddingRight: 15,
               marginRight: 18,
             }}>
-            <Text>{selectedShipLocation.locationName || 'Ship to'}</Text>
+            <Text>{selectedShipLocation.locationName || 'Shiping to'}</Text>
             <Image
               source={require('../../../assets/dropdown.png')}
               style={{width: 20, height: 20}}
