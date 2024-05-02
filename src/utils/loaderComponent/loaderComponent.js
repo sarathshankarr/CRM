@@ -7,7 +7,7 @@ const LoaderComponent = ({ loaderText, ...props }) => {
     return (
         <View style={[styles.mainActivity, { zIndex: 999 }]}>
             <View style={styles.loaderBckViewStyle}>
-                <ActivityIndicator size="large" color="black" />
+                <ActivityIndicator size="large" color="green" />
                 <Text style={styles.textStyle}>{loaderText}</Text>
             </View>
         </View>

@@ -9,6 +9,7 @@ import {
   ScrollView,
   Keyboard,
   StyleSheet,
+  ActivityIndicator,
 } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { useDispatch, useSelector } from 'react-redux';
@@ -23,6 +24,7 @@ const ModalComponent = ({modalVisible, closeModal, selectedItem}) => {
   const [keyboardSpace, setKeyboardSpace] = useState(0);
   const [stylesData, setStylesData] = useState([]);
   const [inputValues, setInputValues] = useState({});
+  const [loading, setLoading] = useState(false); // Loading state
 
   const dispatch = useDispatch();
   const cartItems = useSelector(state => state.cartItems);
@@ -55,22 +57,6 @@ const ModalComponent = ({modalVisible, closeModal, selectedItem}) => {
     }
   }, [selectedItem]);
 
-  // useEffect(() => {
-  //   setSelectedItem(selectedItem);
-  // }, [selectedItem]);
-  
-  // useEffect(() => {
-  //   // console.log('inputValues:', inputValues);
-  // }, [inputValues]);
-  
-  // useEffect(() => {
-  //   // console.log('selectedItemState:', selectedItemState);
-  // }, [selectedItemState]);
-
-  // useEffect(() => {
-  //   console.log('inputValues:', inputValues);
-  //   console.log('selectedItemState:', selectedItemState);
-  // }, [inputValues, selectedItemState]);
   
   const clearAllInputs = () => {
     const updatedItem = {...selectedItemState};
@@ -134,6 +120,7 @@ const ModalComponent = ({modalVisible, closeModal, selectedItem}) => {
   };
 
   const getQuantityStyles = () => {
+    setLoading(true); // Show loading indicator
     const apiUrl = `${API.STYLE_QUNTITY_DATA}/${selectedItem.styleId}/${dynamicPart}`;
     axios
       .get(apiUrl, {
@@ -142,16 +129,16 @@ const ModalComponent = ({modalVisible, closeModal, selectedItem}) => {
         },
       })
       .then(response => {
-        // Handle success
-        // console.log('Response data:', response?.data);
         setStylesData(response?.data?.response?.stylesList || []);
       })
       .catch(error => {
-        // Handle error
         console.error('Error:', error);
+      })
+      .finally(() => {
+        setLoading(false); // Hide loading indicator
       });
   };
-
+  
   const copyValueToClipboard = () => {
     const copiedText = inputValues[stylesData[0]?.sizeList[0]?.sizeDesc] || ''; // Get the value from the first TextInput
     Clipboard.setString(copiedText); // Copy text to clipboard
@@ -197,6 +184,9 @@ const ModalComponent = ({modalVisible, closeModal, selectedItem}) => {
             <Text style={styles.quantitytxt}>Quantity</Text>
             <Text style={styles.quantitytxt}>Price</Text>
           </View>
+          {loading ? (
+            <ActivityIndicator color="green" style={{ marginTop: 10 }} /> // Show ActivityIndicator if loading
+          ) : (
           <ScrollView style={{maxHeight: '70%'}}>
             {stylesData &&
               stylesData.map((style, index) => (
@@ -271,7 +261,7 @@ const ModalComponent = ({modalVisible, closeModal, selectedItem}) => {
                 </View>
               ))}
           </ScrollView>
-
+          )}
           <View
             style={{
               flexDirection: 'row',

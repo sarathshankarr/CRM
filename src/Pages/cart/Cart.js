@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {
   Image,
+  KeyboardAvoidingView,
   Modal,
   ScrollView,
   StyleSheet,
@@ -24,7 +25,7 @@ import {API} from '../../config/apiConfig';
 import axios from 'axios';
 
 const Cart = () => {
-  const [inputValues, setInputValues] = useState({});
+  const [inputValuess, setInputValuess] = useState({});
   const cartItems = useSelector(state => state.cartItems);
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [selatedDate, setSelectedDate] = useState('Expexted Delivery Date');
@@ -41,6 +42,64 @@ const Cart = () => {
   const [selectedCustomerId, setSelectedCustomerId] = useState(null);
   const [shipFromToClicked, setShipFromToClicked] = useState(false);
   const [selectedShipLocation, setSelectedShipLocation] = useState('');
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [inputValues, setInputValues] = useState({
+    firstName: '',
+    phoneNumber: '',
+    whatsappId: '',
+    cityOrTown: '',
+    state: '',
+    country: '',
+  });
+
+  const toggleModal = () => {
+    setIsModalVisible(!isModalVisible);
+  };
+  const addCustomerDetails = () => {
+    const requestData = {
+      firstName: inputValues.firstName, // Use the dynamic firstName value
+      lastName: '',
+      phoneNumber: inputValues.phoneNumber,
+      whatsappId: inputValues.whatsappId,
+      emailId: 'supervisor381user@codeverse.in',
+      action: 'ADD',
+      createBy: 1,
+      createOn: '2020-09-16T14:07:33',
+      modifiedBy: 1,
+      modifiedOn: '2020-09-16T14:07:33',
+      houseNo: '200 - F',
+      street: 'First Lane',
+      locality: 'Square Street',
+      cityOrTown: inputValues.cityOrTown,
+      state: inputValues.state,
+      country: inputValues.country,
+      pincode: '500049',
+      pan: 'AG818EH2U1',
+      gstNo: 'HUVYYVYH8',
+      creditLimit: 0,
+      paymentReminderId: 0,
+      companyId: 1,
+    };
+
+    axios
+      .post(API.ADD_CUSTOMER_DETAILS, requestData, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${global.userData.access_token}`,
+        },
+      })
+      .then(response => {
+        console.log(
+          'ADD_CUSTOMER_DETAILS',
+          response.data.response.customerList,
+        );
+        // Handle success response here
+      })
+      .catch(error => {
+        console.error('Error adding customer:', error);
+        // Handle error here
+      });
+  };
 
   const handleCommentsChange = text => {
     setComments(text);
@@ -278,7 +337,7 @@ const Cart = () => {
   // };
 
   const handleInputValueChange = (size, value) => {
-    setInputValues(prevState => ({
+    setInputValuess(prevState => ({
       ...prevState,
       [size]: value,
     }));
@@ -312,7 +371,7 @@ const Cart = () => {
     const updatedInputValue = {...currentItem.inputValue};
     updatedInputValue[field] = text.trim() !== '' ? text.trim() : undefined;
     dispatch(updateCartItem(index, 'inputValue', updatedInputValue));
-    setInputValues(updatedInputValue); // Update inputValue state
+    setInputValuess(updatedInputValue); // Update inputValue state
   };
 
   const copyValueToClipboard = index => {
@@ -336,7 +395,7 @@ const Cart = () => {
     // console.log('Updated cart item:', updatedCartItem);
 
     dispatch(updateCartItem(index, 'inputValue', updatedCartItem.inputValue));
-    setInputValues(updatedCartItem.inputValue); // Update inputValue state
+    setInputValuess(updatedCartItem.inputValue); // Update inputValue state
   };
 
   const totalQty = cartItems.reduce((total, item) => {
@@ -360,69 +419,91 @@ const Cart = () => {
   }, 0);
 
   return (
+    <KeyboardAvoidingView
+  style={{ flex: 1, backgroundColor: '#fff' }} 
+  behavior={Platform.OS === "ios" ? "padding" : "height"}
+  keyboardVerticalOffset={Platform.OS === "ios" ? 0 : -500}
+>
     <View style={{flex: 1, backgroundColor: '#fff'}}>
       <View style={{marginVertical: 10, backgroundColor: '#fff'}}>
         <View style={{marginHorizontal: 10, marginVertical: 2}}>
           <Text style={{color: '#000', fontWeight: 'bold'}}>Customers</Text>
         </View>
-        <View style={{}}>
-          <TouchableOpacity
-            style={{
-              width: '90%',
-              height: 50,
-              borderRadius: 10,
-              borderWidth: 0.5,
-              alignSelf: 'center',
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              paddingLeft: 15,
-              paddingRight: 15,
-            }}
-            onPress={handleDropdownClick}>
-            <Text style={{fontWeight: '600'}}>
-              {selectedCustomer || 'Customer'}
-            </Text>
-            <Image
-              source={require('../../../assets/dropdown.png')}
-              style={{width: 20, height: 20}}
-            />
-          </TouchableOpacity>
-          {clicked && (
-            <View
+        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+          <View style={{}}>
+            <TouchableOpacity
               style={{
-                elevation: 5,
-                height: 300,
-                alignSelf: 'center',
                 width: '90%',
-                backgroundColor: '#fff',
+                height: 50,
                 borderRadius: 10,
-              }}>
-              {customers.map((item, index) => (
-                <TouchableOpacity
-                  key={index}
-                  style={{
-                    width: '100%',
-                    height: 50,
-                    justifyContent: 'center',
-                    borderBottomWidth: 0.5,
-                    borderColor: '#8e8e8e',
-                  }}
-                  onPress={() => {
-                    handleCustomerSelection(
-                      item.firstName,
-                      item.lastName,
-                      item.customerId,
-                    );
-                    console.log(item);
-                  }}>
-                  <Text style={{fontWeight: '600', marginHorizontal: 15}}>
-                    {item.firstName} {item.lastName}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          )}
+                borderWidth: 0.5,
+                alignSelf: 'center',
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                paddingLeft: 15,
+                paddingRight: 15,
+              }}
+              onPress={handleDropdownClick}>
+              <Text style={{fontWeight: '600'}}>
+                {selectedCustomer || 'Customer'}
+              </Text>
+              <Image
+                source={require('../../../assets/dropdown.png')}
+                style={{width: 20, height: 20}}
+              />
+            </TouchableOpacity>
+            {clicked && (
+              <View
+                style={{
+                  elevation: 5,
+                  height: 300,
+                  alignSelf: 'center',
+                  width: '90%',
+                  backgroundColor: '#fff',
+                  borderRadius: 10,
+                }}>
+                <ScrollView>
+                  {customers.map((item, index) => (
+                    <TouchableOpacity
+                      key={index}
+                      style={{
+                        width: '100%',
+                        height: 50,
+                        justifyContent: 'center',
+                        borderBottomWidth: 0.5,
+                        borderColor: '#8e8e8e',
+                      }}
+                      onPress={() => {
+                        handleCustomerSelection(
+                          item.firstName,
+                          item.lastName,
+                          item.customerId,
+                        );
+                        console.log(item);
+                      }}>
+                      <Text style={{fontWeight: '600', marginHorizontal: 15}}>
+                        {item.firstName} {item.lastName}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </View>
+            )}
+          </View>
+          <View>
+            <TouchableOpacity onPress={toggleModal} style={style.plusButton}>
+              <Image
+                style={{
+                  height: 30,
+                  width: 30,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}
+                source={require('../../../assets/plus.png')}
+              />
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
       <View style={{flexDirection: 'row'}}>
@@ -635,7 +716,7 @@ const Cart = () => {
                         marginRight: 10,
                         flex: 0.3,
                         textAlign: 'center',
-                        color:"#000"
+                        color: '#000',
                       }}
                     />
                   </View>
@@ -738,9 +819,73 @@ const Cart = () => {
           modalVisible={modalVisible}
           closeModal={closeModal}
           selectedItem={selectedItem}
-          inputValues={inputValues}
+          inputValuess={inputValuess}
           onInputValueChange={handleInputValueChange} // Pass the function to handle input value changes
         />
+        <Modal
+          animationType="fade"
+          transparent={true}
+          visible={isModalVisible}
+          onRequestClose={() => {
+            toggleModal();
+          }}>
+          <View style={style.modalContainer}>
+            <View style={style.modalContent}>
+              <Text style={style.modalTitle}>Customer Details</Text>
+              <TextInput
+                style={style.input}
+                placeholder="Retailer name"
+                onChangeText={text =>
+                  setInputValues({...inputValues, firstName: text})
+                }
+              />
+              <TextInput
+                style={style.input}
+                placeholder="phone number"
+                onChangeText={text =>
+                  setInputValues({...inputValues, phoneNumber: text})
+                }
+              />
+              <TextInput
+                style={style.input}
+                placeholder="whatsapp number"
+                onChangeText={text =>
+                  setInputValues({...inputValues, whatsappId: text})
+                }
+              />
+              <TextInput
+                style={style.input}
+                placeholder="city or town"
+                onChangeText={text =>
+                  setInputValues({...inputValues, cityOrTown: text})
+                }
+              />
+              <TextInput
+                style={style.input}
+                placeholder="state"
+                onChangeText={text =>
+                  setInputValues({...inputValues, state: text})
+                }
+              />
+              <TextInput
+                style={style.input}
+                placeholder="country"
+                onChangeText={text =>
+                  setInputValues({...inputValues, country: text})
+                }
+              />
+              <TouchableOpacity
+                style={style.saveButton}
+                onPress={() => {
+                  addCustomerDetails();
+                  // Logic to save customer details
+                  toggleModal();
+                }}>
+                <Text style={style.saveButtonText}>Save</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
 
         <DateTimePickerModal
           isVisible={isDatePickerVisible}
@@ -750,6 +895,7 @@ const Cart = () => {
         />
       </View>
     </View>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -816,8 +962,8 @@ const style = StyleSheet.create({
   },
   modalContainer: {
     flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
+    marginTop:50,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {

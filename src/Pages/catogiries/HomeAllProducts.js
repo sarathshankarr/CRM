@@ -11,13 +11,13 @@ import {
   Keyboard,
   Platform,
   ScrollView,
-  Alert
+  Alert,
+  ActivityIndicator, // Import ActivityIndicator
 } from 'react-native';
 
 import { useDispatch, useSelector } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Apicall from './../../utils/serviceApi/serviceAPIComponent';
-import LoaderComponent from '../../utils/loaderComponent/loaderComponent';
 import { addItemToCart } from '../../redux/actions/Actions';
 import { PRODUCT_DETAILS } from '../../components/ProductDetails';
 import { AllPRODUCT_DETAILS } from '../../components/AllProductDetails';
@@ -28,7 +28,7 @@ const HomeAllProducts = ({ navigation }) => {
   const [selectedDetails, setSelectedDetails] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false); // Loading state
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
@@ -45,9 +45,9 @@ const HomeAllProducts = ({ navigation }) => {
       "categoryId": ""
     };
 
-    setIsLoading(true);
+    setIsLoading(true); // Set loading state to true before API call
     let allProductsApi = await Apicall.getAllProducts(token.access_token, json);
-    setIsLoading(false);
+    setIsLoading(false); // Set loading state to false after receiving the response
 
     if (allProductsApi && allProductsApi.data) {
       if (allProductsApi.data.error) {
@@ -176,22 +176,27 @@ const HomeAllProducts = ({ navigation }) => {
         </TouchableOpacity>
       </View>
 
-      <FlatList
-        data={searchQuery ? filteredProducts : selectedDetails} // Render filtered products if searchQuery exists
-        renderItem={({ item }) =>
-          renderProductItem({ item })
-        }
-        keyExtractor={item => item.styleId}
-        numColumns={2}
-        contentContainerStyle={styles.productList}
-      />
+      {isLoading ? ( // Render ActivityIndicator if loading
+        <ActivityIndicator style={{  flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center', }} size="large" color="green" />
+      ) : (
+        <FlatList
+          data={searchQuery ? filteredProducts : selectedDetails} // Render filtered products if searchQuery exists
+          renderItem={({ item }) =>
+            renderProductItem({ item })
+          }
+          keyExtractor={item => item.styleId}
+          numColumns={2}
+          contentContainerStyle={styles.productList}
+        />
+      )}
+
       <ModalComponent
         modalVisible={modalVisible}
         closeModal={() => setModalVisible(false)}
         selectedItem={selectedItem}
       />
-
-      {isLoading ? <LoaderComponent loaderText={'Please wait..'} /> : null}
 
     </View>
   );
