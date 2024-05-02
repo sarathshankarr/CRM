@@ -635,6 +635,7 @@ const Cart = () => {
                         marginRight: 10,
                         flex: 0.3,
                         textAlign: 'center',
+                        color:"#000"
                       }}
                     />
                   </View>

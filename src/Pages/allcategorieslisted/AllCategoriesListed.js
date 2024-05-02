@@ -1,38 +1,18 @@
-import React, {useEffect, useState} from 'react';
-import {
-  Text,
-  View,
-  Image,
-  StyleSheet,
-  TouchableOpacity,
-  FlatList,
-} from 'react-native';
-import {useDispatch} from 'react-redux';
-import {addItemToCart} from '../../redux/actions/Actions';
+import React, { useEffect, useState } from 'react';
+import { Text, View, Image, StyleSheet, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
+import { useDispatch } from 'react-redux';
+import { addItemToCart } from '../../redux/actions/Actions';
 import ModalComponent from '../../components/ModelComponent';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Apicall from './../../utils/serviceApi/serviceAPIComponent';
 
-const AllCategoriesListed = ({navigation, route}) => {
-  const {categoryId} = route.params;
+const AllCategoriesListed = ({ navigation, route }) => {
+  const { categoryId } = route.params;
   const dispatch = useDispatch();
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedDetails, setSelectedDetails] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
-
-  const toggleModal = () => {
-    setModalVisible(!modalVisible);
-  };
-  const openModal = item => {
-    // console.log('openModal called with item:', item);
-    setSelectedItem(item);
-    setModalVisible(true);
-  };
-
-  const addItem = item => {
-    dispatch(addItemToCart(item));
-  };
 
   useEffect(() => {
     if (categoryId) {
@@ -40,32 +20,43 @@ const AllCategoriesListed = ({navigation, route}) => {
     }
   }, [categoryId]);
 
+  const toggleModal = () => {
+    setModalVisible(!modalVisible);
+  };
+
+  const openModal = (item) => {
+    setSelectedItem(item);
+    setModalVisible(true);
+  };
+
+  const addItem = (item) => {
+    dispatch(addItemToCart(item));
+  };
+
   const getAllCategories = async () => {
-    const userData = await AsyncStorage.getItem('userdata');
-    const token = JSON.parse(userData);
+    try {
+      const userData = await AsyncStorage.getItem('userdata');
+      const token = JSON.parse(userData);
+      let json = {
+        pageNo: '1',
+        pageSize: '10',
+        categoryId: categoryId,
+      };
+      setIsLoading(true);
+      let allProductsApi = await Apicall.getAllProducts(token.access_token, json);
+      setIsLoading(false);
 
-    let json = {
-      pageNo: '1',
-      pageSize: '10',
-      categoryId: categoryId,
-    };
-
-    setIsLoading(true);
-
-    let allProductsApi = await Apicall.getAllProducts(token.access_token, json);
-    setIsLoading(false);
-
-    if (allProductsApi && allProductsApi.data && !allProductsApi.data.error) {
-      setSelectedDetails(allProductsApi.data.content);
-    } else {
-      console.log(
-        'Error fetching data:',
-        allProductsApi && allProductsApi.error,
-      );
+      if (allProductsApi && allProductsApi.data && !allProductsApi.data.error) {
+        setSelectedDetails(allProductsApi.data.content);
+      } else {
+        console.error('Error fetching data:', allProductsApi && allProductsApi.error);
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error);
     }
   };
 
-  const navigateToDetails = item => {
+  const navigateToDetails = (item) => {
     navigation.navigate('Details', {
       item,
       name: item.name,
@@ -78,21 +69,15 @@ const AllCategoriesListed = ({navigation, route}) => {
       set: item.set,
     });
   };
-  const renderProductItem = ({item}) => (
-    <TouchableOpacity
-      style={styles.productItem}
-      onPress={() => navigateToDetails(item)}>
+
+  const renderProductItem = ({ item }) => (
+    <TouchableOpacity style={styles.productItem} onPress={() => navigateToDetails(item)}>
       <View style={styles.touchableContent}>
         <View style={styles.productImageContainer}>
           <Image
             style={styles.productImage}
-            source={{
-              uri:
-                item.imageUrls && item.imageUrls.length > 0
-                  ? item.imageUrls[0]
-                  : null,
-            }}
-            onError={error => console.error('Error loading image:', error)}
+            source={{ uri: item.imageUrls && item.imageUrls.length > 0 ? item.imageUrls[0] : null }}
+            onError={(error) => console.error('Error loading image:', error)}
           />
           <Text style={styles.productName}>{item.styleName}</Text>
         </View>
@@ -101,25 +86,26 @@ const AllCategoriesListed = ({navigation, route}) => {
       <View style={styles.additionalDetailsContainer}>
         <Text>Price: {item.mrp}</Text>
         <Text>color Name: {item.colorName}</Text>
-
         <View style={styles.notesContainer}>
-  <Text numberOfLines={1} ellipsizeMode="tail" style={styles.descriptionText}>
-    Discription: {item.styleDesc}
-  </Text>
-  <TouchableOpacity
-    onPress={() => openModal(item)}
-    style={styles.buttonqty}>
-    <Image
-      style={styles.addqtyimg}
-      source={require('../../../assets/qty.png')}
-    />
-    <Text>ADD QTY</Text>
-  </TouchableOpacity>
-</View>
-
+          <Text numberOfLines={1} ellipsizeMode="tail" style={styles.descriptionText}>
+            Discription: {item.styleDesc}
+          </Text>
+          <TouchableOpacity onPress={() => openModal(item)} style={styles.buttonqty}>
+            <Image style={styles.addqtyimg} source={require('../../../assets/qty.png')} />
+            <Text>ADD QTY</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </TouchableOpacity>
   );
+
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
 
   return (
     <>
@@ -176,11 +162,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 5,
     paddingVertical: 10,
   },
-  detailText: {
-    fontSize: 16,
-    color: '#000',
-    marginBottom: 5,
-  },
   additionalDetailsContainer: {
     paddingTop: 5,
   },
@@ -190,18 +171,8 @@ const styles = StyleSheet.create({
   descriptionText: {
     flex: 1,
   },
-  buttonsContainer: {
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-  },
-  button: {
-    borderWidth: 1,
-    paddingVertical: 10,
-    borderRadius: 5,
-    flexDirection: 'row',
-  },
   buttonqty: {
-    marginTop:7,
+    marginTop: 7,
     borderWidth: 1,
     paddingVertical: 10,
     borderRadius: 5,
@@ -214,6 +185,11 @@ const styles = StyleSheet.create({
   },
   flatListContainer: {
     paddingHorizontal: 8,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

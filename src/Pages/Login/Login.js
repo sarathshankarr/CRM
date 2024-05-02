@@ -1,5 +1,4 @@
-import {useNavigation} from '@react-navigation/native';
-import React, {isValidElement, useState} from 'react';
+import React, { useState } from 'react';
 import {
   Alert,
   Image,
@@ -8,19 +7,21 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  ActivityIndicator,
 } from 'react-native';
-import ApiClient from '../../config/apiClient';
-import {API, USER_ID, USER_PASSWORD} from '../../config/apiConfig';
-import {encode as base64Encode} from 'base-64';
+import { useNavigation } from '@react-navigation/native';
+import { encode as base64Encode } from 'base-64';
 import axios from 'axios';
-import {isValidString} from '../../Helper/Helper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { isValidString } from '../../Helper/Helper';
+import { API, USER_ID, USER_PASSWORD } from '../../config/apiConfig';
 
 const Login = () => {
   const navigation = useNavigation();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = () => {
     if (!isValidString(username)) {
@@ -28,11 +29,12 @@ const Login = () => {
     } else if (!isValidString(password)) {
       Alert.alert('crm.codeverse.co.says', 'Enter the password');
     } else {
+      setLoading(true);
       const postData = new URLSearchParams();
       postData.append('username', username);
       postData.append('grant_type', 'password');
       postData.append('password', password);
-      const credentials = base64Encode(`${USER_ID}` + ':' + `${USER_PASSWORD}`);
+      const credentials = base64Encode(`${USER_ID}:${USER_PASSWORD}`);
 
       const headers = {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -40,7 +42,7 @@ const Login = () => {
       };
 
       axios
-        .post(API.LOGIN, postData.toString(), {headers})
+        .post(API.LOGIN, postData.toString(), { headers })
         .then(response => {
           if (isValidString(response.data)) {
             saveToken(response.data);
@@ -49,17 +51,17 @@ const Login = () => {
           }
         })
         .catch(error => {
-          if (error?.response?.data) {
-            if (error?.response?.data?.error_description) {
-              Alert.alert(
-                'crm.codeverse.co.says',
-                error.response.data.error_description,
-              );
-            }
+          if (error?.response?.data?.error_description) {
+            Alert.alert(
+              'crm.codeverse.co.says',
+              error.response.data.error_description,
+            );
           }
-        });
+        })
+        .finally(() => setLoading(false));
     }
   };
+
   const saveToken = async data => {
     try {
       await AsyncStorage.setItem('userdata', JSON.stringify(data));
@@ -73,6 +75,7 @@ const Login = () => {
     global.userData = JSON.parse(userToken);
     navigation.navigate('Main');
   };
+
   const handleForgotPassword = () => {
     Alert.alert('Forgot password clicked');
   };
@@ -121,8 +124,12 @@ const Login = () => {
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>Login</Text>
+      <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={loading}>
+        {loading ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <Text style={styles.buttonText}>Login</Text>
+        )}
       </TouchableOpacity>
     </View>
   );
@@ -157,7 +164,7 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     height: '100%',
-    color:'black',
+    color: 'black',
     fontSize: 16,
   },
   rowContainer: {

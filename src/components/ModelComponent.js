@@ -248,7 +248,6 @@ const ModalComponent = ({modalVisible, closeModal, selectedItem}) => {
                               borderColor: 'gray',
                               textAlign: 'center',
                               color:"#000"
-                              
                             }}
                             keyboardType="numeric"
                             value={
@@ -263,7 +262,6 @@ const ModalComponent = ({modalVisible, closeModal, selectedItem}) => {
                               handleQuantityChange(text, index); // Pass index instead of sizeDesc
                             }}
                           />
-
                           <View style={{flex: 0.4}}>
                             <Text>{style.price}</Text>
                           </View>

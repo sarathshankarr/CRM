@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, Image, StyleSheet, FlatList, TouchableOpacity, TextInput } from 'react-native';
+import { Text, View, Image, StyleSheet, FlatList, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage'; 
 import { getAllCategories } from '../utils/serviceApi/serviceAPIComponent';
 
@@ -7,17 +7,21 @@ const Categories = ({ navigation }) => {
   const [selectedDetails, setSelectedDetails] = useState([]);
   const [showSearchInput, setShowSearchInput] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getCategoriesProducts();
+    fetchCategories();
   }, []);
 
-  const getCategoriesProducts = async () => {
+  const fetchCategories = async () => {
     try {
+      const startTime = Date.now();
       const tokenString = await AsyncStorage.getItem('userdata');
       const token = JSON.parse(tokenString);
       const { data, error } = await getAllCategories(token.access_token);
-
+      const endTime = Date.now();
+      console.log('AsyncStorage time:', endTime - startTime, 'ms');
+      
       if (data) {
         setSelectedDetails(data);
       } else {
@@ -25,6 +29,8 @@ const Categories = ({ navigation }) => {
       }
     } catch (error) {
       console.error('Error fetching categories:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -70,6 +76,14 @@ const Categories = ({ navigation }) => {
       </TouchableOpacity>
     );
   };
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -161,6 +175,11 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     padding: 10,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

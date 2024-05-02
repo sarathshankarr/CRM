@@ -7,6 +7,7 @@ import {
   FlatList,
   TouchableOpacity,
   TextInput,
+  ActivityIndicator,
 } from 'react-native';
 import { getAllCategories } from '../../utils/serviceApi/serviceAPIComponent';
 import AsyncStorage from '@react-native-async-storage/async-storage'; 
@@ -15,17 +16,21 @@ const HomeCategories = ({ navigation }) => {
   const [selectedDetails, setSelectedDetails] = useState([]);
   const [showSearchInput, setShowSearchInput] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getCategoriesProducts();
+    fetchCategories();
   }, []);
 
-  const getCategoriesProducts = async () => {
+  const fetchCategories = async () => {
     try {
-      const tokenString = await AsyncStorage.getItem('userdata');
-      const token = JSON.parse(tokenString);
+      const startTime = Date.now();
+      const [tokenString] = await AsyncStorage.multiGet(['userdata']);
+      const token = JSON.parse(tokenString[1]);
       const { data, error } = await getAllCategories(token.access_token);
-
+      const endTime = Date.now();
+      console.log('AsyncStorage time:', endTime - startTime, 'ms');
+      
       if (data) {
         setSelectedDetails(data);
       } else {
@@ -33,8 +38,11 @@ const HomeCategories = ({ navigation }) => {
       }
     } catch (error) {
       console.error('Error fetching categories:', error);
+    } finally {
+      setLoading(false);
     }
   };
+  
 
   const handleCategoryPress = (details) => {
     setSelectedDetails(details);
@@ -81,6 +89,14 @@ const HomeCategories = ({ navigation }) => {
       </TouchableOpacity>
     );
   };
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -176,6 +192,11 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     padding: 10,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 
