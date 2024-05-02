@@ -420,230 +420,229 @@ const Cart = () => {
 
   return (
     <KeyboardAvoidingView
-  style={{ flex: 1, backgroundColor: '#fff' }} 
-  behavior={Platform.OS === "ios" ? "padding" : "height"}
-  keyboardVerticalOffset={Platform.OS === "ios" ? 0 : -500}
->
-    <View style={{flex: 1, backgroundColor: '#fff'}}>
-      <View style={{marginVertical: 10, backgroundColor: '#fff'}}>
-        <View style={{marginHorizontal: 10, marginVertical: 2}}>
-          <Text style={{color: '#000', fontWeight: 'bold'}}>Customers</Text>
+      style={{flex: 1, backgroundColor: '#fff'}}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : -500}>
+      <View style={{flex: 1, backgroundColor: '#fff'}}>
+        <View style={{marginVertical: 10, backgroundColor: '#fff'}}>
+          <View style={{marginHorizontal: 10, marginVertical: 2}}>
+            <Text style={{color: '#000', fontWeight: 'bold'}}>Customers</Text>
+          </View>
+          <View style={{flexDirection: 'row', alignItems: 'center'}}>
+            <View style={{}}>
+              <TouchableOpacity
+                style={{
+                  width: '90%',
+                  height: 50,
+                  borderRadius: 10,
+                  borderWidth: 0.5,
+                  alignSelf: 'center',
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  paddingLeft: 15,
+                  paddingRight: 15,
+                }}
+                onPress={handleDropdownClick}>
+                <Text style={{fontWeight: '600'}}>
+                  {selectedCustomer || 'Customer'}
+                </Text>
+                <Image
+                  source={require('../../../assets/dropdown.png')}
+                  style={{width: 20, height: 20}}
+                />
+              </TouchableOpacity>
+              {clicked && (
+                <View
+                  style={{
+                    elevation: 5,
+                    height: 300,
+                    alignSelf: 'center',
+                    width: '90%',
+                    backgroundColor: '#fff',
+                    borderRadius: 10,
+                  }}>
+                  <ScrollView>
+                    {customers.map((item, index) => (
+                      <TouchableOpacity
+                        key={index}
+                        style={{
+                          width: '100%',
+                          height: 50,
+                          justifyContent: 'center',
+                          borderBottomWidth: 0.5,
+                          borderColor: '#8e8e8e',
+                        }}
+                        onPress={() => {
+                          handleCustomerSelection(
+                            item.firstName,
+                            item.lastName,
+                            item.customerId,
+                          );
+                          console.log(item);
+                        }}>
+                        <Text style={{fontWeight: '600', marginHorizontal: 15}}>
+                          {item.firstName} {item.lastName}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                </View>
+              )}
+            </View>
+            <View>
+              <TouchableOpacity onPress={toggleModal} style={style.plusButton}>
+                <Image
+                  style={{
+                    height: 30,
+                    width: 30,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}
+                  source={require('../../../assets/plus.png')}
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
-        <View style={{flexDirection: 'row', alignItems: 'center'}}>
-          <View style={{}}>
+        <View style={{flexDirection: 'row'}}>
+          <View style={{flex: 1}}>
             <TouchableOpacity
+              onPress={handleFromDropdownClick}
               style={{
                 width: '90%',
                 height: 50,
                 borderRadius: 10,
                 borderWidth: 0.5,
-                alignSelf: 'center',
                 flexDirection: 'row',
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 paddingLeft: 15,
                 paddingRight: 15,
-              }}
-              onPress={handleDropdownClick}>
-              <Text style={{fontWeight: '600'}}>
-                {selectedCustomer || 'Customer'}
-              </Text>
+                marginLeft: 18,
+              }}>
+              <Text>{selectedLocation.locationName || 'Billing to'}</Text>
               <Image
                 source={require('../../../assets/dropdown.png')}
                 style={{width: 20, height: 20}}
               />
             </TouchableOpacity>
-            {clicked && (
+            {fromToClicked && (
               <View
                 style={{
                   elevation: 5,
                   height: 300,
                   alignSelf: 'center',
-                  width: '90%',
+                  width: '85%',
                   backgroundColor: '#fff',
                   borderRadius: 10,
+                  marginLeft: 15,
                 }}>
+                {/* Here you can render your dropdown content */}
                 <ScrollView>
-                  {customers.map((item, index) => (
+                  {customerLocations.map(location => (
                     <TouchableOpacity
-                      key={index}
+                      key={location.locationId}
                       style={{
-                        width: '100%',
-                        height: 50,
-                        justifyContent: 'center',
-                        borderBottomWidth: 0.5,
-                        borderColor: '#8e8e8e',
+                        paddingHorizontal: 10,
+                        paddingVertical: 15,
+                        borderBottomWidth: 1,
+                        borderBottomColor: '#ccc',
                       }}
-                      onPress={() => {
-                        handleCustomerSelection(
-                          item.firstName,
-                          item.lastName,
-                          item.customerId,
-                        );
-                        console.log(item);
-                      }}>
-                      <Text style={{fontWeight: '600', marginHorizontal: 15}}>
-                        {item.firstName} {item.lastName}
-                      </Text>
+                      onPress={() => handleLocationSelection(location)}>
+                      <Text>{location.locationName}</Text>
                     </TouchableOpacity>
                   ))}
                 </ScrollView>
               </View>
             )}
           </View>
-          <View>
-            <TouchableOpacity onPress={toggleModal} style={style.plusButton}>
+
+          <View style={{flex: 1}}>
+            <TouchableOpacity
+              onPress={handleShipDropdownClick}
+              style={{
+                width: '90%',
+                height: 50,
+                borderRadius: 10,
+                borderWidth: 0.5,
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                paddingLeft: 15,
+                paddingRight: 15,
+                marginRight: 18,
+              }}>
+              <Text>{selectedShipLocation.locationName || 'Shiping to'}</Text>
               <Image
-                style={{
-                  height: 30,
-                  width: 30,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}
-                source={require('../../../assets/plus.png')}
+                source={require('../../../assets/dropdown.png')}
+                style={{width: 20, height: 20}}
               />
             </TouchableOpacity>
+            {shipFromToClicked && (
+              <View
+                style={{
+                  elevation: 5,
+                  height: 300,
+                  alignSelf: 'center',
+                  width: '85%',
+                  backgroundColor: '#fff',
+                  borderRadius: 10,
+                  marginRight: 17,
+                }}>
+                {/* Here you can render your dropdown content */}
+                <ScrollView>
+                  {customerLocations.map(location => (
+                    <TouchableOpacity
+                      key={location.locationId}
+                      style={{
+                        paddingHorizontal: 10,
+                        paddingVertical: 15,
+                        borderBottomWidth: 1,
+                        borderBottomColor: '#ccc',
+                      }}
+                      onPress={() => handleShipLocation(location)}>
+                      <Text>{location.locationName}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </View>
+            )}
           </View>
         </View>
-      </View>
-      <View style={{flexDirection: 'row'}}>
-        <View style={{flex: 1}}>
-          <TouchableOpacity
-            onPress={handleFromDropdownClick}
-            style={{
-              width: '90%',
-              height: 50,
-              borderRadius: 10,
-              borderWidth: 0.5,
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              paddingLeft: 15,
-              paddingRight: 15,
-              marginLeft: 18,
-            }}>
-            <Text>{selectedLocation.locationName || 'Billing to'}</Text>
-            <Image
-              source={require('../../../assets/dropdown.png')}
-              style={{width: 20, height: 20}}
-            />
-          </TouchableOpacity>
-          {fromToClicked && (
-            <View
-              style={{
-                elevation: 5,
-                height: 300,
-                alignSelf: 'center',
-                width: '85%',
-                backgroundColor: '#fff',
-                borderRadius: 10,
-                marginLeft: 15,
-              }}>
-              {/* Here you can render your dropdown content */}
-              <ScrollView>
-                {customerLocations.map(location => (
-                  <TouchableOpacity
-                    key={location.locationId}
-                    style={{
-                      paddingHorizontal: 10,
-                      paddingVertical: 15,
-                      borderBottomWidth: 1,
-                      borderBottomColor: '#ccc',
-                    }}
-                    onPress={() => handleLocationSelection(location)}>
-                    <Text>{location.locationName}</Text>
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
-            </View>
-          )}
-        </View>
-
-        <View style={{flex: 1}}>
-          <TouchableOpacity
-            onPress={handleShipDropdownClick}
-            style={{
-              width: '90%',
-              height: 50,
-              borderRadius: 10,
-              borderWidth: 0.5,
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              paddingLeft: 15,
-              paddingRight: 15,
-              marginRight: 18,
-            }}>
-            <Text>{selectedShipLocation.locationName || 'Shiping to'}</Text>
-            <Image
-              source={require('../../../assets/dropdown.png')}
-              style={{width: 20, height: 20}}
-            />
-          </TouchableOpacity>
-          {shipFromToClicked && (
-            <View
-              style={{
-                elevation: 5,
-                height: 300,
-                alignSelf: 'center',
-                width: '85%',
-                backgroundColor: '#fff',
-                borderRadius: 10,
-                marginRight: 17,
-              }}>
-              {/* Here you can render your dropdown content */}
-              <ScrollView>
-                {customerLocations.map(location => (
-                  <TouchableOpacity
-                    key={location.locationId}
-                    style={{
-                      paddingHorizontal: 10,
-                      paddingVertical: 15,
-                      borderBottomWidth: 1,
-                      borderBottomColor: '#ccc',
-                    }}
-                    onPress={() => handleShipLocation(location)}>
-                    <Text>{location.locationName}</Text>
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
-            </View>
-          )}
-        </View>
-      </View>
-      <ScrollView style={style.container}>
-        <View style={style.header}>
-          <Text style={style.txt}>Total Items: {cartItems.length}</Text>
-        </View>
-        {cartItems.map((item, index) => (
-          <View key={index} style={{marginBottom: 20}}>
-            <View style={style.imgContainer}>
-              <TouchableOpacity style={style.itemContainer}>
-                <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
-                  {item.imageUrls.length > 0 && (
-                    <Image
-                      source={{uri: item.imageUrls[0]}}
-                      style={{
-                        width: 100,
-                        height: 100,
-                        resizeMode: 'cover',
-                        margin: 5,
-                      }}
-                    />
-                  )}
-                </View>
-                <Text style={{fontSize: 15, fontWeight: 'bold'}}>
-                  {item.styleDesc}
-                </Text>
-              </TouchableOpacity>
-              <View style={style.buttonsContainer}>
-                <TouchableOpacity onPress={() => openModal(item)}>
-                  <Image
-                    style={style.buttonIcon}
-                    source={require('../../../assets/edit.png')}
-                  />
+        <ScrollView style={style.container}>
+          <View style={style.header}>
+            <Text style={style.txt}>Total Items: {cartItems.length}</Text>
+          </View>
+          {cartItems.map((item, index) => (
+            <View key={index} style={{marginBottom: 20}}>
+              <View style={style.imgContainer}>
+                <TouchableOpacity style={style.itemContainer}>
+                  <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
+                    {item.imageUrls.length > 0 && (
+                      <Image
+                        source={{uri: item.imageUrls[0]}}
+                        style={{
+                          width: 100,
+                          height: 100,
+                          resizeMode: 'cover',
+                          margin: 5,
+                        }}
+                      />
+                    )}
+                  </View>
+                  <Text style={{fontSize: 15, fontWeight: 'bold'}}>
+                    {item.styleDesc}
+                  </Text>
                 </TouchableOpacity>
-                {/* <TouchableOpacity onPress={() => {
+                <View style={style.buttonsContainer}>
+                  <TouchableOpacity onPress={() => openModal(item)}>
+                    <Image
+                      style={style.buttonIcon}
+                      source={require('../../../assets/edit.png')}
+                    />
+                  </TouchableOpacity>
+                  {/* <TouchableOpacity onPress={() => {
                     navigation.navigate("Add Note")
                   }}>
                     <Image
@@ -651,250 +650,259 @@ const Cart = () => {
                       source={require('../../../assets/save.png')}
                     />
                   </TouchableOpacity> */}
-                <TouchableOpacity onPress={() => handleRemoveItem(index)}>
+                  <TouchableOpacity onPress={() => handleRemoveItem(index)}>
+                    <Image
+                      style={style.buttonIcon}
+                      source={require('../../../assets/del.png')}
+                    />
+                  </TouchableOpacity>
+                </View>
+              </View>
+              <Text>colorId - {item.colorId}</Text>
+              <View style={style.sizehead}>
+                <View style={{flex: 0.7}}>
+                  <Text style={{marginLeft: 10}}>COLOR/SIZE</Text>
+                </View>
+                <View style={{flex: 0.5}}>
+                  <Text>QUANTITY</Text>
+                </View>
+                <View style={{flex: 0.4}}>
+                  <Text>PRICE</Text>
+                </View>
+                <TouchableOpacity onPress={() => copyValueToClipboard(index)}>
                   <Image
-                    style={style.buttonIcon}
-                    source={require('../../../assets/del.png')}
+                    style={{height: 25, width: 25, marginRight: 10}}
+                    source={require('../../../assets/copy.png')}
                   />
                 </TouchableOpacity>
               </View>
-            </View>
-            <Text>colorId - {item.colorId}</Text>
-            <View style={style.sizehead}>
-              <View style={{flex: 0.7}}>
-                <Text style={{marginLeft: 10}}>COLOR/SIZE</Text>
+              <View style={{marginHorizontal: 10, marginVertical: 5}}>
+                <Text style={{color: '#000', fontWeight: 'bold'}}>
+                  {item.styleName}
+                </Text>
               </View>
-              <View style={{flex: 0.5}}>
-                <Text>QUANTITY</Text>
-              </View>
-              <View style={{flex: 0.4}}>
-                <Text>PRICE</Text>
-              </View>
-              <TouchableOpacity onPress={() => copyValueToClipboard(index)}>
-                <Image
-                  style={{height: 25, width: 25, marginRight: 10}}
-                  source={require('../../../assets/copy.png')}
-                />
-              </TouchableOpacity>
-            </View>
-            <View style={{marginHorizontal: 10, marginVertical: 5}}>
-              <Text style={{color: '#000', fontWeight: 'bold'}}>
-                {item.styleName}
-              </Text>
-            </View>
-            {Object.entries(item.inputValue).map(([size, quantity], idx) => (
-              <View key={idx}>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    paddingHorizontal: 10,
-                    justifyContent: 'space-between',
-                    paddingVertical: 6,
-                  }}>
-                  <View style={{flex: 0.4}}>
-                    <Text>Size - {size}</Text>
-                  </View>
+              {Object.entries(item.inputValue).map(([size, quantity], idx) => (
+                <View key={idx}>
                   <View
                     style={{
                       flexDirection: 'row',
                       alignItems: 'center',
-                      flex: 1,
-                      justifyContent: 'center',
+                      paddingHorizontal: 10,
+                      justifyContent: 'space-between',
+                      paddingVertical: 6,
                     }}>
-                    <TextInput
-                      value={quantity !== undefined ? quantity.toString() : ''}
-                      onChangeText={text =>
-                        handleQuantityChange(index, size, text)
-                      }
+                    <View style={{flex: 0.4}}>
+                      <Text>Size - {size}</Text>
+                    </View>
+                    <View
                       style={{
-                        borderBottomWidth: 1,
-                        borderColor: 'gray',
-                        paddingHorizontal: 8,
-                        paddingVertical: 5,
-                        borderRadius: 5,
-                        marginRight: 10,
-                        flex: 0.3,
-                        textAlign: 'center',
-                        color: '#000',
-                      }}
-                    />
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        flex: 1,
+                        justifyContent: 'center',
+                      }}>
+                      <TextInput
+                        value={
+                          quantity !== undefined ? quantity.toString() : ''
+                        }
+                        onChangeText={text =>
+                          handleQuantityChange(index, size, text)
+                        }
+                        style={{
+                          borderBottomWidth: 1,
+                          borderColor: 'gray',
+                          paddingHorizontal: 8,
+                          paddingVertical: 5,
+                          borderRadius: 5,
+                          marginRight: 10,
+                          flex: 0.3,
+                          textAlign: 'center',
+                          color: '#000',
+                        }}
+                      />
+                    </View>
+                    <View style={{flex: 0.5}}>
+                      <Text>{item.price}</Text>
+                      {/* {console.log('Price for item:', item.price)} */}
+                    </View>
                   </View>
-                  <View style={{flex: 0.5}}>
-                    <Text>{item.price}</Text>
-                    {/* {console.log('Price for item:', item.price)} */}
-                  </View>
+                  <View
+                    style={{
+                      borderBottomWidth: 1,
+                      borderColor: 'gray',
+                      marginTop: 4,
+                    }}
+                  />
                 </View>
-                <View
-                  style={{
-                    borderBottomWidth: 1,
-                    borderColor: 'gray',
-                    marginTop: 4,
-                  }}
-                />
-              </View>
-            ))}
-          </View>
-        ))}
-
-        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-          <TouchableOpacity
-            onPress={showDatePicker}
-            style={{flexDirection: 'row', alignItems: 'center'}}>
-            <View style={{paddingVertical: 10}}>
-              <Text style={{marginLeft: 10}}>{selatedDate}</Text>
+              ))}
             </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={{
-              justifyContent: 'center',
-              alignItems: 'center',
-              marginHorizontal: 10,
-            }}
-            onPress={showDatePicker}>
-            <Image
-              style={style.dateIcon}
-              source={require('../../../assets/date.png')}
-            />
-          </TouchableOpacity>
-        </View>
+          ))}
 
-        <View
-          style={{
-            borderBottomWidth: 1,
-            borderBottomColor: 'gray',
-            marginTop: 10,
-          }}></View>
-        <View>
-          <TextInput
-            style={{marginLeft: 10}}
-            placeholder="Enter comments"
-            value={comments}
-            onChangeText={handleCommentsChange}
-            placeholderTextColor="#000"
+          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+            <TouchableOpacity
+              onPress={showDatePicker}
+              style={{flexDirection: 'row', alignItems: 'center'}}>
+              <View style={{paddingVertical: 10}}>
+                <Text style={{marginLeft: 10}}>{selatedDate}</Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginHorizontal: 10,
+              }}
+              onPress={showDatePicker}>
+              <Image
+                style={style.dateIcon}
+                source={require('../../../assets/date.png')}
+              />
+            </TouchableOpacity>
+          </View>
+
+          <View
+            style={{
+              borderBottomWidth: 1,
+              borderBottomColor: 'gray',
+              marginTop: 10,
+            }}></View>
+          <View>
+            <TextInput
+              style={{marginLeft: 10}}
+              placeholder="Enter comments"
+              value={comments}
+              onChangeText={handleCommentsChange}
+              placeholderTextColor="#000"
+            />
+          </View>
+          <View
+            style={{
+              borderBottomWidth: 1,
+              borderBottomColor: 'gray',
+              paddingVertical: 10,
+            }}></View>
+        </ScrollView>
+
+        <View style={{backgroundColor: '#fff'}}>
+          <View style={style.bottomContainer}>
+            <View style={{flex: 1}}>
+              <Text>Total Qty: {totalQty}</Text>
+            </View>
+            <View style={{flex: 1}}>
+              <Text>Total Set: {totalItems}</Text>
+            </View>
+            <View style={{flex: 1}}>
+              <Text>Total Amt: {totalPrice}</Text>
+            </View>
+          </View>
+
+          <TouchableOpacity
+            onPress={PlaceAddOrder}
+            style={{
+              borderWidth: 1,
+              borderColor: 'green',
+              backgroundColor: 'green',
+              paddingVertical: 15,
+              paddingHorizontal: 20,
+            }}>
+            <Text
+              style={{
+                textAlign: 'center',
+                color: '#fff',
+                fontWeight: 'bold',
+                fontSize: 20,
+              }}>
+              PLACE ORDER
+            </Text>
+          </TouchableOpacity>
+
+          <ModalComponent
+            modalVisible={modalVisible}
+            closeModal={closeModal}
+            selectedItem={selectedItem}
+            inputValuess={inputValuess}
+            onInputValueChange={handleInputValueChange} // Pass the function to handle input value changes
+          />
+          <Modal
+            animationType="fade"
+            transparent={true}
+            visible={isModalVisible}
+            onRequestClose={() => {
+              toggleModal();
+            }}>
+            <View style={style.modalContainer}>
+              <View style={style.modalContent}>
+                <Text style={style.modalTitle}>Customer Details</Text>
+                <TextInput
+                  style={[style.input, {color: '#000'}]}
+                  placeholder="Retailer name"
+                  placeholderTextColor="#000"
+                  onChangeText={text =>
+                    setInputValues({...inputValues, firstName: text})
+                  }
+                />
+
+                <TextInput
+                  style={[style.input, {color: '#000'}]}
+                  placeholder="phone number"
+                  placeholderTextColor="#000"
+                  onChangeText={text =>
+                    setInputValues({...inputValues, phoneNumber: text})
+                  }
+                />
+                <TextInput
+                  style={[style.input, {color: '#000'}]}
+                  placeholder="whatsapp number"
+                  placeholderTextColor="#000"
+                  onChangeText={text =>
+                    setInputValues({...inputValues, whatsappId: text})
+                  }
+                />
+                <TextInput
+                  style={[style.input, {color: '#000'}]}
+                  placeholder="city or town"
+                  placeholderTextColor="#000"
+                  onChangeText={text =>
+                    setInputValues({...inputValues, cityOrTown: text})
+                  }
+                />
+                <TextInput
+                  style={[style.input, {color: '#000'}]}
+                  placeholderTextColor="#000"
+                  placeholder="state"
+                  onChangeText={text =>
+                    setInputValues({...inputValues, state: text})
+                  }
+                />
+                <TextInput
+                  style={[style.input, {color: '#000'}]}
+                  placeholderTextColor="#000"
+                  placeholder="country"
+                  onChangeText={text =>
+                    setInputValues({...inputValues, country: text})
+                  }
+                />
+                <TouchableOpacity
+                  style={style.saveButton}
+                  onPress={() => {
+                    addCustomerDetails();
+                    // Logic to save customer details
+                    toggleModal();
+                  }}>
+                  <Text style={style.saveButtonText}>Save</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
+
+          <DateTimePickerModal
+            isVisible={isDatePickerVisible}
+            mode="date"
+            onConfirm={handleDateConfirm}
+            onCancel={hideDatePicker}
           />
         </View>
-        <View
-          style={{
-            borderBottomWidth: 1,
-            borderBottomColor: 'gray',
-            paddingVertical: 10,
-          }}></View>
-      </ScrollView>
-
-      <View style={{backgroundColor: '#fff'}}>
-        <View style={style.bottomContainer}>
-          <View style={{flex: 1}}>
-            <Text>Total Qty: {totalQty}</Text>
-          </View>
-          <View style={{flex: 1}}>
-            <Text>Total Set: {totalItems}</Text>
-          </View>
-          <View style={{flex: 1}}>
-            <Text>Total Amt: {totalPrice}</Text>
-          </View>
-        </View>
-
-        <TouchableOpacity
-          onPress={PlaceAddOrder}
-          style={{
-            borderWidth: 1,
-            borderColor: 'green',
-            backgroundColor: 'green',
-            paddingVertical: 15,
-            paddingHorizontal: 20,
-          }}>
-          <Text
-            style={{
-              textAlign: 'center',
-              color: '#fff',
-              fontWeight: 'bold',
-              fontSize: 20,
-            }}>
-            PLACE ORDER
-          </Text>
-        </TouchableOpacity>
-
-        <ModalComponent
-          modalVisible={modalVisible}
-          closeModal={closeModal}
-          selectedItem={selectedItem}
-          inputValuess={inputValuess}
-          onInputValueChange={handleInputValueChange} // Pass the function to handle input value changes
-        />
-        <Modal
-          animationType="fade"
-          transparent={true}
-          visible={isModalVisible}
-          onRequestClose={() => {
-            toggleModal();
-          }}>
-          <View style={style.modalContainer}>
-            <View style={style.modalContent}>
-              <Text style={style.modalTitle}>Customer Details</Text>
-              <TextInput
-                style={style.input}
-                placeholder="Retailer name"
-                onChangeText={text =>
-                  setInputValues({...inputValues, firstName: text})
-                }
-              />
-              <TextInput
-                style={style.input}
-                placeholder="phone number"
-                onChangeText={text =>
-                  setInputValues({...inputValues, phoneNumber: text})
-                }
-              />
-              <TextInput
-                style={style.input}
-                placeholder="whatsapp number"
-                onChangeText={text =>
-                  setInputValues({...inputValues, whatsappId: text})
-                }
-              />
-              <TextInput
-                style={style.input}
-                placeholder="city or town"
-                onChangeText={text =>
-                  setInputValues({...inputValues, cityOrTown: text})
-                }
-              />
-              <TextInput
-                style={style.input}
-                placeholder="state"
-                onChangeText={text =>
-                  setInputValues({...inputValues, state: text})
-                }
-              />
-              <TextInput
-                style={style.input}
-                placeholder="country"
-                onChangeText={text =>
-                  setInputValues({...inputValues, country: text})
-                }
-              />
-              <TouchableOpacity
-                style={style.saveButton}
-                onPress={() => {
-                  addCustomerDetails();
-                  // Logic to save customer details
-                  toggleModal();
-                }}>
-                <Text style={style.saveButtonText}>Save</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </Modal>
-
-        <DateTimePickerModal
-          isVisible={isDatePickerVisible}
-          mode="date"
-          onConfirm={handleDateConfirm}
-          onCancel={hideDatePicker}
-        />
       </View>
-    </View>
     </KeyboardAvoidingView>
   );
 };
@@ -963,7 +971,7 @@ const style = StyleSheet.create({
   modalContainer: {
     flex: 1,
     alignItems: 'center',
-    marginTop:50,
+    marginTop: 50,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
