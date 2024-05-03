@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   Text,
   View,
@@ -15,15 +15,15 @@ import {
   ActivityIndicator, // Import ActivityIndicator
 } from 'react-native';
 
-import { useDispatch, useSelector } from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Apicall from './../../utils/serviceApi/serviceAPIComponent';
-import { addItemToCart } from '../../redux/actions/Actions';
-import { PRODUCT_DETAILS } from '../../components/ProductDetails';
-import { AllPRODUCT_DETAILS } from '../../components/AllProductDetails';
+import {addItemToCart} from '../../redux/actions/Actions';
+import {PRODUCT_DETAILS} from '../../components/ProductDetails';
+import {AllPRODUCT_DETAILS} from '../../components/AllProductDetails';
 import ModalComponent from '../../components/ModelComponent';
 
-const HomeAllProducts = ({ navigation }) => {
+const HomeAllProducts = ({navigation}) => {
   const [showSearchInput, setShowSearchInput] = useState(false);
   const [selectedDetails, setSelectedDetails] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
@@ -40,9 +40,9 @@ const HomeAllProducts = ({ navigation }) => {
     const token = JSON.parse(userData);
 
     let json = {
-      "pageNo": "1",
-      "pageSize": "10",
-      "categoryId": ""
+      pageNo: '1',
+      pageSize: '10',
+      categoryId: '',
     };
 
     setIsLoading(true); // Set loading state to true before API call
@@ -57,7 +57,7 @@ const HomeAllProducts = ({ navigation }) => {
       }
     } else if (allProductsApi && allProductsApi.error) {
       // Show the Alert for failure with description
-      console.log('error ', allProductsApi.error)
+      console.log('error ', allProductsApi.error);
     } else {
       // Show the Alert for failure
     }
@@ -71,7 +71,7 @@ const HomeAllProducts = ({ navigation }) => {
     setShowSearchInput(!showSearchInput);
     setSearchQuery(''); // Clear search query when toggling
   };
-  
+
   const openModal = item => {
     // console.log('openModal called with item:', item); // Add console log statement to check item
     setSelectedItem(item);
@@ -82,46 +82,60 @@ const HomeAllProducts = ({ navigation }) => {
     setModalVisible(true);
   };
 
-  const renderProductItem = ({ item }) => {
+  const renderProductItem = ({item}) => {
     return (
       <TouchableOpacity
         style={styles.productItem}
         onPress={() =>
           selectedDetails === PRODUCT_DETAILS
             ? navigation.navigate('AllCategoriesListed', {
-              item,
-              name: item.colorName,
-              categoryId: item.categoryId,
-              image: item.imageUrls[0],
-            })
+                item,
+                name: item.colorName,
+                categoryId: item.categoryId,
+                image: item.imageUrls[0],
+              })
             : navigation.navigate('Details', {
-              item,
-              name: item.name,
-              image: item.image,
-              image2: item.image2,
-              image3: item.image3,
-              image4: item.image4,
-              image5: item.image5,
-              category: item.category,
-              name: item.styleName,
-              disription: item.disription,
-              tags: item.tags,
-              set: item.set,
-            })
+                item,
+                name: item.name,
+                image: item.image,
+                image2: item.image2,
+                image3: item.image3,
+                image4: item.image4,
+                image5: item.image5,
+                category: item.category,
+                name: item.styleName,
+                disription: item.disription,
+                tags: item.tags,
+                set: item.set,
+              })
         }>
-
         <View style={styles.productImageContainer}>
-          {item.imageUrls && item.imageUrls.length > 0 ? <Image style={styles.productImage} source={{ uri: item.imageUrls[0] }} /> : <View style={[styles.productImage, { backgroundColor: '#D3D3D3' }]}></View>}
+          {item.imageUrls && item.imageUrls.length > 0 ? (
+            <Image
+              style={styles.productImage}
+              source={{uri: item.imageUrls[0]}}
+            />
+          ) : (
+            <View
+              style={[
+                styles.productImage,
+                {backgroundColor: '#D3D3D3'},
+              ]}></View>
+          )}
           <Text style={styles.productName}>{item.styleName}</Text>
         </View>
 
         <View style={styles.additionalDetailsContainer}>
           <Text>Price: {item.mrp}</Text>
-          <Text>color Name: {item.colorName}</Text>
+          <Text numberOfLines={1} ellipsizeMode="tail">
+            color Name: {item.colorName}
+          </Text>
           <View style={styles.notesContainer}>
-            <Text>Discription: {item.styleDesc}</Text>
+            <Text numberOfLines={1} ellipsizeMode="tail">
+              Discription: {item.styleDesc}
+            </Text>
             <View style={styles.buttonsContainer}>
-                {/* <TouchableOpacity style={[styles.button]}>
+              {/* <TouchableOpacity style={[styles.button]}>
                   <Image
                     style={{height: 20, width: 20}}
                     source={require('../../assets/heart.png')}
@@ -133,7 +147,7 @@ const HomeAllProducts = ({ navigation }) => {
                 onPress={() => openModal(item)}
                 style={styles.buttonqty}>
                 <Image
-                  style={{ height: 20, width: 20 }}
+                  style={{height: 20, width: 20}}
                   source={require('../../../assets/qty.png')}
                 />
                 <Text>ADD QTY</Text>
@@ -141,14 +155,13 @@ const HomeAllProducts = ({ navigation }) => {
             </View>
           </View>
         </View>
-
       </TouchableOpacity>
     );
   };
 
   // Filter products based on search query
   const filteredProducts = selectedDetails.filter(item =>
-    item.styleName.toLowerCase().includes(searchQuery.toLowerCase())
+    item.styleName.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   return (
@@ -164,8 +177,10 @@ const HomeAllProducts = ({ navigation }) => {
             placeholderTextColor="#000"
           />
         ) : (
-            <Text style={styles.text}>{selectedDetails ? selectedDetails.length + ' Products Listed' : ''}</Text>
-          )}
+          <Text style={styles.text}>
+            {selectedDetails ? selectedDetails.length + ' Products Listed' : ''}
+          </Text>
+        )}
         <TouchableOpacity
           style={styles.searchButton}
           onPress={toggleSearchInput}>
@@ -177,15 +192,15 @@ const HomeAllProducts = ({ navigation }) => {
       </View>
 
       {isLoading ? ( // Render ActivityIndicator if loading
-        <ActivityIndicator style={{  flex: 1,
-          justifyContent: 'center',
-          alignItems: 'center', }} size="large" color="green" />
+        <ActivityIndicator
+          style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}
+          size="large"
+          color="green"
+        />
       ) : (
         <FlatList
           data={searchQuery ? filteredProducts : selectedDetails} // Render filtered products if searchQuery exists
-          renderItem={({ item }) =>
-            renderProductItem({ item })
-          }
+          renderItem={({item}) => renderProductItem({item})}
           keyExtractor={item => item.styleId}
           numColumns={2}
           contentContainerStyle={styles.productList}
@@ -197,7 +212,6 @@ const HomeAllProducts = ({ navigation }) => {
         closeModal={() => setModalVisible(false)}
         selectedItem={selectedItem}
       />
-
     </View>
   );
 };
@@ -206,7 +220,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    marginTop: 10
+    marginTop: 10,
   },
   searchContainer: {
     flexDirection: 'row',
@@ -272,7 +286,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 5,
     flexDirection: 'row',
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
 });
 

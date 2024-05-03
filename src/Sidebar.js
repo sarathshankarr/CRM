@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Image,
   StyleSheet,
@@ -11,9 +11,27 @@ import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ImagePicker from 'react-native-image-crop-picker';
 
-const Sidebar = ({ userName, companyName, navigation }) => {
+const Sidebar = ({ navigation, route }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [image, setImage] = useState(require('../assets/profile.png'));
+  const [userData, setUserData] = useState(null);
+
+  useEffect(() => {
+    const { params } = route ?? {};
+    if (params && params.userData) {
+      setUserData(params.userData);
+    } else {
+      // If userData is not passed as prop, retrieve from AsyncStorage
+      getUserDataFromStorage();
+    }
+  }, [route]);
+
+  const getUserDataFromStorage = async () => {
+    const userToken = await AsyncStorage.getItem('userdata');
+    if (userToken) {
+      setUserData(JSON.parse(userToken));
+    }
+  };
 
   const goToHome = () => {
     navigation.navigate('Home');
@@ -83,16 +101,21 @@ const Sidebar = ({ userName, companyName, navigation }) => {
             <Image style={[styles.img, { borderRadius: 30 }]} source={image} />
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={goToEditProfile} style={styles.editbox}>
+          {/* <TouchableOpacity onPress={goToEditProfile} style={styles.editbox}>
             <Image
               style={[styles.editimg, { tintColor: '#fff' }]}
               source={require('../assets/edit.png')}
             />
             <Text style={styles.edittxt}>EDIT PROFILE</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
-        <Text style={styles.usertxt}>name:{userName}</Text>
-        <Text style={styles.companynametxt}>companyName:{companyName}</Text>
+        <View>
+          {userData && (
+            <Text style={styles.usertxt}>
+             Name :  {userData.firstName} {userData.lastName}
+            </Text>
+          )}
+        </View>
       </View>
       <TouchableOpacity
         onPress={goToHome}
@@ -202,6 +225,7 @@ const styles = StyleSheet.create({
     marginLeft: 20,
     fontSize: 20,
     marginHorizontal: 10,
+    marginVertical:10,
     color: '#fff',
   },
   companynametxt: {

@@ -35,12 +35,12 @@ const Login = () => {
       postData.append('grant_type', 'password');
       postData.append('password', password);
       const credentials = base64Encode(`${USER_ID}:${USER_PASSWORD}`);
-
+  
       const headers = {
         'Content-Type': 'application/x-www-form-urlencoded',
         Authorization: `Basic ${credentials}`,
       };
-
+  
       axios
         .post(API.LOGIN, postData.toString(), { headers })
         .then(response => {
@@ -61,20 +61,21 @@ const Login = () => {
         .finally(() => setLoading(false));
     }
   };
-
+  
   const saveToken = async data => {
     try {
       await AsyncStorage.setItem('userdata', JSON.stringify(data));
-      getToken();
+      getToken(data); // Pass data to getToken function
     } catch (error) {}
   };
-
-  const getToken = async () => {
-    const userToken = await AsyncStorage.getItem('userdata');
-    console.log(JSON.parse(userToken));
-    global.userData = JSON.parse(userToken);
-    navigation.navigate('Main');
+  
+  const getToken = async userData => { // Accept userData as parameter
+    const userToken = JSON.stringify(userData); // Store userData directly
+    console.log(userData);
+    global.userData = userData;
+    navigation.navigate('Main', { userData: userData }); // Pass userData to Main screen
   };
+  
 
   const handleForgotPassword = () => {
     Alert.alert('Forgot password clicked');
