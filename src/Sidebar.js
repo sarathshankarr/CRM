@@ -11,8 +11,7 @@ import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ImagePicker from 'react-native-image-crop-picker';
 
-const Sidebar = ({ userName, companyName }) => {
-  const navigation = useNavigation();
+const Sidebar = ({ userName, companyName, navigation }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [image, setImage] = useState(require('../assets/profile.png'));
 
@@ -69,6 +68,7 @@ const Sidebar = ({ userName, companyName }) => {
   const handleLogout = async () => {
     try {
       await AsyncStorage.removeItem('userdata');
+      navigation.closeDrawer(); // Close the drawer
       navigation.navigate('Login');
     } catch (error) {
       console.error('Error clearing user data:', error);
