@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {
+  Alert,
   Image,
   KeyboardAvoidingView,
   Modal,
@@ -43,6 +44,9 @@ const Cart = () => {
   const [shipFromToClicked, setShipFromToClicked] = useState(false);
   const [selectedShipLocation, setSelectedShipLocation] = useState('');
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedCustomerDetails, setSelectedCustomerDetails] = useState(null);
+  console.log('Selected Customer Details:', selectedCustomerDetails);
+
   const [inputValues, setInputValues] = useState({
     firstName: '',
     phoneNumber: '',
@@ -51,6 +55,18 @@ const Cart = () => {
     state: '',
     country: '',
   });
+  
+  const handleSaveButtonPress = () => {
+    // Check if any of the mandatory fields are empty
+    if (!inputValues.firstName || !inputValues.phoneNumber || !inputValues.cityOrTown || !inputValues.state || !inputValues.country) {
+      Alert.alert('Alert', 'Please fill in all mandatory fields');
+      return;
+    }
+  
+    // If all mandatory fields are filled, proceed with saving
+    addCustomerDetails();
+    toggleModal();
+  };
 
   const toggleModal = () => {
     setIsModalVisible(!isModalVisible);
@@ -93,8 +109,10 @@ const Cart = () => {
           'ADD_CUSTOMER_DETAILS',
           response.data.response.customerList,
         );
-        // Handle success response here
+        setSelectedCustomerDetails(response.data.response.customerList); // Set selected customer details
+        toggleModal();
       })
+
       .catch(error => {
         console.error('Error adding customer:', error);
         // Handle error here
@@ -327,15 +345,6 @@ const Cart = () => {
     setSelectedItem(null);
   };
 
-  // const handlePlaceOrder = () => {
-  //   console.log('Placing order...');
-  //   console.log('Cart items:', cartItems);
-  //   navigation.navigate('Order', {
-  //     screen: 'Pending',
-  //     params: {cartItems: cartItems},
-  //   });
-  // };
-
   const handleInputValueChange = (size, value) => {
     setInputValuess(prevState => ({
       ...prevState,
@@ -445,8 +454,11 @@ const Cart = () => {
                 }}
                 onPress={handleDropdownClick}>
                 <Text style={{fontWeight: '600'}}>
-                  {selectedCustomer || 'Customer'}
+                  {selectedCustomerDetails && selectedCustomerDetails.length > 0
+                    ? `${selectedCustomerDetails[0].firstName} ${selectedCustomerDetails[0].lastName}`
+                    : 'Customer'}
                 </Text>
+
                 <Image
                   source={require('../../../assets/dropdown.png')}
                   style={{width: 20, height: 20}}
@@ -882,15 +894,11 @@ const Cart = () => {
                     setInputValues({...inputValues, country: text})
                   }
                 />
-                <TouchableOpacity
-                  style={style.saveButton}
-                  onPress={() => {
-                    addCustomerDetails();
-                    // Logic to save customer details
-                    toggleModal();
-                  }}>
-                  <Text style={style.saveButtonText}>Save</Text>
-                </TouchableOpacity>
+               <TouchableOpacity
+  style={style.saveButton}
+  onPress={handleSaveButtonPress}>
+  <Text style={style.saveButtonText}>Save</Text>
+</TouchableOpacity>
               </View>
             </View>
           </Modal>
