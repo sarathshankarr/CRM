@@ -15,6 +15,7 @@ const CustomTabBar = ({state, descriptors}) => {
   };
 
   return (
+    <View style={{backgroundColor:'#fff'}}>
     <View style={styles.tabContainer}>
       {state.routes.map((route, index) => {
         const label = route.name;
@@ -31,6 +32,8 @@ const CustomTabBar = ({state, descriptors}) => {
         );
       })}
     </View>
+    </View>
+
   );
 };
 
@@ -42,6 +45,8 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginHorizontal: 20,
     borderRadius: 30,
+    borderColor:'#000',
+    borderWidth:1
   },
   tabButton: {
     flex: 1,

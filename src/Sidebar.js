@@ -175,8 +175,8 @@ const Sidebar = ({ navigation, route }) => {
 
       <View style={styles.logoutContainer}>
         <TouchableOpacity onPress={handleLogout} style={styles.logoutbox}>
-          <Image
-            style={[styles.logoutimg, { tintColor: '#fff' }]}
+          <Image resizeMode="contain"
+            style={[styles.logoutimg, { tintColor: '#fff',height:20,width:20 }]}
             source={require('../assets/logout.png')}
           />
           <Text style={styles.logouttxt}>Logout</Text>
@@ -287,7 +287,7 @@ const styles = StyleSheet.create({
   logoutbox: {
     borderWidth: 1,
     borderColor: '#000',
-    backgroundColor: 'gray',
+    backgroundColor: '#000',
     borderRadius: 15,
     paddingVertical: 12,
     flexDirection: 'row',
