@@ -55,14 +55,20 @@ const Cart = () => {
     state: '',
     country: '',
   });
-  
+
   const handleSaveButtonPress = () => {
     // Check if any of the mandatory fields are empty
-    if (!inputValues.firstName || !inputValues.phoneNumber || !inputValues.cityOrTown || !inputValues.state || !inputValues.country) {
+    if (
+      !inputValues.firstName ||
+      !inputValues.phoneNumber ||
+      !inputValues.cityOrTown ||
+      !inputValues.state ||
+      !inputValues.country
+    ) {
       Alert.alert('Alert', 'Please fill in all mandatory fields');
       return;
     }
-  
+
     // If all mandatory fields are filled, proceed with saving
     addCustomerDetails();
     toggleModal();
@@ -201,6 +207,10 @@ const Cart = () => {
     setClicked(false);
     setSelectedCustomerId(customerId);
     getCustomerLocations(customerId);
+    const selectedCustomer = customers.find(
+      customer => customer.customerId === customerId,
+    );
+    setSelectedCustomerDetails([selectedCustomer]);
   };
 
   const handleLocationSelection = locationName => {
@@ -894,11 +904,11 @@ const Cart = () => {
                     setInputValues({...inputValues, country: text})
                   }
                 />
-               <TouchableOpacity
-  style={style.saveButton}
-  onPress={handleSaveButtonPress}>
-  <Text style={style.saveButtonText}>Save</Text>
-</TouchableOpacity>
+                <TouchableOpacity
+                  style={style.saveButton}
+                  onPress={handleSaveButtonPress}>
+                  <Text style={style.saveButtonText}>Save</Text>
+                </TouchableOpacity>
               </View>
             </View>
           </Modal>
