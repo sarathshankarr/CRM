@@ -41,7 +41,7 @@ const HomeAllProducts = ({navigation}) => {
 
     let json = {
       pageNo: '1',
-      pageSize: '10',
+      pageSize: '90',
       categoryId: '',
     };
 
