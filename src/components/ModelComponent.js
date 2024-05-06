@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   Text,
   View,
@@ -12,10 +12,10 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { useDispatch, useSelector } from 'react-redux';
-import { addItemToCart, updateCartItem } from '../redux/actions/Actions';
+import {useDispatch, useSelector} from 'react-redux';
+import {addItemToCart, updateCartItem} from '../redux/actions/Actions';
 import axios from 'axios';
-import { API } from '../config/apiConfig';
+import {API} from '../config/apiConfig';
 
 const dynamicPart = 0; // Need to change this as a dynamic
 
@@ -57,7 +57,6 @@ const ModalComponent = ({modalVisible, closeModal, selectedItem}) => {
     }
   }, [selectedItem]);
 
-  
   const clearAllInputs = () => {
     const updatedItem = {...selectedItemState};
     console.log('Before clearing:', updatedItem); // Log before clearing
@@ -89,12 +88,18 @@ const ModalComponent = ({modalVisible, closeModal, selectedItem}) => {
       price: selectedItem.mrp,
       discount: selectedItem.discount,
       inputValue: inputValues,
-      quantity: Object.values(inputValues).reduce((acc, cur) => acc + Number(cur), 0),
+      quantity: Object.values(inputValues).reduce(
+        (acc, cur) => acc + Number(cur),
+        0,
+      ),
       imageUrls: selectedItem.imageUrls,
       styleName: selectedItem.styleName,
       colorId: stylesData[0]?.colorId || '', // Add colorId here
     };
-    const existingItemIndex = cartItems.findIndex(item => item.styleId === selectedItem.styleId && item.sizeDesc === sizeDesc);
+    const existingItemIndex = cartItems.findIndex(
+      item =>
+        item.styleId === selectedItem.styleId && item.sizeDesc === sizeDesc,
+    );
     if (existingItemIndex !== -1) {
       // If item exists in cart, update its quantity
       dispatch(updateCartItem(existingItemIndex, 'inputValue', inputValues));
@@ -105,8 +110,6 @@ const ModalComponent = ({modalVisible, closeModal, selectedItem}) => {
     closeModal();
     setInputValues({});
   };
-  
-  
 
   const handleQuantityChange = (text, index) => {
     if (stylesData.length > index && stylesData[index].sizeList) {
@@ -138,7 +141,7 @@ const ModalComponent = ({modalVisible, closeModal, selectedItem}) => {
         setLoading(false); // Hide loading indicator
       });
   };
-  
+
   const copyValueToClipboard = () => {
     const copiedText = inputValues[stylesData[0]?.sizeList[0]?.sizeDesc] || ''; // Get the value from the first TextInput
     Clipboard.setString(copiedText); // Copy text to clipboard
@@ -185,82 +188,91 @@ const ModalComponent = ({modalVisible, closeModal, selectedItem}) => {
             <Text style={styles.quantitytxt}>Price</Text>
           </View>
           {loading ? (
-            <ActivityIndicator color="green" style={{ marginTop: 10 }} /> // Show ActivityIndicator if loading
+            <ActivityIndicator color="green" style={{marginTop: 10}} /> // Show ActivityIndicator if loading
           ) : (
-          <ScrollView style={{maxHeight: '70%'}}>
-            {stylesData &&
-              stylesData.map((style, index) => (
-                <View key={index} style={{marginBottom: 10}}>
-                  <View
-                    style={{
-                      position: 'absolute',
-                      right: 0,                      
-                    }}>
-                    <TouchableOpacity
-                    style={{borderWidth:1,borderColor:'#fff',marginLeft:15,paddingHorizontal:10}}
-                      onPress={() =>
-                        copyValueToClipboard(
-                          selectedItemState[style.sizeList[0]?.sizeDesc],
-                        )
-                      }>
-                      <Image
-                        style={{height: 30, width: 30}}
-                        source={require('../../assets/copy.png')}
-                      />
-                    </TouchableOpacity>
-                  </View>
-                  {style.sizeList &&
-                    style.sizeList.map((size, sizeIndex) => (
-                      <View
-                        key={sizeIndex}
-                        style={{flexDirection: 'row', marginRight: 10}}>
-                        <View style={{flex: 1}}>
-                          <Text style={{marginTop: 15, marginHorizontal: 5}}>
-                            {style.styleDesc}
-                          </Text>
-                          
-                          <Text style={{marginTop: 2, marginHorizontal: 5}}>
-                            Size - {size.sizeDesc}
-                          </Text>
-                          {/* <Text>colorId{style.colorId}</Text> */}
-                        </View>
+            <ScrollView style={{maxHeight: '70%'}}>
+              {stylesData &&
+                stylesData.map((style, index) => (
+                  <View key={index} style={{marginBottom: 10}}>
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        justifyContent: 'flex-end',
+                        marginTop: 5,
+                      }}>
+                      <TouchableOpacity
+                        style={{
+                          borderWidth: 1,
+                          borderColor: '#fff',
+                          marginRight: 15,
+                          paddingHorizontal: 4,
+                          borderRadius: 30,
+                        }}
+                        onPress={() =>
+                          copyValueToClipboard(
+                            selectedItemState[
+                              stylesData[0]?.sizeList[0]?.sizeDesc
+                            ],
+                          )
+                        }>
+                        <Image
+                          style={{height: 30, width: 30}}
+                          source={require('../../assets/copy.png')}
+                        />
+                      </TouchableOpacity>
+                    </View>
+
+                    {style.sizeList &&
+                      style.sizeList.map((size, sizeIndex) => (
                         <View
-                          style={{
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                            flex: 1.7,
-                          }}>
-                          <TextInput
+                          key={sizeIndex}
+                          style={{flexDirection: 'row', marginRight: 10}}>
+                          <View style={{flex: 1}}>
+                            <Text style={{marginTop: 15, marginHorizontal: 5}}>
+                              {style.styleDesc}
+                            </Text>
+                            <Text style={{marginTop: 2, marginHorizontal: 5}}>
+                              Size - {size.sizeDesc}
+                            </Text>
+                            {/* <Text>colorId{style.colorId}</Text> */}
+                          </View>
+                          <View
                             style={{
-                              flex: 0.4,
-                              borderBottomWidth: 1,
-                              borderColor: 'gray',
-                              textAlign: 'center',
-                              color:"#000"
-                            }}
-                            keyboardType="numeric"
-                            value={
-                              inputValues[size.sizeDesc] !== undefined
-                                ? inputValues[size.sizeDesc]
-                                : ''
-                            }
-                            onChangeText={text => {
-                              const updatedInputValues = {...inputValues};
-                              updatedInputValues[size.sizeDesc] = text;
-                              setInputValues(updatedInputValues);
-                              handleQuantityChange(text, index); // Pass index instead of sizeDesc
-                            }}
-                          />
-                          <View style={{flex: 0.4}}>
-                            <Text>{style.price}</Text>
+                              flexDirection: 'row',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                              flex: 1.7,
+                            }}>
+                            <TextInput
+                              style={{
+                                flex: 0.4,
+                                borderBottomWidth: 1,
+                                borderColor: 'gray',
+                                textAlign: 'center',
+                                color: '#000',
+                              }}
+                              keyboardType="numeric"
+                              value={
+                                inputValues[size.sizeDesc] !== undefined
+                                  ? inputValues[size.sizeDesc]
+                                  : ''
+                              }
+                              onChangeText={text => {
+                                const updatedInputValues = {...inputValues};
+                                updatedInputValues[size.sizeDesc] = text;
+                                setInputValues(updatedInputValues);
+                                handleQuantityChange(text, index); // Pass index instead of sizeDesc
+                              }}
+                            />
+                            <View style={{flex: 0.4}}>
+                              <Text>{style.price}</Text>
+                            </View>
                           </View>
                         </View>
-                      </View>
-                    ))}
-                </View>
-              ))}
-          </ScrollView>
+                      ))}
+                  </View>
+                ))}
+            </ScrollView>
           )}
           <View
             style={{
@@ -286,7 +298,6 @@ const ModalComponent = ({modalVisible, closeModal, selectedItem}) => {
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
-            
               onPress={handleSaveItem}
               style={{
                 borderWidth: 1,

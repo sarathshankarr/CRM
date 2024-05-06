@@ -69,12 +69,21 @@ const Login = () => {
     } catch (error) {}
   };
   
-  const getToken = async userData => { // Accept userData as parameter
-    const userToken = JSON.stringify(userData); // Store userData directly
-    console.log(userData);
+  const getToken = async userData => {
+    const currentTime = new Date().getTime() / 1000;
+    const tokenExpirationTime = userData.expires_in; // Assuming your token data contains expiration time
+  
+    if (tokenExpirationTime && tokenExpirationTime < currentTime) {
+      // Token has expired, navigate back to login screen
+      navigation.navigate('Login');
+      return;
+    }
+  
+    // Token is still valid, navigate to main screen
     global.userData = userData;
-    navigation.navigate('Main', { userData: userData }); // Pass userData to Main screen
+    navigation.navigate('Main', { userData: userData });
   };
+  
   
 
   const handleForgotPassword = () => {

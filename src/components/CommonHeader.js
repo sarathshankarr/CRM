@@ -19,7 +19,7 @@ const CommonHeader = ({ title, showDrawerButton, showMessageIcon, showLocationIc
         <TouchableOpacity onPress={() => navigation.openDrawer()}>
           <Image
             resizeMode="contain"
-            source={require('../../assets/menuu.png')}
+            source={require('../../assets/menu.png')}
             style={styles.menuimg}
           />
         </TouchableOpacity>
@@ -59,7 +59,7 @@ const CommonHeader = ({ title, showDrawerButton, showMessageIcon, showLocationIc
               <Image
                 resizeMode="contain"
                 style={styles.cartimg}
-                source={require('../../assets/cart.jpg')}
+                source={require('../../assets/cart.png')}
               />
               {cartItemCount > 0 && (
                 <Text style={styles.cartItemCount}>{cartItemCount}</Text>
@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 10,
-    paddingTop: 10,
+    paddingVertical:10,
     backgroundColor: "#fff"
   },
   rightContainer: {
@@ -86,15 +86,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   iconWrapper: {
-    marginHorizontal: 10,
+    marginHorizontal: 5,
   },
   locationimg: {
-    height: 25,
-    width: 20,
+    height: 28,
+    width: 28,
   },
   msgimg: {
     height: 30,
-    width: 35,
+    width: 30,
   },
   cartContainer: {
     flexDirection: 'row',
@@ -102,8 +102,8 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   cartimg: {
-    height: 40,
-    width: 40,
+    height: 30,
+    width: 30,
   },
   cartItemCount: {
     position: 'absolute',
