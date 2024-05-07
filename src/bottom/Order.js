@@ -1,8 +1,14 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { Text, View, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
+import React, {useEffect, useState, useCallback} from 'react';
+import {
+  Text,
+  View,
+  FlatList,
+  TouchableOpacity,
+  ActivityIndicator,
+} from 'react-native';
 import axios from 'axios';
-import { useFocusEffect } from '@react-navigation/native';
-import { API } from '../config/apiConfig';
+import {useFocusEffect} from '@react-navigation/native';
+import {API} from '../config/apiConfig';
 
 const Order = () => {
   const [orders, setOrders] = useState([]);
@@ -10,11 +16,8 @@ const Order = () => {
   const [pageSize, setPageSize] = useState(20);
   const [loading, setLoading] = useState(false);
   const [firstLoad, setFirstLoad] = useState(true);
-  const [hasMore, setHasMore] = useState(true);
 
   const getAllOrders = useCallback(() => {
-    if (!hasMore || loading) return;
-
     setLoading(true); // Set loading to true when fetching data
     const queryParams = new URLSearchParams({
       pageNo: pageNo.toString(),
@@ -32,15 +35,14 @@ const Order = () => {
       })
       .then(response => {
         // Handle success
-        const newOrders = response.data.response.ordersList;
-
         if (pageNo === 1) {
-          setOrders(newOrders);
+          setOrders(response.data.response.ordersList);
         } else {
-          setOrders(prevOrders => [...prevOrders, ...newOrders]);
+          setOrders(prevOrders => [
+            ...prevOrders,
+            ...response.data.response.ordersList,
+          ]);
         }
-
-        setHasMore(newOrders.length === pageSize);
       })
       .catch(error => {
         // Handle error
@@ -49,7 +51,7 @@ const Order = () => {
       .finally(() => {
         setLoading(false); // Set loading to false when done fetching data
       });
-  }, [pageNo, pageSize, loading, hasMore]);
+  }, [pageNo, pageSize]);
 
   useEffect(() => {
     if (firstLoad) {
@@ -69,13 +71,14 @@ const Order = () => {
   const loadMoreOrders = () => {
     if (!loading) {
       setPageNo(pageNo + 1);
+      setLoading(true);
     }
   };
 
-  const renderItem = ({ item }) => (
+  const renderItem = ({item}) => (
     <TouchableOpacity
-      style={{ marginBottom: 6, borderWidth: 1, marginHorizontal: 10 }}>
-      <View style={{ marginHorizontal: 10, marginVertical: 5 }}>
+      style={{marginBottom: 6, borderWidth: 1, marginHorizontal: 10}}>
+      <View style={{marginHorizontal: 10, marginVertical: 5}}>
         {/* <Text>Order ID: {item.orderId}</Text> */}
         <Text>Order Date: {item.orderDate}</Text>
         <Text>Ship Date: {item.shipDate}</Text>
@@ -87,13 +90,13 @@ const Order = () => {
   );
 
   return (
-    <View style={{ backgroundColor: '#fff', flex: 1 }}>
-      <Text style={{ marginHorizontal: 10, marginVertical: 5 }}>Orders</Text>
+    <View style={{backgroundColor: '#fff',flex:1}}>
+      <Text style={{marginHorizontal: 10, marginVertical: 5}}>Orders</Text>
       {loading && orders.length === 0 ? ( // Show ActivityIndicator if loading and no orders are loaded yet
         <ActivityIndicator
           size="large"
           color="green"
-          style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
+          style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}
         />
       ) : (
         <FlatList

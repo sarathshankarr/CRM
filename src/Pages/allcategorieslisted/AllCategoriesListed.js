@@ -108,7 +108,7 @@ const AllCategoriesListed = ({ navigation, route }) => {
   }
 
   return (
-    <>
+    <View style={{backgroundColor:"#fff",flex:1}}>
       <FlatList
         data={selectedDetails}
         renderItem={renderProductItem}
@@ -121,7 +121,7 @@ const AllCategoriesListed = ({ navigation, route }) => {
         closeModal={() => setModalVisible(false)}
         selectedItem={selectedItem}
       />
-    </>
+    </View>
   );
 };
 
