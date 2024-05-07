@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Text,
   View,
@@ -7,28 +7,19 @@ import {
   FlatList,
   TouchableOpacity,
   TextInput,
-  Modal,
-  Keyboard,
-  Platform,
-  ScrollView,
-  Alert,
-  ActivityIndicator, // Import ActivityIndicator
+  ActivityIndicator,
 } from 'react-native';
-
-import {useDispatch, useSelector} from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Apicall from './../../utils/serviceApi/serviceAPIComponent';
-import {addItemToCart} from '../../redux/actions/Actions';
-import {PRODUCT_DETAILS} from '../../components/ProductDetails';
-import {AllPRODUCT_DETAILS} from '../../components/AllProductDetails';
+import { PRODUCT_DETAILS } from '../../components/ProductDetails';
 import ModalComponent from '../../components/ModelComponent';
 
-const HomeAllProducts = ({navigation}) => {
+const HomeAllProducts = ({ navigation }) => {
   const [showSearchInput, setShowSearchInput] = useState(false);
   const [selectedDetails, setSelectedDetails] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
-  const [isLoading, setIsLoading] = useState(false); // Loading state
+  const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
@@ -36,6 +27,7 @@ const HomeAllProducts = ({navigation}) => {
   }, []);
 
   const getAllProducts = async () => {
+    setIsLoading(true);
     const userData = await AsyncStorage.getItem('userdata');
     const token = JSON.parse(userData);
 
@@ -45,45 +37,35 @@ const HomeAllProducts = ({navigation}) => {
       categoryId: '',
     };
 
-    setIsLoading(true); // Set loading state to true before API call
     let allProductsApi = await Apicall.getAllProducts(token.access_token, json);
-    setIsLoading(false); // Set loading state to false after receiving the response
+    setIsLoading(false);
 
     if (allProductsApi && allProductsApi.data) {
       if (allProductsApi.data.error) {
-        // Show the Alert for failure with description
+        // Handle error
       } else {
         setSelectedDetails(allProductsApi.data.content);
       }
     } else if (allProductsApi && allProductsApi.error) {
-      // Show the Alert for failure with description
+      // Handle error
       console.log('error ', allProductsApi.error);
     } else {
-      // Show the Alert for failure
+      // Handle error
     }
-  };
-
-  const handleAddToCart = item => {
-    dispatch(addItemToCart(item)); // Dispatch the action with the item data
   };
 
   const toggleSearchInput = () => {
     setShowSearchInput(!showSearchInput);
-    setSearchQuery(''); // Clear search query when toggling
+    setSearchQuery('');
   };
 
   const openModal = item => {
-    // console.log('openModal called with item:', item); // Add console log statement to check item
     setSelectedItem(item);
     setModalVisible(true);
   };
 
-  const onFocusTextInput = () => {
-    setModalVisible(true);
-  };
-
-  const renderProductItem = ({item}) => {
-    return (
+  const renderProductItem = useCallback(
+    ({ item }) => (
       <TouchableOpacity
         style={styles.productItem}
         onPress={() =>
@@ -103,7 +85,6 @@ const HomeAllProducts = ({navigation}) => {
                 image4: item.image4,
                 image5: item.image5,
                 category: item.category,
-                name: item.styleName,
                 disription: item.disription,
                 tags: item.tags,
                 set: item.set,
@@ -113,14 +94,15 @@ const HomeAllProducts = ({navigation}) => {
           {item.imageUrls && item.imageUrls.length > 0 ? (
             <Image
               style={styles.productImage}
-              source={{uri: item.imageUrls[0]}}
+              source={{ uri: item.imageUrls[0] }}
             />
           ) : (
             <View
               style={[
                 styles.productImage,
-                {backgroundColor: '#D3D3D3'},
-              ]}></View>
+                { backgroundColor: '#D3D3D3' },
+              ]}
+            />
           )}
           <Text style={styles.productName}>{item.styleName}</Text>
         </View>
@@ -128,40 +110,24 @@ const HomeAllProducts = ({navigation}) => {
         <View style={styles.additionalDetailsContainer}>
           <Text>Price: {item.mrp}</Text>
           <Text numberOfLines={1} ellipsizeMode="tail">
-            color Name: {item.colorName}
+            Color Name: {item.colorName}
           </Text>
           <View style={styles.notesContainer}>
             <Text numberOfLines={1} ellipsizeMode="tail">
-              Discription: {item.styleDesc}
+              Description: {item.styleDesc}
             </Text>
-            <View style={styles.buttonsContainer}>
-              {/* <TouchableOpacity style={[styles.button]}>
-                  <Image
-                    style={{height: 20, width: 20}}
-                    source={require('../../assets/heart.png')}
-                  />
-                  <Text>WISHLIST</Text>
-                </TouchableOpacity> */}
-              <View style={{}} />
-              <TouchableOpacity
-                onPress={() => openModal(item)}
-                style={styles.buttonqty}>
-                <Image
-                  style={{height: 20, width: 20}}
-                  source={require('../../../assets/qty.png')}
-                />
-                <Text>ADD QTY</Text>
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity onPress={() => openModal(item)} style={styles.buttonqty}>
+              <Text>ADD QTY</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </TouchableOpacity>
-    );
-  };
+    ),
+    [navigation, selectedDetails]
+  );
 
-  // Filter products based on search query
   const filteredProducts = selectedDetails.filter(item =>
-    item.styleName.toLowerCase().includes(searchQuery.toLowerCase()),
+    item.styleName.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -172,7 +138,7 @@ const HomeAllProducts = ({navigation}) => {
             style={styles.searchInput}
             autoFocus={true}
             onBlur={toggleSearchInput}
-            onChangeText={text => setSearchQuery(text)} // Update search query
+            onChangeText={text => setSearchQuery(text)}
             placeholder="Search"
             placeholderTextColor="#000"
           />
@@ -181,27 +147,22 @@ const HomeAllProducts = ({navigation}) => {
             {selectedDetails ? selectedDetails.length + ' Products Listed' : ''}
           </Text>
         )}
-        <TouchableOpacity
-          style={styles.searchButton}
-          onPress={toggleSearchInput}>
-          <Image
-            style={styles.image}
-            source={require('../../../assets/search.png')}
-          />
+        <TouchableOpacity style={styles.searchButton} onPress={toggleSearchInput}>
+          <Image style={styles.image} source={require('../../../assets/search.png')} />
         </TouchableOpacity>
       </View>
 
-      {isLoading ? ( // Render ActivityIndicator if loading
+      {isLoading ? (
         <ActivityIndicator
-          style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}
+          style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
           size="large"
           color="green"
         />
       ) : (
         <FlatList
-          data={searchQuery ? filteredProducts : selectedDetails} // Render filtered products if searchQuery exists
-          renderItem={({item}) => renderProductItem({item})}
-          keyExtractor={item => item.styleId}
+          data={searchQuery ? filteredProducts : selectedDetails}
+          renderItem={renderProductItem}
+          keyExtractor={item => item.styleId.toString()}
           numColumns={2}
           contentContainerStyle={styles.productList}
         />
@@ -275,10 +236,6 @@ const styles = StyleSheet.create({
   },
   notesContainer: {
     paddingVertical: 5,
-  },
-  buttonsContainer: {
-    marginTop: 5,
-    justifyContent: 'center',
   },
   buttonqty: {
     borderWidth: 1,

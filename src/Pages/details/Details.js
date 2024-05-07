@@ -61,12 +61,12 @@ const Details = ({ route }) => {
         />
         <View style={styles.priceContainer}>
           <Text style={styles.priceText}>Price: {item.mrp}</Text>
-          <TouchableOpacity>
+          {/* <TouchableOpacity>
             <Image
               style={styles.priceImage}
               source={require('../../../assets/heart.png')}
             />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
         {/* <View style={styles.categoryContainer}>
           <Text style={styles.detailLabel}>Category:</Text>
