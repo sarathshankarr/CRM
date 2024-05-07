@@ -8,42 +8,44 @@ let ApiClient = axios.create({
 });
 
 ApiClient.interceptors.request.use(
-  async configure => {
-    let newUserData = await AsyncStorage.getItem('userdata');
-    if (newUserData) {
-      newUserData = JSON.parse(newUserData);
-      const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
-      if (currentTime < newUserData.expires_in) { // Check if token is still valid
-        console.log('Bearer token is ' + newUserData.access_token);
-        configure.headers.Authorization = `Bearer ${newUserData.access_token}`;
-      } else {
-        // Token expired, refresh token
-        try {
+  async config => {
+    try {
+      const userData = await AsyncStorage.getItem('userdata');
+      if (userData) {
+        const { access_token, expires_in, refresh_token } = JSON.parse(userData);
+        const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
+        if (currentTime < expires_in) { // Token is still valid
+          console.log('Bearer token is ' + access_token);
+          config.headers.Authorization = `Bearer ${access_token}`;
+        } else {
+          // Token expired, refresh token
           const refreshResponse = await axios.post(API.LOGIN, {
             grant_type: 'refresh_token',
-            refresh_token: newUserData.refresh_token,
-            client_id: USER_ID,
-            client_secret: USER_PASSWORD,
+            refresh_token: refresh_token,
           });
           if (refreshResponse.data.access_token) {
-            newUserData.access_token = refreshResponse.data.access_token;
-            newUserData.expires_in = currentTime + refreshResponse.data.expires_in; // Update expiration time
-            await AsyncStorage.setItem('userdata', JSON.stringify(newUserData));
+            const newAccessToken = refreshResponse.data.access_token;
+            const newExpiresIn = currentTime + refreshResponse.data.expires_in;
+            await AsyncStorage.setItem('userdata', JSON.stringify({
+              access_token: newAccessToken,
+              expires_in: newExpiresIn,
+              refresh_token: refresh_token
+            }));
             console.log('Token refreshed');
-            configure.headers.Authorization = `Bearer ${newUserData.access_token}`;
+            config.headers.Authorization = `Bearer ${newAccessToken}`;
           } else {
             console.log('Failed to refresh token');
           }
-        } catch (error) {
-          console.log('Error refreshing token:', error.message);
         }
       }
+    } catch (error) {
+      console.log('Error refreshing token:', error.message);
     }
-    return configure;
+    return config;
   },
   error => {
     return Promise.reject(error);
-  },
+  }
 );
 
 export default ApiClient;
