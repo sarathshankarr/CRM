@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   Text,
   View,
@@ -8,11 +8,13 @@ import {
   TouchableOpacity,
   TextInput,
   ActivityIndicator,
+  BackHandler,
+  Alert,
 } from 'react-native';
-import { getAllCategories } from '../../utils/serviceApi/serviceAPIComponent';
-import AsyncStorage from '@react-native-async-storage/async-storage'; 
+import {getAllCategories} from '../../utils/serviceApi/serviceAPIComponent';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const HomeCategories = ({ navigation }) => {
+const HomeCategories = ({navigation}) => {
   const [selectedDetails, setSelectedDetails] = useState([]);
   const [showSearchInput, setShowSearchInput] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -20,17 +22,37 @@ const HomeCategories = ({ navigation }) => {
 
   useEffect(() => {
     fetchCategories();
+
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      () => {
+        if (navigation.isFocused()) {
+          showAlertOnBack();
+          return true; // Prevent default behavior (closing the app)
+        }
+        return false;
+      }
+    );
+
+    return () => backHandler.remove();
   }, []);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      // Reset search when component is focused
+      setSearchQuery('');
+      setShowSearchInput(false); // Hide search input when component is focused
+    });
+    return unsubscribe;
+  }, [navigation]);
 
   const fetchCategories = async () => {
     try {
-      const startTime = Date.now();
+      setLoading(true);
       const [tokenString] = await AsyncStorage.multiGet(['userdata']);
       const token = JSON.parse(tokenString[1]);
-      const { data, error } = await getAllCategories(token.access_token);
-      const endTime = Date.now();
-      console.log('AsyncStorage time:', endTime - startTime, 'ms');
-      
+      const {data, error} = await getAllCategories(token.access_token);
+
       if (data) {
         setSelectedDetails(data);
       } else {
@@ -42,27 +64,20 @@ const HomeCategories = ({ navigation }) => {
       setLoading(false);
     }
   };
-  
-
-  const handleCategoryPress = (details) => {
-    setSelectedDetails(details);
-  };
 
   const toggleSearchInput = () => {
     setShowSearchInput(!showSearchInput);
-    setSearchQuery(''); // Clear search query when closing search input
+    if (showSearchInput) {
+      setSearchQuery('');
+    }
   };
 
-  const onChangeText = (text) => {
+  const onChangeText = text => {
     setSearchQuery(text);
   };
 
-  const filteredData = selectedDetails.filter((item) =>
-    item.categoryDesc.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const renderProductItem = ({ item }) => {
-    const { categoryDesc, imageUrls } = item;
+  const renderProductItem = ({item}) => {
+    const {categoryDesc, imageUrls} = item;
 
     return (
       <TouchableOpacity
@@ -72,61 +87,110 @@ const HomeCategories = ({ navigation }) => {
             item,
             categoryId: item.categoryId,
           });
-        }}
-      >
+        }}>
         <View style={styles.productImageContainer}>
           {imageUrls && imageUrls.length > 0 ? (
+            <Image style={styles.productImage} source={{uri: imageUrls[0]}} />
+          ) : (
             <Image
               style={styles.productImage}
-              source={{ uri: imageUrls[0] }}
-              onError={(error) => console.error('Error loading image:', error)}
+              resizeMode="contain"
+              source={require('../../../assets/Noimg.jpg')}
             />
-          ) : (
-            <Text>No Image</Text>
           )}
-          <Text style={styles.productName}>{categoryDesc}</Text>
+          <View
+            style={{
+              borderColor: '#000',
+              backgroundColor: '#fff',
+              marginHorizontal: 5,
+            }}>
+            <Text
+              style={[
+                styles.productName,
+                item.imageUrls &&
+                  item.imageUrls.length > 0 && {
+                    backgroundColor: 'rgba(0, 0, 0, 0.2)',
+                  },
+              ]}>
+              {categoryDesc}
+            </Text>
+          </View>
         </View>
       </TouchableOpacity>
     );
   };
 
-  if (loading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="green" />
-      </View>
+  const showAlertOnBack = () => {
+    Alert.alert(
+      'Exit App',
+      'Do you want to close the app?',
+      [
+        {
+          text: 'No',
+          onPress: () => null,
+          style: 'cancel',
+        },
+        { text: 'Yes', onPress: () => BackHandler.exitApp() },
+      ],
+      { cancelable: false }
     );
-  }
+  };
 
   return (
     <View style={styles.container}>
       <View style={styles.searchContainer}>
         {showSearchInput ? (
           <TextInput
-            style={styles.searchInput}
+            style={[
+              styles.searchInput,
+              searchQuery.length > 0 && styles.searchInputActive,
+            ]}
             autoFocus={true}
-            onBlur={toggleSearchInput}
+            value={searchQuery} // Set value to the search query
             onChangeText={onChangeText}
-            placeholderTextColor="#000"
             placeholder="Search"
+            placeholderTextColor="#000"
           />
         ) : (
           <Text style={styles.text}>
-            {selectedDetails ? selectedDetails.length + ' Categories Listed' : ''}
+            {searchQuery
+              ? searchQuery
+              : selectedDetails
+              ? selectedDetails.length + ' Categories Listed'
+              : ''}
           </Text>
         )}
-        <TouchableOpacity style={styles.searchButton} onPress={toggleSearchInput}>
-          <Image style={styles.image} source={require('../../../assets/search.png')} />
+        <TouchableOpacity
+          style={styles.searchButton}
+          onPress={toggleSearchInput}>
+          <Image
+            style={styles.image}
+            source={
+              showSearchInput
+                ? require('../../../assets/close.png')
+                : require('../../../assets/search.png')
+            }
+          />
         </TouchableOpacity>
       </View>
 
-      <FlatList
-        data={searchQuery ? filteredData : selectedDetails}
-        renderItem={renderProductItem}
-        keyExtractor={(item, index) => index.toString()}
-        numColumns={2}
-        contentContainerStyle={styles.productList}
-      />
+      {loading ? (
+        <ActivityIndicator
+          style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}
+          size="large"
+          color="green"
+        />
+      ) : (
+        <FlatList
+          data={selectedDetails.filter(item =>
+            item.categoryDesc.toLowerCase().includes(searchQuery.toLowerCase()),
+          )}
+          renderItem={renderProductItem}
+          keyExtractor={(item, index) => index.toString()}
+          numColumns={2}
+          contentContainerStyle={styles.productList}
+        />
+      )}
     </View>
   );
 };
@@ -149,6 +213,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     borderRadius: 5,
   },
+  searchInputActive: {
+    color: '#000',
+  },
+
   text: {
     fontSize: 16,
     marginRight: 'auto',
@@ -190,14 +258,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 20,
     fontWeight: 'bold',
-    padding: 10,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor:"#fff"
-    
+    padding: 5,
   },
 });
 

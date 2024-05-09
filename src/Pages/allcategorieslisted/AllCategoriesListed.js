@@ -76,19 +76,20 @@ const AllCategoriesListed = ({ navigation, route }) => {
         <View style={styles.productImageContainer}>
           <Image
             style={styles.productImage}
-            source={{ uri: item.imageUrls && item.imageUrls.length > 0 ? item.imageUrls[0] : null }}
+            source={item.imageUrls && item.imageUrls.length > 0 ? { uri: item.imageUrls[0] } : require('../../../assets/Noimg.jpg')}
             onError={(error) => console.error('Error loading image:', error)}
           />
-          <Text style={styles.productName}>{item.styleName}</Text>
+         <Text style={[styles.productName, item.imageUrls && item.imageUrls.length > 0 && { backgroundColor: 'rgba(0, 0, 0, 0.2)' }]}>
+          {item.styleName}</Text>
         </View>
         <View style={styles.detailsContainer}></View>
       </View>
       <View style={styles.additionalDetailsContainer}>
         <Text>Price: {item.mrp}</Text>
-        <Text>color Name: {item.colorName}</Text>
+        <Text numberOfLines={1} ellipsizeMode="tail" >color Name: {item.colorName}</Text>
         <View style={styles.notesContainer}>
           <Text numberOfLines={1} ellipsizeMode="tail" style={styles.descriptionText}>
-            Discription: {item.styleDesc}
+            Description: {item.styleDesc}
           </Text>
           <TouchableOpacity onPress={() => openModal(item)} style={styles.buttonqty}>
             <Image style={styles.addqtyimg} source={require('../../../assets/qty.png')} />
@@ -98,6 +99,7 @@ const AllCategoriesListed = ({ navigation, route }) => {
       </View>
     </TouchableOpacity>
   );
+  
 
   if (isLoading) {
     return (
@@ -154,8 +156,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 20,
     fontWeight: 'bold',
-    paddingVertical: 5,
-    marginLeft: 5,
+    padding: 5,
   },
   detailsContainer: {
     width: '50%',

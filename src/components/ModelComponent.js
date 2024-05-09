@@ -19,7 +19,8 @@ import {API} from '../config/apiConfig';
 
 const dynamicPart = 0; // Need to change this as a dynamic
 
-const ModalComponent = ({modalVisible, closeModal, selectedItem}) => {
+const ModalComponent = ({modalVisible, closeModal, selectedItem,inputValuess, onInputValueChange}) => {
+  // console.log('Modal selectedItem:', selectedItem);
   const [selectedItemState, setSelectedItem] = useState(selectedItem);
   const [keyboardSpace, setKeyboardSpace] = useState(0);
   const [stylesData, setStylesData] = useState([]);
@@ -51,7 +52,7 @@ const ModalComponent = ({modalVisible, closeModal, selectedItem}) => {
   }, []);
 
   useEffect(() => {
-    // console.log('selectedItem:', selectedItem);
+    console.log('selectedItem:', selectedItem);
     if (selectedItem) {
       getQuantityStyles();
     }
@@ -78,7 +79,7 @@ const ModalComponent = ({modalVisible, closeModal, selectedItem}) => {
   // console.log('inputValue:', JSON.stringify(inputValues));
 
   const handleSaveItem = () => {
-    // console.log("item",selectedItem)
+    console.log("item",selectedItem)
     const sizeDesc = selectedItemState?.selectedSize || 'Default Size';
     const inputValue = inputValues[sizeDesc] || '';
     const itemWithDetails = {
@@ -94,12 +95,16 @@ const ModalComponent = ({modalVisible, closeModal, selectedItem}) => {
       ),
       imageUrls: selectedItem.imageUrls,
       styleName: selectedItem.styleName,
+      colorName: selectedItem.colorName,
       colorId: stylesData[0]?.colorId || '', // Add colorId here
     };
     const existingItemIndex = cartItems.findIndex(
       item =>
-        item.styleId === selectedItem.styleId && item.sizeDesc === sizeDesc,
+        item.styleId === selectedItem.styleId &&
+        item.sizeDesc === sizeDesc &&
+        item.colorName === selectedItem.colorName,
     );
+    
     if (existingItemIndex !== -1) {
       // If item exists in cart, update its quantity
       dispatch(updateCartItem(existingItemIndex, 'inputValue', inputValues));
@@ -197,16 +202,20 @@ const ModalComponent = ({modalVisible, closeModal, selectedItem}) => {
                     <View
                       style={{
                         flexDirection: 'row',
-                        justifyContent: 'flex-end',
-                        marginTop: 5,
+                        justifyContent: 'space-between',
+                        marginHorizontal: 5,
+                        marginTop:5
                       }}>
+                      <View>
+                      <Text>ColorName - {selectedItem ? selectedItem.colorName : ''}</Text>
+                      </View>
                       <TouchableOpacity
                         style={{
                           borderWidth: 1,
                           borderColor: '#fff',
-                          marginRight: 15,
-                          paddingHorizontal: 4,
                           borderRadius: 30,
+                          paddingHorizontal: 4,
+                          marginLeft: 'auto',
                         }}
                         onPress={() =>
                           copyValueToClipboard(

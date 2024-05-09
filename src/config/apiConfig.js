@@ -13,7 +13,8 @@ export const API = {
   ADD_CUSTOMER_LIST: BASE_URL.SIT + '/erpportal/api/customers',
   GET_ALL_ORDER: BASE_URL.SIT + '/erpportal/api/ordermgmt/findAllDisOrders',
   GET_CUSTOMER_LOCATION: BASE_URL.SIT + '/erpportal/api/location/getLocationsAccCustomer',
-  ADD_CUSTOMER_DETAILS:BASE_URL.SIT + '/erpportal/api/customers/addcustomer'
+  ADD_CUSTOMER_DETAILS:BASE_URL.SIT + '/erpportal/api/customers/addcustomer',
+  ADD_CUSTOMER_LOCATION:BASE_URL.SIT +'/erpportal/api/location/addlocation'
 };
 
 export const USER_ID = 'adminClientId';

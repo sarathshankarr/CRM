@@ -21,10 +21,28 @@ const HomeAllProducts = ({ navigation }) => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [filteredProducts, setFilteredProducts] = useState([]);
 
   useEffect(() => {
     getAllProducts();
   }, []);
+
+  useEffect(() => {
+    setFilteredProducts(
+      selectedDetails.filter(item =>
+        item.styleName.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    );
+  }, [searchQuery, selectedDetails]);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      setSearchQuery('');
+      setShowSearchInput(false);
+    });
+
+    return unsubscribe;
+  }, [navigation]);
 
   const getAllProducts = async () => {
     setIsLoading(true);
@@ -56,7 +74,9 @@ const HomeAllProducts = ({ navigation }) => {
 
   const toggleSearchInput = () => {
     setShowSearchInput(!showSearchInput);
-    setSearchQuery('');
+    if (showSearchInput) {
+      setSearchQuery('');
+    }
   };
 
   const openModal = item => {
@@ -104,9 +124,11 @@ const HomeAllProducts = ({ navigation }) => {
               ]}
             />
           )}
-          <Text style={styles.productName}>{item.styleName}</Text>
+          <Text style={[styles.productName, item.imageUrls && item.imageUrls.length > 0 && { backgroundColor: 'rgba(0, 0, 0, 0.2)' }]}>
+            {item.styleName}
+          </Text>
         </View>
-
+  
         <View style={styles.additionalDetailsContainer}>
           <Text>Price: {item.mrp}</Text>
           <Text numberOfLines={1} ellipsizeMode="tail">
@@ -125,30 +147,27 @@ const HomeAllProducts = ({ navigation }) => {
     ),
     [navigation, selectedDetails]
   );
-
-  const filteredProducts = selectedDetails.filter(item =>
-    item.styleName.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  
 
   return (
     <View style={styles.container}>
       <View style={styles.searchContainer}>
         {showSearchInput ? (
           <TextInput
-            style={styles.searchInput}
+          style={[styles.searchInput, searchQuery.length > 0 && styles.searchInputActive]}
             autoFocus={true}
-            onBlur={toggleSearchInput}
+            value={searchQuery}
             onChangeText={text => setSearchQuery(text)}
             placeholder="Search"
             placeholderTextColor="#000"
           />
         ) : (
           <Text style={styles.text}>
-            {selectedDetails ? selectedDetails.length + ' Products Listed' : ''}
+            {searchQuery ? searchQuery : (selectedDetails ? selectedDetails.length + ' Products Listed' : '')}
           </Text>
         )}
         <TouchableOpacity style={styles.searchButton} onPress={toggleSearchInput}>
-          <Image style={styles.image} source={require('../../../assets/search.png')} />
+          <Image style={styles.image} source={showSearchInput ? require('../../../assets/close.png') : require('../../../assets/search.png')} />
         </TouchableOpacity>
       </View>
 
@@ -165,6 +184,11 @@ const HomeAllProducts = ({ navigation }) => {
           keyExtractor={item => item.styleId.toString()}
           numColumns={2}
           contentContainerStyle={styles.productList}
+          removeClippedSubviews={true}
+          initialNumToRender={10}
+          maxToRenderPerBatch={10}
+          updateCellsBatchingPeriod={100}
+          windowSize={7}
         />
       )}
 
@@ -187,6 +211,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     marginTop: 5,
+  },
+  searchInput: {
+    flex: 1,
+    height: 40,
+    borderColor: 'gray',
+    paddingHorizontal: 10,
+    borderRadius: 5,
+  },
+  searchInputActive: {
+    color: '#000',
   },
   text: {
     fontSize: 16,
@@ -229,7 +263,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 20,
     fontWeight: 'bold',
-    padding: 10,
+    padding: 5,
   },
   additionalDetailsContainer: {
     paddingTop: 5,

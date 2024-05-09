@@ -81,7 +81,7 @@ const Details = ({ route }) => {
           <Text style={styles.detailValue}>{item.colorName}</Text>
         </View>
         <View style={styles.notesContainer}>
-          <Text style={styles.notesLabel}>Discription:</Text>
+          <Text style={styles.notesLabel}>Description:</Text>
           <Text style={styles.txt}>{item.styleDesc}</Text>
         </View>
       </ScrollView>

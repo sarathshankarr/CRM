@@ -45,7 +45,17 @@ const Cart = () => {
   const [selectedShipLocation, setSelectedShipLocation] = useState('');
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedCustomerDetails, setSelectedCustomerDetails] = useState(null);
-  console.log('Selected Customer Details:', selectedCustomerDetails);
+  const [selectedCustomerLocationDetails, setSelectedCustomerLocationDetails] =
+    useState(null);
+  const [isLocationModalVisible, setIsLocationModalVisible] = useState(false);
+
+  const [locationInputValues, setLocationInputValues] = useState({});
+
+  const toggleLocationModal = () => {
+    setIsLocationModalVisible(!isLocationModalVisible);
+  };
+
+  // console.log('Selected Customer Details:', selectedCustomerDetails);
 
   const [inputValues, setInputValues] = useState({
     firstName: '',
@@ -79,7 +89,7 @@ const Cart = () => {
   };
   const addCustomerDetails = () => {
     const requestData = {
-      firstName: inputValues.firstName, // Use the dynamic firstName value
+      firstName: inputValues.firstName,
       lastName: '',
       phoneNumber: inputValues.phoneNumber,
       whatsappId: inputValues.whatsappId,
@@ -115,15 +125,17 @@ const Cart = () => {
           'ADD_CUSTOMER_DETAILS',
           response.data.response.customerList,
         );
-        setSelectedCustomerDetails(response.data.response.customerList); // Set selected customer details
+        setSelectedCustomerDetails(response.data.response.customerList);
         toggleModal();
-      })
 
+        // Once the customer is added, get the locations associated with that customer
+        getCustomerLocations(response.data.response.customerList[0].customerId);
+      })
       .catch(error => {
         console.error('Error adding customer:', error);
-        // Handle error here
       });
   };
+
 
   const handleCommentsChange = text => {
     setComments(text);
@@ -198,6 +210,7 @@ const Cart = () => {
       });
   };
 
+
   const handleDropdownClick = () => {
     setClicked(!clicked);
   };
@@ -206,6 +219,9 @@ const Cart = () => {
     setSelectedCustomer(`${firstName} ${lastName}`);
     setClicked(false);
     setSelectedCustomerId(customerId);
+    // Reset selected location
+    setSelectedLocation('');
+    setSelectedShipLocation('');
     getCustomerLocations(customerId);
     const selectedCustomer = customers.find(
       customer => customer.customerId === customerId,
@@ -213,25 +229,29 @@ const Cart = () => {
     setSelectedCustomerDetails([selectedCustomer]);
   };
 
-  const handleLocationSelection = locationName => {
-    setSelectedLocation(locationName);
+
+  const handleLocationSelection = location => {
+    setSelectedLocation(location.locationName);
     setFromToClicked(false);
   };
-
-  const handleShipLocation = locationName => {
-    setSelectedShipLocation(locationName);
+  const handleShipLocation = location => {
+    setSelectedShipLocation(location.locationName);
     setShipFromToClicked(false);
   };
 
   const totalItems = cartItems.length;
 
-  // console.log('cart', cartItems);
+  console.log('cart', cartItems);
 
   const dispatch = useDispatch();
   const navigation = useNavigation();
   // console.log('selecteditem', selectedItem);
 
   const PlaceAddOrder = () => {
+    if (cartItems.length === 0) {
+      Alert.alert('Alert', 'No items selected. Please add items to the cart.');
+      return;
+    }
     const currentDate = new Date().toISOString().split('T')[0];
 
     const selectedCustomerObj = customers.find(customer => {
@@ -437,6 +457,83 @@ const Cart = () => {
     return total + itemPrice * totalQuantity;
   }, 0);
 
+  const handleSaveLocationButtonPress = () => {
+    // Check if any of the mandatory fields are empty
+    if (
+      !locationInputValues.locationName ||
+      !locationInputValues.phoneNumber ||
+      !locationInputValues.locality ||
+      !locationInputValues.cityOrTown ||
+      !locationInputValues.state ||
+      !locationInputValues.pincode ||
+      !locationInputValues.country
+    ) {
+      Alert.alert('Alert', 'Please fill in all mandatory fields');
+      return;
+    }
+    addCustomerLocationDetails(); // Call the function to add location details
+    toggleLocationModal(); // Close the location modal
+    setLocationInputValues({}); // Reset input values after saving
+  };
+
+  const addCustomerLocationDetails = () => {
+    const requestLocationData = {
+      createBy: 1,
+      createOn: '2024-05-08T08:31:06.285',
+      modifiedBy: 1,
+      modifiedOn: '2024-05-08T08:31:06.285',
+      locationId: 66,
+      locationName: locationInputValues.locationName,
+      locationCode: '',
+      locationDescription: locationInputValues.locationName,
+      parentId: 0,
+      customerId: selectedCustomerId,
+      status: 0,
+      phoneNumber: locationInputValues.phoneNumber,
+      emailId: '',
+      houseNo: '',
+      street: '',
+      locality: locationInputValues.locality,
+      cityOrTown: locationInputValues.cityOrTown,
+      state: locationInputValues.state,
+      country: locationInputValues.country,
+      pincode: locationInputValues.pincode,
+      customerType: 1,
+      latitude: null,
+      longitude: null,
+      fullName: null,
+      companyId: '1',
+      locationType: 0,
+    };
+
+    axios
+      .post(API.ADD_CUSTOMER_LOCATION, requestLocationData, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${global.userData.access_token}`,
+        },
+      })
+      .then(response => {
+        console.log(
+          'ADD_CUSTOMER_LOCATION',
+          response.data.response.locationList,
+        );
+        setSelectedCustomerLocationDetails(response.data.response.locationList);
+        toggleLocationModal();
+
+        // Update selected location state
+        setSelectedLocation(
+          response.data.response.locationList[0].locationName,
+        );
+        setSelectedShipLocation(
+          response.data.response.locationList[0].locationName,
+        );
+      })
+      .catch(error => {
+        console.error('Error adding customer:', error);
+      });
+  };
+
   return (
     <KeyboardAvoidingView
       style={{flex: 1, backgroundColor: '#fff'}}
@@ -543,7 +640,12 @@ const Cart = () => {
                 paddingRight: 15,
                 marginLeft: 18,
               }}>
-              <Text>{selectedLocation.locationName || 'Billing to'}</Text>
+              {/* <Text>{selectedLocation.locationName || 'Billing to'}</Text> */}
+              <Text style={{fontWeight: '600'}}>
+                {selectedLocation.length > 0
+                  ? `${selectedLocation}`
+                  : 'Billing to'}
+              </Text>
               <Image
                 source={require('../../../assets/dropdown.png')}
                 style={{width: 20, height: 20}}
@@ -593,9 +695,14 @@ const Cart = () => {
                 alignItems: 'center',
                 paddingLeft: 15,
                 paddingRight: 15,
-                marginRight: 18,
+                marginLeft: 5,
               }}>
-              <Text>{selectedShipLocation.locationName || 'Shiping to'}</Text>
+              {/* <Text>{selectedShipLocation.locationName || 'Shiping to'}</Text> */}
+              <Text style={{fontWeight: '600'}}>
+                {selectedShipLocation.length > 0
+                  ? `${selectedShipLocation}`
+                  : 'Shipping to'}
+              </Text>
               <Image
                 source={require('../../../assets/dropdown.png')}
                 style={{width: 20, height: 20}}
@@ -630,6 +737,23 @@ const Cart = () => {
                 </ScrollView>
               </View>
             )}
+          </View>
+          <View>
+            <TouchableOpacity
+              style={style.plusButton}
+              onPress={() => toggleLocationModal()}>
+              <Image
+                style={{
+                  height: 30,
+                  width: 30,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  marginRight: 10,
+                  marginTop: 5,
+                }}
+                source={require('../../../assets/plus.png')}
+              />
+            </TouchableOpacity>
           </View>
         </View>
         <ScrollView style={style.container}>
@@ -680,7 +804,7 @@ const Cart = () => {
                   </TouchableOpacity>
                 </View>
               </View>
-              <Text>colorId - {item.colorId}</Text>
+              {/* <Text>colorId - {item.colorId}</Text> */}
               <View style={style.sizehead}>
                 <View style={{flex: 0.7}}>
                   <Text style={{marginLeft: 10}}>COLOR/SIZE</Text>
@@ -699,9 +823,10 @@ const Cart = () => {
                 </TouchableOpacity>
               </View>
               <View style={{marginHorizontal: 10, marginVertical: 5}}>
-                <Text style={{color: '#000', fontWeight: 'bold'}}>
+                {/* <Text style={{color: '#000', fontWeight: 'bold'}}>
                   {item.styleName}
-                </Text>
+                </Text> */}
+                <Text>ColorName - {item.colorName}</Text>
               </View>
               {Object.entries(item.inputValue).map(([size, quantity], idx) => (
                 <View key={idx}>
@@ -919,6 +1044,103 @@ const Cart = () => {
             onConfirm={handleDateConfirm}
             onCancel={hideDatePicker}
           />
+           <View>
+          <Modal
+            animationType="fade"
+            transparent={true}
+            visible={isLocationModalVisible}
+            onRequestClose={() => {
+              toggleLocationModal();
+            }}>
+            <View style={style.modalContainer}>
+              <View style={style.modalContent}>
+                <Text style={style.modalTitle}>Location Details</Text>
+                <TextInput
+                  style={[style.input, {color: '#000'}]}
+                  placeholder="Location Name"
+                  placeholderTextColor="#000"
+                  onChangeText={text =>
+                    setLocationInputValues({
+                      ...locationInputValues,
+                      locationName: text,
+                    })
+                  }
+                />
+                <TextInput
+                  style={[style.input, {color: '#000'}]}
+                  placeholder="phone number"
+                  placeholderTextColor="#000"
+                  onChangeText={text =>
+                    setLocationInputValues({
+                      ...locationInputValues,
+                      phoneNumber: text,
+                    })
+                  }
+                />
+                <TextInput
+                  style={[style.input, {color: '#000'}]}
+                  placeholder="Locality"
+                  placeholderTextColor="#000"
+                  onChangeText={text =>
+                    setLocationInputValues({
+                      ...locationInputValues,
+                      locality: text,
+                    })
+                  }
+                />
+                <TextInput
+                  style={[style.input, {color: '#000'}]}
+                  placeholder="city or town"
+                  placeholderTextColor="#000"
+                  onChangeText={text =>
+                    setLocationInputValues({
+                      ...locationInputValues,
+                      cityOrTown: text,
+                    })
+                  }
+                />
+                <TextInput
+                  style={[style.input, {color: '#000'}]}
+                  placeholderTextColor="#000"
+                  placeholder="state"
+                  onChangeText={text =>
+                    setLocationInputValues({
+                      ...locationInputValues,
+                      state: text,
+                    })
+                  }
+                />
+                <TextInput
+                  style={[style.input, {color: '#000'}]}
+                  placeholderTextColor="#000"
+                  placeholder="Pincode"
+                  onChangeText={text =>
+                    setLocationInputValues({
+                      ...locationInputValues,
+                      pincode: text,
+                    })
+                  }
+                />
+                <TextInput
+                  style={[style.input, {color: '#000'}]}
+                  placeholderTextColor="#000"
+                  placeholder="country"
+                  onChangeText={text =>
+                    setLocationInputValues({
+                      ...locationInputValues,
+                      country: text,
+                    })
+                  }
+                />
+                <TouchableOpacity
+                  onPress={handleSaveLocationButtonPress}
+                  style={style.saveButton}>
+                  <Text style={style.saveButtonText}>Save</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
+        </View>
         </View>
       </View>
     </KeyboardAvoidingView>
