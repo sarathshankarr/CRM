@@ -5,6 +5,8 @@ import {
   FlatList,
   TouchableOpacity,
   ActivityIndicator,
+  StyleSheet,
+  Modal,
 } from 'react-native';
 import axios from 'axios';
 import {useFocusEffect} from '@react-navigation/native';
@@ -16,6 +18,7 @@ const Order = () => {
   const [pageSize, setPageSize] = useState(20);
   const [loading, setLoading] = useState(false);
   const [firstLoad, setFirstLoad] = useState(true);
+  const [selectedOrder, setSelectedOrder] = useState(null);
 
   const getAllOrders = useCallback(() => {
     setLoading(true); // Set loading to true when fetching data
@@ -75,24 +78,49 @@ const Order = () => {
     }
   };
 
-  const renderItem = ({item}) => (
-    <TouchableOpacity
-      style={{marginBottom: 6, borderWidth: 1, marginHorizontal: 10}}>
-      <View style={{marginHorizontal: 10, marginVertical: 5}}>
-        {/* <Text>Order ID: {item.orderId}</Text> */}
-        <Text>Order Date: {item.orderDate}</Text>
-        <Text>Ship Date: {item.shipDate}</Text>
-        <Text>Total Amount: {item.totalAmount}</Text>
-        {/* <Text>Total Qty: {item.totalQty}</Text> */}
-        <Text>Customer Name: {item.customerName}</Text>
+  const renderItem = ({item}) => {
+    return (
+      <View style={style.container}>
+        <TouchableOpacity
+          style={style.header}
+          onPress={() => setSelectedOrder(item)}>
+          <View style={style.ordheader}>
+            <View style={style.ordshpheader}>
+              <Text>Order Date: {item.orderDate}</Text>
+              <Text>Ship Date: {item.shipDate}</Text>
+            </View>
+            <View style={style.custtlheader}>
+              <Text style={{flex: 0.9}}>
+                Customer Name: {item.customerName}
+              </Text>
+              <Text>Total Amount: {item.totalAmount}</Text>
+            </View>
+            <View>
+              <Text
+                style={{
+                  textAlign: 'center',
+                  backgroundColor:
+                    item.orderStatus.toLowerCase() === 'open'
+                      ? '#FF3333'
+                      : 'green',
+                  padding: 5,
+                  color: '#fff',
+                  borderRadius: 5,
+                  marginHorizontal: 10,
+                }}>
+                Status - {item.orderStatus}
+              </Text>
+            </View>
+          </View>
+        </TouchableOpacity>
       </View>
-    </TouchableOpacity>
-  );
+    );
+  };
 
   return (
-    <View style={{backgroundColor: '#fff',flex:1}}>
+    <View style={{backgroundColor: '#fff', flex: 1}}>
       <Text style={{marginHorizontal: 10, marginVertical: 5}}>Orders</Text>
-      {loading && orders.length === 0 ? ( // Show ActivityIndicator if loading and no orders are loaded yet
+      {loading && orders.length === 0 ? (
         <ActivityIndicator
           size="large"
           color="green"
@@ -113,8 +141,93 @@ const Order = () => {
           }}
         />
       )}
+      <Modal
+        visible={selectedOrder !== null}
+        transparent={true}
+        animationType="fade">
+        <View style={style.modalContainer}>
+          <View style={style.modalContent}>
+            <View style={style.custtlheader}>
+              <Text>OrderId:{selectedOrder?.orderId}</Text>
+              <Text>TotalQty:{selectedOrder?.totalQty}</Text>
+            </View>
+            <View style={style.modelordshpheader}>
+              <Text>Order Date: {selectedOrder?.orderDate}</Text>
+              <Text>Ship Date: {selectedOrder?.shipDate}</Text>
+            </View>
+            <View style={style.custtlheader}>
+              <Text style={{flex: 0.9}}>
+                Customer Name: {selectedOrder?.customerName}
+              </Text>
+              <Text>Total Amount: {selectedOrder?.totalAmount}</Text>
+            </View>
+            <Text style={{textAlign: 'right', marginHorizontal: 10}}>
+              Status: {selectedOrder?.orderStatus}
+            </Text>
+            <TouchableOpacity
+              style={style.closeButton}
+              onPress={() => setSelectedOrder(null)}>
+              <Text style={{color: '#fff'}}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
+
+const style = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  header: {
+    marginBottom: 10,
+    borderWidth: 1,
+    marginHorizontal: 10,
+    borderRadius: 10,
+  },
+  ordheader: {
+    marginVertical: 5,
+  },
+  ordshpheader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginHorizontal: 10,
+    marginVertical: 5,
+  },
+  modelordshpheader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginHorizontal: 10,
+    marginVertical: 5,
+  },
+  custtlheader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginHorizontal: 10,
+    marginVertical: 5,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    elevation: 5,
+    width: '95%',
+    padding:5
+  },
+  closeButton: {
+    marginTop: 10,
+    alignSelf: 'center',
+    backgroundColor: 'green',
+    padding: 10,
+    borderRadius: 5,
+  },
+});
 
 export default Order;

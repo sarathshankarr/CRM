@@ -29,7 +29,7 @@ ApiClient.interceptors.request.use(
             await AsyncStorage.setItem('userdata', JSON.stringify({
               access_token: newAccessToken,
               expires_in: newExpiresIn,
-              refresh_token: refresh_token
+              refresh_token: refreshResponse.data.refresh_token
             }));
             console.log('Token refreshed');
             config.headers.Authorization = `Bearer ${newAccessToken}`;
