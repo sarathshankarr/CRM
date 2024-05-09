@@ -248,6 +248,20 @@ const Cart = () => {
   // console.log('selecteditem', selectedItem);
 
   const PlaceAddOrder = () => {
+    if (!selectedCustomer) {
+      Alert.alert('Alert', 'Please select a customer.');
+      return;
+    }
+  
+    if (!selectedLocation) {
+      Alert.alert('Alert', 'Please select a Billing to location.');
+      return;
+    }
+  
+    if (!selectedShipLocation) {
+      Alert.alert('Alert', 'Please select a Shipping to location.');
+      return;
+    }
     if (cartItems.length === 0) {
       Alert.alert('Alert', 'No items selected. Please add items to the cart.');
       return;
