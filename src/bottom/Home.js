@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   activeTabButton: {
-    backgroundColor: 'green',
+    backgroundColor: '#390050',
     // borderWidth: 1,
     borderBottomColor: '#000',
     borderTopLeftRadius: 25,

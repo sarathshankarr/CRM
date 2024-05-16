@@ -1,4 +1,17 @@
-import { ADD_SELECTED_IMAGE, ADD_TO_CART, ADD_TO_PENDING, CLEAR_CART, DELETE_NOTE, REMOVE_FROM_CART, REMOVE_SELECTED_IMAGE, SET_NOTE_DETAILS, SET_NOTE_SAVED, UPDATE_CART_ITEM } from '../ActionTypes';
+import {
+  ADD_SELECTED_IMAGE,
+  ADD_TO_CART,
+  ADD_TO_PENDING,
+  CLEAR_CART,
+  DELETE_NOTE,
+  REMOVE_FROM_CART,
+  REMOVE_SELECTED_IMAGE,
+  SET_LOGGED_IN_USER,
+  SET_NOTE_DETAILS,
+  SET_NOTE_SAVED,
+  SET_USER_ROLE,
+  UPDATE_CART_ITEM,
+} from '../ActionTypes';
 
 const initialState = {
   cartItems: [],
@@ -6,11 +19,13 @@ const initialState = {
   pendingItems: [],
   noteDetails: {
     title: '',
-    description: ''
+    description: '',
   },
   notes: [],
   noteSaved: false,
   cartItems: [],
+  userRole: null,
+  loggedInUser: null,
 };
 
 const reducers = (state = initialState, action) => {
@@ -23,7 +38,9 @@ const reducers = (state = initialState, action) => {
     case REMOVE_FROM_CART:
       return {
         ...state,
-        cartItems: state.cartItems.filter((item, index) => index !== action.payload),
+        cartItems: state.cartItems.filter(
+          (item, index) => index !== action.payload,
+        ),
       };
     case UPDATE_CART_ITEM:
       return {
@@ -46,7 +63,9 @@ const reducers = (state = initialState, action) => {
     case REMOVE_SELECTED_IMAGE:
       return {
         ...state,
-        selectedImages: state.selectedImages.filter(image => image !== action.payload),
+        selectedImages: state.selectedImages.filter(
+          image => image !== action.payload,
+        ),
       };
     case ADD_TO_PENDING:
       return {
@@ -58,8 +77,8 @@ const reducers = (state = initialState, action) => {
         ...state,
         noteDetails: {
           ...state.noteDetails,
-          ...action.payload
-        }
+          ...action.payload,
+        },
       };
 
     case DELETE_NOTE:
@@ -68,18 +87,29 @@ const reducers = (state = initialState, action) => {
         noteDetails: {
           title: '',
           description: '',
-        }
+        },
       };
     case SET_NOTE_SAVED:
       return {
         ...state,
         noteSaved: action.payload,
       };
-      case CLEAR_CART:
+    case CLEAR_CART:
       return {
         ...state,
         cartItems: [],
       };
+    case SET_USER_ROLE:
+      return {
+        ...state,
+        userRole: action.payload,
+      };
+    case SET_LOGGED_IN_USER:
+      return {
+        ...state,
+        loggedInUser: action.payload,
+      };
+
     default:
       return state;
   }

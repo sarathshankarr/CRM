@@ -1,4 +1,4 @@
-import {ADD_SELECTED_IMAGE, ADD_TO_CART, ADD_TO_PENDING, DELETE_NOTE, REMOVE_FROM_CART, REMOVE_SELECTED_IMAGE, SET_NOTE_DETAILS, UPDATE_CART_ITEM,SET_NOTE_TITLE,SET_NOTE_DESCRIPTION, SET_NOTE_SAVED, CLEAR_CART} from '../ActionTypes';
+import {ADD_SELECTED_IMAGE, ADD_TO_CART, ADD_TO_PENDING, DELETE_NOTE, REMOVE_FROM_CART, REMOVE_SELECTED_IMAGE, SET_NOTE_DETAILS, UPDATE_CART_ITEM,SET_NOTE_TITLE,SET_NOTE_DESCRIPTION, SET_NOTE_SAVED, CLEAR_CART, SET_USER_ROLE, SET_LOGGED_IN_USER} from '../ActionTypes';
 
 export const addItemToCart = data => ({
   type: ADD_TO_CART,
@@ -60,4 +60,14 @@ export const setNoteSaved = (isSaved) => ({
 });
 export const clearCart = () => ({
   type: CLEAR_CART,
+});
+
+export const setUserRole = (role) => ({
+  type: SET_USER_ROLE,
+  payload: role,
+});
+
+export const setLoggedInUser = (user) => ({
+  type: SET_LOGGED_IN_USER,
+  payload: user,
 });

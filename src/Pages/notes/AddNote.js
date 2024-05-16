@@ -329,7 +329,7 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   saveButton: {
-    backgroundColor: 'green',
+    backgroundColor: '#390050',
   },
 });
 

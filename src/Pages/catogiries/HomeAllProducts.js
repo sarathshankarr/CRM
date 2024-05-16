@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, PureComponent } from 'react';
 import {
   Text,
   View,
@@ -14,6 +14,54 @@ import * as Apicall from './../../utils/serviceApi/serviceAPIComponent';
 import { PRODUCT_DETAILS } from '../../components/ProductDetails';
 import ModalComponent from '../../components/ModelComponent';
 
+class ProductItem extends PureComponent {
+  render() {
+    const { item, navigation, openModal } = this.props;
+    return (
+      <TouchableOpacity
+        style={styles.productItem}
+        onPress={() =>
+          navigation.navigate(
+            item.categoryId === PRODUCT_DETAILS ? 'AllCategoriesListed' : 'Details',
+            {
+              item,
+            }
+          )
+        }>
+        <View style={styles.productImageContainer}>
+          {item.imageUrls && item.imageUrls.length > 0 ? (
+            <Image style={styles.productImage} source={{ uri: item.imageUrls[0] }} />
+          ) : (
+            <View style={[styles.productImage, { backgroundColor: '#D3D3D3' }]} />
+          )}
+          <Text
+            style={[
+              styles.productName,
+              item.imageUrls && item.imageUrls.length > 0 && { backgroundColor: 'rgba(0, 0, 0, 0.2)' },
+            ]}>
+            {item.styleName}
+          </Text>
+        </View>
+
+        <View style={styles.additionalDetailsContainer}>
+          <Text>Price: {item.mrp}</Text>
+          <Text numberOfLines={1} ellipsizeMode="tail">
+            Color Name: {item.colorName}
+          </Text>
+          <View style={styles.notesContainer}>
+            <Text numberOfLines={1} ellipsizeMode="tail">
+              Description: {item.styleDesc}
+            </Text>
+            <TouchableOpacity onPress={() => openModal(item)} style={styles.buttonqty}>
+              <Text>ADD QTY</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
+  }
+}
+
 const HomeAllProducts = ({ navigation }) => {
   const [showSearchInput, setShowSearchInput] = useState(false);
   const [selectedDetails, setSelectedDetails] = useState([]);
@@ -22,6 +70,12 @@ const HomeAllProducts = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredProducts, setFilteredProducts] = useState([]);
+  const [pageNo, setPageNo] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0); // New state for total items
+  const [isFetching, setIsFetching] = useState(false);
+  const flatListRef = useRef(null);
+  const [scrollPosition, setScrollPosition] = useState(0);
 
   useEffect(() => {
     getAllProducts();
@@ -35,23 +89,17 @@ const HomeAllProducts = ({ navigation }) => {
     );
   }, [searchQuery, selectedDetails]);
 
-  useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', () => {
-      setSearchQuery('');
-      setShowSearchInput(false);
-    });
-
-    return unsubscribe;
-  }, [navigation]);
-
   const getAllProducts = async () => {
+    if (isFetching) return;
+
+    setIsFetching(true);
     setIsLoading(true);
     const userData = await AsyncStorage.getItem('userdata');
     const token = JSON.parse(userData);
 
     let json = {
-      pageNo: '1',
-      pageSize: '90',
+      pageNo: String(pageNo),
+      pageSize: '10', // Change this to your desired page size
       categoryId: '',
     };
 
@@ -62,7 +110,13 @@ const HomeAllProducts = ({ navigation }) => {
       if (allProductsApi.data.error) {
         // Handle error
       } else {
-        setSelectedDetails(allProductsApi.data.content);
+        if (pageNo === 1) {
+          setSelectedDetails(allProductsApi.data.content);
+          setTotalItems(allProductsApi.data.totalItems); // Set total items from API response
+        } else {
+          setSelectedDetails(prev => [...prev, ...allProductsApi.data.content]);
+        }
+        setTotalPages(allProductsApi.data.totalPages);
       }
     } else if (allProductsApi && allProductsApi.error) {
       // Handle error
@@ -70,6 +124,8 @@ const HomeAllProducts = ({ navigation }) => {
     } else {
       // Handle error
     }
+
+    setIsFetching(false);
   };
 
   const toggleSearchInput = () => {
@@ -86,75 +142,37 @@ const HomeAllProducts = ({ navigation }) => {
 
   const renderProductItem = useCallback(
     ({ item }) => (
-      <TouchableOpacity
-        style={styles.productItem}
-        onPress={() =>
-          selectedDetails === PRODUCT_DETAILS
-            ? navigation.navigate('AllCategoriesListed', {
-                item,
-                name: item.colorName,
-                categoryId: item.categoryId,
-                image: item.imageUrls[0],
-              })
-            : navigation.navigate('Details', {
-                item,
-                name: item.name,
-                image: item.image,
-                image2: item.image2,
-                image3: item.image3,
-                image4: item.image4,
-                image5: item.image5,
-                category: item.category,
-                disription: item.disription,
-                tags: item.tags,
-                set: item.set,
-              })
-        }>
-        <View style={styles.productImageContainer}>
-          {item.imageUrls && item.imageUrls.length > 0 ? (
-            <Image
-              style={styles.productImage}
-              source={{ uri: item.imageUrls[0] }}
-            />
-          ) : (
-            <View
-              style={[
-                styles.productImage,
-                { backgroundColor: '#D3D3D3' },
-              ]}
-            />
-          )}
-          <Text style={[styles.productName, item.imageUrls && item.imageUrls.length > 0 && { backgroundColor: 'rgba(0, 0, 0, 0.2)' }]}>
-            {item.styleName}
-          </Text>
-        </View>
-  
-        <View style={styles.additionalDetailsContainer}>
-          <Text>Price: {item.mrp}</Text>
-          <Text numberOfLines={1} ellipsizeMode="tail">
-            Color Name: {item.colorName}
-          </Text>
-          <View style={styles.notesContainer}>
-            <Text numberOfLines={1} ellipsizeMode="tail">
-              Description: {item.styleDesc}
-            </Text>
-            <TouchableOpacity onPress={() => openModal(item)} style={styles.buttonqty}>
-              <Text>ADD QTY</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </TouchableOpacity>
+      <ProductItem
+        item={item}
+        navigation={navigation}
+        openModal={openModal}
+      />
     ),
-    [navigation, selectedDetails]
+    [navigation]
   );
-  
+
+  const handleEndReached = () => {
+    if (pageNo < totalPages && !isFetching) {
+      setPageNo(pageNo + 1);
+    }
+  };
+
+  useEffect(() => {
+    if (pageNo > 1) {
+      getAllProducts();
+    }
+  }, [pageNo]);
+
+  const handleScroll = event => {
+    setScrollPosition(event.nativeEvent.contentOffset.y);
+  };
 
   return (
     <View style={styles.container}>
       <View style={styles.searchContainer}>
         {showSearchInput ? (
           <TextInput
-          style={[styles.searchInput, searchQuery.length > 0 && styles.searchInputActive]}
+            style={[styles.searchInput, searchQuery.length > 0 && styles.searchInputActive]}
             autoFocus={true}
             value={searchQuery}
             onChangeText={text => setSearchQuery(text)}
@@ -163,11 +181,18 @@ const HomeAllProducts = ({ navigation }) => {
           />
         ) : (
           <Text style={styles.text}>
-            {searchQuery ? searchQuery : (selectedDetails ? selectedDetails.length + ' Products Listed' : '')}
+            {searchQuery ? searchQuery : (totalItems ? totalItems + ' Products Listed' : '')}
           </Text>
         )}
         <TouchableOpacity style={styles.searchButton} onPress={toggleSearchInput}>
-          <Image style={styles.image} source={showSearchInput ? require('../../../assets/close.png') : require('../../../assets/search.png')} />
+          <Image
+            style={styles.image}
+            source={
+              showSearchInput
+                ? require('../../../assets/close.png')
+                : require('../../../assets/search.png')
+            }
+          />
         </TouchableOpacity>
       </View>
 
@@ -175,10 +200,11 @@ const HomeAllProducts = ({ navigation }) => {
         <ActivityIndicator
           style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
           size="large"
-          color="green"
+          color="#390050"
         />
       ) : (
         <FlatList
+          ref={flatListRef}
           data={searchQuery ? filteredProducts : selectedDetails}
           renderItem={renderProductItem}
           keyExtractor={item => item.styleId.toString()}
@@ -189,6 +215,16 @@ const HomeAllProducts = ({ navigation }) => {
           maxToRenderPerBatch={10}
           updateCellsBatchingPeriod={100}
           windowSize={7}
+          onEndReached={handleEndReached}
+          onEndReachedThreshold={0.1}
+          onScroll={handleScroll}
+          scrollEventThrottle={16}
+          getItemLayout={(data, index) => ({ length: 350, offset: 350 * index, index })}
+          onContentSizeChange={() => {
+            if (scrollPosition !== 0) {
+              flatListRef.current.scrollToOffset({ offset: scrollPosition, animated: false });
+            }
+          }}
         />
       )}
 

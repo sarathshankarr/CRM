@@ -104,7 +104,7 @@ const AllCategoriesListed = ({ navigation, route }) => {
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="green" />
+        <ActivityIndicator size="large" color="#390050" />
       </View>
     );
   }

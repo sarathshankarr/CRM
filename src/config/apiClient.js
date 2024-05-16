@@ -1,49 +1,87 @@
 import axios from 'axios';
-import { API, BASE_URL } from './apiConfig';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API, BASE_URL } from './apiConfig';
 
 let ApiClient = axios.create({
   baseURL: BASE_URL.SIT,
   timeout: 10000,
 });
 
-ApiClient.interceptors.request.use(
-  async config => {
-    try {
-      const userData = await AsyncStorage.getItem('userdata');
-      if (userData) {
-        const { access_token, expires_in, refresh_token } = JSON.parse(userData);
-        const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
-        if (currentTime < expires_in) { // Token is still valid
-          console.log('Bearer token is ' + access_token);
-          config.headers.Authorization = `Bearer ${access_token}`;
-        } else {
-          // Token expired, refresh token
-          const refreshResponse = await axios.post(API.LOGIN, {
-            grant_type: 'refresh_token',
-            refresh_token: refresh_token,
-          });
-          if (refreshResponse.data.access_token) {
-            const newAccessToken = refreshResponse.data.access_token;
-            const newExpiresIn = currentTime + refreshResponse.data.expires_in;
-            await AsyncStorage.setItem('userdata', JSON.stringify({
-              access_token: newAccessToken,
-              expires_in: newExpiresIn,
-              refresh_token: refreshResponse.data.refresh_token
-            }));
-            console.log('Token refreshed');
-            config.headers.Authorization = `Bearer ${newAccessToken}`;
-          } else {
-            console.log('Failed to refresh token');
-          }
-        }
-      }
-    } catch (error) {
-      console.log('Error refreshing token:', error.message);
+// Function to refresh token
+const refreshToken = async () => {
+  const refreshToken = global.userData.refresh_token;
+  const headers = {
+    'Content-Type': 'application/x-www-form-urlencoded',
+  };
+  const postData = new URLSearchParams();
+  postData.append('grant_type', 'refresh_token');
+  postData.append('refresh_token', refreshToken);
+  const credentials = `${USER_ID}:${USER_PASSWORD}`;
+
+  try {
+    const response = await axios.post(API.LOGIN, postData.toString(), {
+      headers: {
+        ...headers,
+        Authorization: `Basic ${btoa(credentials)}`,
+      },
+    });
+    if (response.status === 200) {
+      saveToken(response.data);
+      return response.data.access_token;
     }
-    return config;
+  } catch (error) {
+    console.error('Refresh Token Error:', error);
+    throw error;
+  }
+};
+
+
+ApiClient.interceptors.request.use(
+  async configure => {
+    const newUserData = await AsyncStorage.getItem('userData');
+    global.userData = JSON.parse(newUserData);
+    console.log('Bearer token is ' + global.userData.access_token);
+    if (global.userData != null) {
+      configure.headers.Authorization = `Bearer ${global.userData.access_token}`;
+    }
+    return configure;
   },
   error => {
+    return Promise.reject(error);
+  },
+);
+
+
+
+// Function to save token and update headers
+const saveToken = async data => {
+  try {
+    await AsyncStorage.setItem('userData', JSON.stringify(data));
+    ApiClient.defaults.headers.common['Authorization'] = `Bearer ${data.access_token}`;
+  } catch (error) {
+    console.error('Error saving token:', error);
+  }
+};
+
+
+// Response interceptor to handle token expiration
+ApiClient.interceptors.response.use(
+  response => response,
+  async error => {
+    const originalRequest = error.config;
+    if (error.response && error.response.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      try {
+        const accessToken = await refreshToken();
+        originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+        return axios(originalRequest);
+      } catch (refreshError) {
+        console.error('Refresh token error:', refreshError);
+        // Handle refresh token error
+        // For example, redirect to login screen
+        throw refreshError;
+      }
+    }
     return Promise.reject(error);
   }
 );

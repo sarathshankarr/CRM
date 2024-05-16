@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     right: 0,
-    backgroundColor: 'green',
+    backgroundColor: '#390050',
     color: 'white',
     borderRadius: 10,
     paddingHorizontal: 5,

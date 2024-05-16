@@ -279,7 +279,7 @@ cameraIconRight: {
     marginBottom: 10, // Adjust spacing between items
   },
   selectedApparel: {
-    backgroundColor: 'green',
+    backgroundColor: '#390050',
   },
   contentContainer: {
     paddingHorizontal: 20,

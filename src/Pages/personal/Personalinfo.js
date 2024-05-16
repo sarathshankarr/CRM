@@ -158,7 +158,7 @@ const styles=StyleSheet.create({
         marginVertical: 5,
     },
     selectedApparel: {
-        backgroundColor: 'green', // Change to green when selected
+        backgroundColor: '#390050', // Change to green when selected
     },
     updateButton: {
         borderWidth: 1,

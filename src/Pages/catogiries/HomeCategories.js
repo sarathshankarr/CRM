@@ -178,7 +178,7 @@ const HomeCategories = ({navigation}) => {
         <ActivityIndicator
           style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}
           size="large"
-          color="green"
+          color="#390050"
         />
       ) : (
         <FlatList

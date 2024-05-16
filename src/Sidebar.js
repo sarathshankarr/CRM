@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   Image,
   StyleSheet,
@@ -7,17 +7,17 @@ import {
   View,
   Modal,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ImagePicker from 'react-native-image-crop-picker';
 
-const Sidebar = ({ navigation, route }) => {
+const Sidebar = ({navigation, route}) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [image, setImage] = useState(require('../assets/profile.png'));
   const [userData, setUserData] = useState(null);
 
   useEffect(() => {
-    const { params } = route ?? {};
+    const {params} = route ?? {};
     if (params && params.userData) {
       setUserData(params.userData);
     } else {
@@ -25,6 +25,13 @@ const Sidebar = ({ navigation, route }) => {
       getUserDataFromStorage();
     }
   }, [route]);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      getUserDataFromStorage();
+    });
+    return unsubscribe;
+  }, [navigation]);
 
   const getUserDataFromStorage = async () => {
     const userToken = await AsyncStorage.getItem('userdata');
@@ -56,11 +63,11 @@ const Sidebar = ({ navigation, route }) => {
       cropping: true,
       compressImageQuality: 0.7,
     })
-      .then((image) => {
-        setImage({ uri: image.path });
+      .then(image => {
+        setImage({uri: image.path});
         setModalVisible(false);
       })
-      .catch((error) => {
+      .catch(error => {
         console.log('Error taking photo from camera:', error);
         setModalVisible(false);
       });
@@ -73,11 +80,11 @@ const Sidebar = ({ navigation, route }) => {
       cropping: true,
       compressImageQuality: 0.7,
     })
-      .then((image) => {
-        setImage({ uri: image.path });
+      .then(image => {
+        setImage({uri: image.path});
         setModalVisible(false);
       })
-      .catch((error) => {
+      .catch(error => {
         console.log('Error choosing photo from library:', error);
         setModalVisible(false);
       });
@@ -85,7 +92,10 @@ const Sidebar = ({ navigation, route }) => {
 
   const handleLogout = async () => {
     try {
-      await AsyncStorage.removeItem('userdata');
+      await AsyncStorage.removeItem('userData'); // Remove the user data from AsyncStorage
+      await AsyncStorage.removeItem('userRole'); // Remove the user role from AsyncStorage
+      await AsyncStorage.removeItem('userRoleId'); // Remove the user role ID from AsyncStorage
+      await AsyncStorage.removeItem('loggedInUser'); // Remove the logged-in user data from AsyncStorage
       navigation.closeDrawer(); // Close the drawer
       navigation.navigate('Login');
     } catch (error) {
@@ -95,12 +105,15 @@ const Sidebar = ({ navigation, route }) => {
 
   return (
     <View style={styles.container}>
-      <View style={{ backgroundColor: '#56994B' }}>
+      <View style={{backgroundColor: '#390050'}}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => setModalVisible(true)}>
-            <Image style={[styles.img, { borderRadius: 30 }]} source={image} />
+            <Image
+              style={[styles.img, {borderRadius: 30, tintColor: '#fff'}]}
+              source={image}
+            />
           </TouchableOpacity>
-
+          <Text style={{color: '#fff', fontSize: 20}}>Profile</Text>
           {/* <TouchableOpacity onPress={goToEditProfile} style={styles.editbox}>
             <Image
               style={[styles.editimg, { tintColor: '#fff' }]}
@@ -112,32 +125,23 @@ const Sidebar = ({ navigation, route }) => {
         <View>
           {userData && (
             <Text style={styles.usertxt}>
-             Name :  {userData.firstName} {userData.lastName}
+              Name : {userData.firstName} {userData.lastName}
             </Text>
           )}
         </View>
       </View>
-      <TouchableOpacity
-        onPress={goToHome}
-        style={styles.homeheader}>
-        <Image
-          style={styles.homeimg}
-          source={require('../assets/store.png')}
-        />
+      <TouchableOpacity onPress={goToHome} style={styles.homeheader}>
+        <Image style={styles.homeimg} source={require('../assets/store.png')} />
         <Text style={styles.hometxt}>Home</Text>
       </TouchableOpacity>
-      <TouchableOpacity
-        onPress={goToCategories}
-        style={styles.categorieshead}>
+      <TouchableOpacity onPress={goToCategories} style={styles.categorieshead}>
         <Image
           style={styles.categoriesimg}
           source={require('../assets/cate.png')}
         />
         <Text style={styles.categoriestxt}>Categories</Text>
       </TouchableOpacity>
-      <TouchableOpacity
-        onPress={goToOrder}
-        style={styles.orderhead}>
+      <TouchableOpacity onPress={goToOrder} style={styles.orderhead}>
         <Image
           style={styles.orderimg}
           source={require('../assets/order.png')}
@@ -167,7 +171,7 @@ const Sidebar = ({ navigation, route }) => {
             <TouchableOpacity
               style={styles.modalCancelButton}
               onPress={() => setModalVisible(false)}>
-              <Text style={{ color: 'white' }}>Cancel</Text>
+              <Text style={{color: 'white'}}>Cancel</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -175,8 +179,12 @@ const Sidebar = ({ navigation, route }) => {
 
       <View style={styles.logoutContainer}>
         <TouchableOpacity onPress={handleLogout} style={styles.logoutbox}>
-          <Image resizeMode="contain"
-            style={[styles.logoutimg, { tintColor: '#fff',height:20,width:20 }]}
+          <Image
+            resizeMode="contain"
+            style={[
+              styles.logoutimg,
+              {tintColor: '#fff', height: 20, width: 20},
+            ]}
             source={require('../assets/logout.png')}
           />
           <Text style={styles.logouttxt}>Logout</Text>
@@ -225,7 +233,7 @@ const styles = StyleSheet.create({
     marginLeft: 20,
     fontSize: 20,
     marginHorizontal: 10,
-    marginVertical:10,
+    marginVertical: 10,
     color: '#fff',
   },
   companynametxt: {
@@ -242,27 +250,24 @@ const styles = StyleSheet.create({
   },
   homeimg: {
     height: 40,
-    width: 40
+    width: 40,
   },
-  hometxt:
-  {
+  hometxt: {
     fontSize: 16,
-    marginLeft: 10
+    marginLeft: 10,
   },
   categorieshead: {
-
     flexDirection: 'row',
     alignItems: 'center',
     marginHorizontal: 10,
   },
-  categoriesimg:
-  {
+  categoriesimg: {
     height: 40,
-    width: 40
+    width: 40,
   },
   categoriestxt: {
     fontSize: 16,
-    marginLeft: 10
+    marginLeft: 10,
   },
   orderhead: {
     flexDirection: 'row',
@@ -272,11 +277,11 @@ const styles = StyleSheet.create({
   },
   orderimg: {
     height: 40,
-    width: 40
+    width: 40,
   },
   ordertxt: {
     fontSize: 16,
-    marginLeft: 10
+    marginLeft: 10,
   },
   logoutContainer: {
     position: 'absolute',
@@ -286,14 +291,14 @@ const styles = StyleSheet.create({
   },
   logoutbox: {
     borderWidth: 1,
-    borderColor: '#000',
-    backgroundColor: '#000',
+    borderColor: '#390050',
+    backgroundColor: '#390050',
     borderRadius: 15,
     paddingVertical: 12,
     flexDirection: 'row',
     marginHorizontal: 30,
     justifyContent: 'center',
-    marginBottom: 10
+    marginBottom: 10,
   },
   logoutimg: {
     height: 20,

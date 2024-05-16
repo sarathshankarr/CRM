@@ -45,7 +45,7 @@ const HomeScreen = ({navigation}) => {
             />
           );
         },
-        tabBarActiveTintColor: 'green',
+        tabBarActiveTintColor: '#390050',
         tabBarInactiveTintColor: 'gray',
       })}>
       <Bottom.Screen

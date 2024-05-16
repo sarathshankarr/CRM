@@ -8,6 +8,8 @@ import {
   TouchableOpacity,
   TextInput,
   ActivityIndicator,
+  BackHandler,
+  Alert,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {getAllCategories} from '../utils/serviceApi/serviceAPIComponent';
@@ -20,6 +22,19 @@ const Categories = ({navigation}) => {
 
   useEffect(() => {
     fetchCategories();
+
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      () => {
+        if (navigation.isFocused()) {
+          showAlertOnBack();
+          return true; // Prevent default behavior (closing the app)
+        }
+        return false;
+      }
+    );
+
+    return () => backHandler.remove();
   }, []);
 
   useEffect(() => {
@@ -28,7 +43,6 @@ const Categories = ({navigation}) => {
       setSearchQuery('');
       setShowSearchInput(false); // Hide search input when component is focused
     });
-
     return unsubscribe;
   }, [navigation]);
 
@@ -79,18 +93,46 @@ const Categories = ({navigation}) => {
             <Image style={styles.productImage} source={{uri: imageUrls[0]}} />
           ) : (
             <Image
-              style={styles.productImagee}
+              style={styles.productImage}
               resizeMode="contain"
               source={require('../../assets/Noimg.jpg')}
             />
           )}
-         
-         <Text style={[styles.productName, item.imageUrls && item.imageUrls.length > 0 && { backgroundColor: 'rgba(0, 0, 0, 0.2)' }]}>
+          <View
+            style={{
+              borderColor: '#000',
+              backgroundColor: '#fff',
+              marginHorizontal: 5,
+            }}>
+            <Text
+              style={[
+                styles.productName,
+                item.imageUrls &&
+                  item.imageUrls.length > 0 && {
+                    backgroundColor: 'rgba(0, 0, 0, 0.2)',
+                  },
+              ]}>
               {categoryDesc}
             </Text>
-         
+          </View>
         </View>
       </TouchableOpacity>
+    );
+  };
+
+  const showAlertOnBack = () => {
+    Alert.alert(
+      'Exit App',
+      'Do you want to close the app?',
+      [
+        {
+          text: 'No',
+          onPress: () => null,
+          style: 'cancel',
+        },
+        { text: 'Yes', onPress: () => BackHandler.exitApp() },
+      ],
+      { cancelable: false }
     );
   };
 
@@ -136,7 +178,7 @@ const Categories = ({navigation}) => {
         <ActivityIndicator
           style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}
           size="large"
-          color="green"
+          color="#390050"
         />
       ) : (
         <FlatList

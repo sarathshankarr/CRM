@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useCallback} from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   Text,
   View,
@@ -9,8 +9,8 @@ import {
   Modal,
 } from 'react-native';
 import axios from 'axios';
-import {useFocusEffect} from '@react-navigation/native';
-import {API} from '../config/apiConfig';
+import { useFocusEffect } from '@react-navigation/native';
+import { API } from '../config/apiConfig';
 
 const Order = () => {
   const [orders, setOrders] = useState([]);
@@ -21,7 +21,7 @@ const Order = () => {
   const [selectedOrder, setSelectedOrder] = useState(null);
 
   const getAllOrders = useCallback(() => {
-    setLoading(true); // Set loading to true when fetching data
+    setLoading(true);
     const queryParams = new URLSearchParams({
       pageNo: pageNo.toString(),
       pageSize: pageSize.toString(),
@@ -37,7 +37,6 @@ const Order = () => {
         },
       })
       .then(response => {
-        // Handle success
         if (pageNo === 1) {
           setOrders(response.data.response.ordersList);
         } else {
@@ -48,11 +47,10 @@ const Order = () => {
         }
       })
       .catch(error => {
-        // Handle error
         console.error('Error:', error);
       })
       .finally(() => {
-        setLoading(false); // Set loading to false when done fetching data
+        setLoading(false);
       });
   }, [pageNo, pageSize]);
 
@@ -78,7 +76,9 @@ const Order = () => {
     }
   };
 
-  const renderItem = ({item}) => {
+  const renderItem = ({ item }) => {
+    if (!item) return null; // Add null check here
+  
     return (
       <View style={style.container}>
         <TouchableOpacity
@@ -90,9 +90,7 @@ const Order = () => {
               <Text>Ship Date: {item.shipDate}</Text>
             </View>
             <View style={style.custtlheader}>
-              <Text style={{flex: 0.9}}>
-                Customer Name: {item.customerName}
-              </Text>
+              <Text style={{ flex: 0.9 }}>Customer Name: {item.customerName}</Text>
               <Text>Total Amount: {item.totalAmount}</Text>
             </View>
             <View>
@@ -102,7 +100,7 @@ const Order = () => {
                   backgroundColor:
                     item.orderStatus.toLowerCase() === 'open'
                       ? '#FF3333'
-                      : 'green',
+                      : '#390050',
                   padding: 5,
                   color: '#fff',
                   borderRadius: 5,
@@ -116,23 +114,24 @@ const Order = () => {
       </View>
     );
   };
-
+  
   return (
-    <View style={{backgroundColor: '#fff', flex: 1}}>
-      <Text style={{marginHorizontal: 10, marginVertical: 5}}>Orders</Text>
+    <View style={{ backgroundColor: '#fff', flex: 1 }}>
+      <Text style={{ marginHorizontal: 10, marginVertical: 5 }}>Orders</Text>
       {loading && orders.length === 0 ? (
         <ActivityIndicator
           size="large"
-          color="green"
-          style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}
+          color="#390050"
+          style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
         />
       ) : (
         <FlatList
           data={orders}
           renderItem={renderItem}
           keyExtractor={(item, index) =>
-            item.orderId ? item.orderId.toString() : index.toString()
-          }
+            item && item.orderId ? item.orderId.toString() : index.toString()
+        }
+        
           onEndReached={loadMoreOrders}
           onEndReachedThreshold={0.1}
           refreshing={loading}
@@ -141,37 +140,34 @@ const Order = () => {
           }}
         />
       )}
-      <Modal
-        visible={selectedOrder !== null}
-        transparent={true}
-        animationType="fade">
-        <View style={style.modalContainer}>
-          <View style={style.modalContent}>
-            <View style={style.custtlheader}>
-              <Text>OrderId:{selectedOrder?.orderId}</Text>
-              <Text>TotalQty:{selectedOrder?.totalQty}</Text>
-            </View>
-            <View style={style.modelordshpheader}>
-              <Text>Order Date: {selectedOrder?.orderDate}</Text>
-              <Text>Ship Date: {selectedOrder?.shipDate}</Text>
-            </View>
-            <View style={style.custtlheader}>
-              <Text style={{flex: 0.9}}>
-                Customer Name: {selectedOrder?.customerName}
+      {selectedOrder && (
+        <Modal visible={true} transparent={true} animationType="fade">
+          <View style={style.modalContainer}>
+            <View style={style.modalContent}>
+              <View style={style.custtlheader}>
+                <Text>OrderId:{selectedOrder.orderId}</Text>
+                <Text>TotalQty:{selectedOrder.totalQty}</Text>
+              </View>
+              <View style={style.modelordshpheader}>
+                <Text>Order Date: {selectedOrder.orderDate}</Text>
+                <Text>Ship Date: {selectedOrder.shipDate}</Text>
+              </View>
+              <View style={style.custtlheader}>
+                <Text style={{ flex: 0.9 }}>Customer Name: {selectedOrder.customerName}</Text>
+                <Text>Total Amount: {selectedOrder.totalAmount}</Text>
+              </View>
+              <Text style={{ textAlign: 'right', marginHorizontal: 10 }}>
+                Status: {selectedOrder.orderStatus}
               </Text>
-              <Text>Total Amount: {selectedOrder?.totalAmount}</Text>
+              <TouchableOpacity
+                style={style.closeButton}
+                onPress={() => setSelectedOrder(null)}>
+                <Text style={{ color: '#fff' }}>Close</Text>
+              </TouchableOpacity>
             </View>
-            <Text style={{textAlign: 'right', marginHorizontal: 10}}>
-              Status: {selectedOrder?.orderStatus}
-            </Text>
-            <TouchableOpacity
-              style={style.closeButton}
-              onPress={() => setSelectedOrder(null)}>
-              <Text style={{color: '#fff'}}>Close</Text>
-            </TouchableOpacity>
           </View>
-        </View>
-      </Modal>
+        </Modal>
+      )}
     </View>
   );
 };
@@ -219,12 +215,12 @@ const style = StyleSheet.create({
     borderRadius: 10,
     elevation: 5,
     width: '95%',
-    padding:5
+    padding: 5,
   },
   closeButton: {
     marginTop: 10,
     alignSelf: 'center',
-    backgroundColor: 'green',
+    backgroundColor: '#390050',
     padding: 10,
     borderRadius: 5,
   },

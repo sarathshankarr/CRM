@@ -15,6 +15,8 @@ import {useDispatch, useSelector} from 'react-redux';
 import {
   addToPending,
   removeFromCart,
+  setLoggedInUser,
+  setUserRole,
   updateCartItem,
 } from '../../redux/actions/Actions';
 import Clipboard from '@react-native-clipboard/clipboard';
@@ -24,8 +26,13 @@ import CustomDropDown from '../../components/CustomDropDown';
 import ModalComponent from '../../components/ModelComponent';
 import {API} from '../../config/apiConfig';
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Cart = () => {
+  const userRole = useSelector(state => state.userRole) || '';
+  const loggedInUser = useSelector(state => state.loggedInUser);
+  const dispatch = useDispatch();
+  const navigation = useNavigation();
   const [inputValuess, setInputValuess] = useState({});
   const cartItems = useSelector(state => state.cartItems);
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
@@ -45,6 +52,30 @@ const Cart = () => {
   const [selectedShipLocation, setSelectedShipLocation] = useState('');
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedCustomerDetails, setSelectedCustomerDetails] = useState(null);
+
+  useEffect(() => {
+    // Fetch user role from AsyncStorage
+    const fetchUserRole = async () => {
+      try {
+        const storedUserRole = await AsyncStorage.getItem('userRole');
+        console.log('Stored user role:', storedUserRole);
+        if (storedUserRole) {
+          dispatch(
+            setUserRole(
+              typeof storedUserRole === 'string'
+                ? storedUserRole
+                : JSON.parse(storedUserRole),
+            ),
+          );
+        }
+      } catch (error) {
+        console.error('Error fetching user role:', error);
+      }
+    };
+
+    fetchUserRole();
+  }, []);
+
   const [selectedCustomerLocationDetails, setSelectedCustomerLocationDetails] =
     useState(null);
   const [isLocationModalVisible, setIsLocationModalVisible] = useState(false);
@@ -54,8 +85,6 @@ const Cart = () => {
   const toggleLocationModal = () => {
     setIsLocationModalVisible(!isLocationModalVisible);
   };
-
-  // console.log('Selected Customer Details:', selectedCustomerDetails);
 
   const [inputValues, setInputValues] = useState({
     firstName: '',
@@ -67,7 +96,6 @@ const Cart = () => {
   });
 
   const handleSaveButtonPress = () => {
-    // Check if any of the mandatory fields are empty
     if (
       !inputValues.firstName ||
       !inputValues.phoneNumber ||
@@ -78,11 +106,28 @@ const Cart = () => {
       Alert.alert('Alert', 'Please fill in all mandatory fields');
       return;
     }
-
-    // If all mandatory fields are filled, proceed with saving
     addCustomerDetails();
     toggleModal();
   };
+
+  useEffect(() => {
+    // Fetch user data from AsyncStorage
+    const fetchUserData = async () => {
+      try {
+        const storedUserData = await AsyncStorage.getItem('userData');
+        if (storedUserData) {
+          const userData = JSON.parse(storedUserData);
+          console.log('Stored User Data:', userData);
+          // Dispatch action to set user data in Redux
+          dispatch(setLoggedInUser(userData));
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    };
+
+    fetchUserData();
+  }, [dispatch]);
 
   const toggleModal = () => {
     setIsModalVisible(!isModalVisible);
@@ -135,7 +180,6 @@ const Cart = () => {
         console.error('Error adding customer:', error);
       });
   };
-
 
   const handleCommentsChange = text => {
     setComments(text);
@@ -210,7 +254,6 @@ const Cart = () => {
       });
   };
 
-
   const handleDropdownClick = () => {
     setClicked(!clicked);
   };
@@ -229,7 +272,6 @@ const Cart = () => {
     setSelectedCustomerDetails([selectedCustomer]);
   };
 
-
   const handleLocationSelection = location => {
     setSelectedLocation(location.locationName);
     setFromToClicked(false);
@@ -241,23 +283,24 @@ const Cart = () => {
 
   const totalItems = cartItems.length;
 
-  console.log('cart', cartItems);
-
-  const dispatch = useDispatch();
-  const navigation = useNavigation();
+  // console.log('cart', cartItems);
   // console.log('selecteditem', selectedItem);
 
   const PlaceAddOrder = () => {
-    if (!selectedCustomer) {
-      Alert.alert('Alert', 'Please select a customer.');
-      return;
-    }
-  
+    if (userRole === 'admin') {
+      if (!selectedCustomer) {
+        Alert.alert('Alert', 'Please select a customer.');
+        return;
+      }
+    } else if (userRole === 'Distributor' || userRole === 'Retailer') {
+      // No alert for Distributor or Retailer
+    } 
+    
     if (!selectedLocation) {
       Alert.alert('Alert', 'Please select a Billing to location.');
       return;
     }
-  
+
     if (!selectedShipLocation) {
       Alert.alert('Alert', 'Please select a Shipping to location.');
       return;
@@ -266,15 +309,47 @@ const Cart = () => {
       Alert.alert('Alert', 'No items selected. Please add items to the cart.');
       return;
     }
-    const currentDate = new Date().toISOString().split('T')[0];
+
+    console.log('loggedInUser:', loggedInUser);
+    console.log('userRole:', userRole);
+
+    if (!loggedInUser || !userRole) {
+      // Redirect to login screen or handle not logged in scenario
+      return;
+    }
+
+    console.log('userRole type:', typeof userRole);
+
+    let roleId = ''; // Initialize roleId
+
+    // Check if userRole is an array and not empty
+    if (Array.isArray(userRole) && userRole.length > 0) {
+      roleId = userRole[0].id; // Using the first id from userRole array
+      console.log('roleId from userRole:', roleId);
+    } else {
+      console.log('userRole is not an array or is empty');
+    }
+
+    // Extract roleId from loggedInUser if userRole is not an array or is empty
+    if (!roleId && loggedInUser.role && loggedInUser.role.length > 0) {
+      roleId = loggedInUser.role[0].id;
+      console.log('roleId from loggedInUser:', roleId);
+    }
 
     const selectedCustomerObj = customers.find(customer => {
       return `${customer.firstName} ${customer.lastName}` === selectedCustomer;
     });
 
-    const customerId = selectedCustomerObj
-      ? selectedCustomerObj.customerId
-      : '';
+    const customerId =
+      userRole === 'admin'
+        ? selectedCustomerObj
+          ? selectedCustomerObj.customerId
+          : ''
+        : userRole === 'Distributor' || userRole === 'Retailer'
+        ? roleId
+        : '';
+
+    const currentDate = new Date().toISOString().split('T')[0];
 
     const billingAddressId =
       selectedLocation && selectedLocation.locationId
@@ -288,11 +363,11 @@ const Cart = () => {
 
     const selectedShipDate = shipDate || currentDate;
 
-    console.log('customerId:', customerId);
     console.log('selectedBillingLocation:', selectedLocation);
     console.log('selectedShippingLocation:', selectedShipLocation);
     console.log('billingAddressId:', billingAddressId);
     console.log('shippingAddressId:', shippingAddressId);
+    console.log('customerId', customerId);
 
     const requestData = {
       totalAmount: totalPrice.toString(),
@@ -303,8 +378,8 @@ const Cart = () => {
       totalQty: totalQty.toString(),
       orderStatus: 'Open',
       comments: comments,
-      customerId: customerId,
-      billingAddressId: billingAddressId, // Set billingAddressId with selectedLocation's locationId
+      customerId: userRole === 'admin' ? customerId : roleId, // Use customerId if admin, roleId otherwise
+      billingAddressId: billingAddressId,
       shippingAddressId: shippingAddressId,
       shipDate: selectedShipDate,
       orderDate: currentDate,
@@ -361,7 +436,6 @@ const Cart = () => {
       gOtherExp: 0,
       companyId: '1',
     };
-
     axios
       .post(API.ADD_ORDER_DATA, requestData, {
         headers: {
@@ -370,11 +444,9 @@ const Cart = () => {
         },
       })
       .then(response => {
-        // console.log('Order placement response:', response);
         dispatch({type: 'CLEAR_CART'});
         navigation.navigate('Home');
       })
-
       .catch(error => {
         console.error('Error placing order:', error);
       });
@@ -548,6 +620,10 @@ const Cart = () => {
       });
   };
 
+  useEffect(() => {
+    console.log('User Roleeeeee:', userRole);
+  }, []); // Run only once when component mounts
+
   return (
     <KeyboardAvoidingView
       style={{flex: 1, backgroundColor: '#fff'}}
@@ -558,84 +634,96 @@ const Cart = () => {
           <View style={{marginHorizontal: 10, marginVertical: 2}}>
             <Text style={{color: '#000', fontWeight: 'bold'}}>Customers</Text>
           </View>
-          <View style={{flexDirection: 'row', alignItems: 'center'}}>
-            <View style={{}}>
-              <TouchableOpacity
-                style={{
-                  width: '90%',
-                  height: 50,
-                  borderRadius: 10,
-                  borderWidth: 0.5,
-                  alignSelf: 'center',
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  paddingLeft: 15,
-                  paddingRight: 15,
-                }}
-                onPress={handleDropdownClick}>
-                <Text style={{fontWeight: '600'}}>
-                  {selectedCustomerDetails && selectedCustomerDetails.length > 0
-                    ? `${selectedCustomerDetails[0].firstName} ${selectedCustomerDetails[0].lastName}`
-                    : 'Customer'}
-                </Text>
-
-                <Image
-                  source={require('../../../assets/dropdown.png')}
-                  style={{width: 20, height: 20}}
-                />
-              </TouchableOpacity>
-              {clicked && (
-                <View
-                  style={{
-                    elevation: 5,
-                    height: 300,
-                    alignSelf: 'center',
-                    width: '90%',
-                    backgroundColor: '#fff',
-                    borderRadius: 10,
-                  }}>
-                  <ScrollView>
-                    {customers.map((item, index) => (
-                      <TouchableOpacity
-                        key={index}
+          <View>
+            {userRole &&
+              userRole.toLowerCase &&
+              userRole.toLowerCase() === 'admin' && (
+                <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                  <View>
+                    <TouchableOpacity
+                      style={{
+                        width: '90%',
+                        height: 50,
+                        borderRadius: 10,
+                        borderWidth: 0.5,
+                        alignSelf: 'center',
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        paddingLeft: 15,
+                        paddingRight: 15,
+                      }}
+                      onPress={handleDropdownClick}>
+                      <Text style={{fontWeight: '600'}}>
+                        {selectedCustomerDetails &&
+                        selectedCustomerDetails.length > 0
+                          ? `${selectedCustomerDetails[0].firstName} ${selectedCustomerDetails[0].lastName}`
+                          : 'Customer'}
+                      </Text>
+                      <Image
+                        source={require('../../../assets/dropdown.png')}
+                        style={{width: 20, height: 20}}
+                      />
+                    </TouchableOpacity>
+                    {clicked && (
+                      <View
                         style={{
-                          width: '100%',
-                          height: 50,
-                          justifyContent: 'center',
-                          borderBottomWidth: 0.5,
-                          borderColor: '#8e8e8e',
-                        }}
-                        onPress={() => {
-                          handleCustomerSelection(
-                            item.firstName,
-                            item.lastName,
-                            item.customerId,
-                          );
-                          console.log(item);
+                          elevation: 5,
+                          height: 300,
+                          alignSelf: 'center',
+                          width: '90%',
+                          backgroundColor: '#fff',
+                          borderRadius: 10,
                         }}>
-                        <Text style={{fontWeight: '600', marginHorizontal: 15}}>
-                          {item.firstName} {item.lastName}
-                        </Text>
-                      </TouchableOpacity>
-                    ))}
-                  </ScrollView>
+                        <ScrollView>
+                          {customers.map((item, index) => (
+                            <TouchableOpacity
+                              key={index}
+                              style={{
+                                width: '100%',
+                                height: 50,
+                                justifyContent: 'center',
+                                borderBottomWidth: 0.5,
+                                borderColor: '#8e8e8e',
+                              }}
+                              onPress={() => {
+                                handleCustomerSelection(
+                                  item.firstName,
+                                  item.lastName,
+                                  item.customerId,
+                                );
+                                console.log(item);
+                              }}>
+                              <Text
+                                style={{
+                                  fontWeight: '600',
+                                  marginHorizontal: 15,
+                                }}>
+                                {item.firstName} {item.lastName}
+                              </Text>
+                            </TouchableOpacity>
+                          ))}
+                        </ScrollView>
+                      </View>
+                    )}
+                  </View>
+                  <View>
+                    <TouchableOpacity
+                      onPress={toggleModal}
+                      style={style.plusButton}>
+                      <Image
+                        style={{
+                          height: 30,
+                          width: 30,
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                        }}
+                        source={require('../../../assets/plus.png')}
+                      />
+                    </TouchableOpacity>
+                  </View>
                 </View>
               )}
-            </View>
-            <View>
-              <TouchableOpacity onPress={toggleModal} style={style.plusButton}>
-                <Image
-                  style={{
-                    height: 30,
-                    width: 30,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}
-                  source={require('../../../assets/plus.png')}
-                />
-              </TouchableOpacity>
-            </View>
           </View>
         </View>
         <View style={{flexDirection: 'row'}}>
@@ -791,7 +879,7 @@ const Cart = () => {
                       />
                     )}
                   </View>
-                  <Text style={{fontSize: 15, fontWeight: 'bold'}}>
+                  <Text style={{fontSize: 15, fontWeight: 'bold', flex: 0.8}}>
                     {item.styleDesc}
                   </Text>
                 </TouchableOpacity>
@@ -802,14 +890,6 @@ const Cart = () => {
                       source={require('../../../assets/edit.png')}
                     />
                   </TouchableOpacity>
-                  {/* <TouchableOpacity onPress={() => {
-                    navigation.navigate("Add Note")
-                  }}>
-                    <Image
-                      style={style.buttonIcon}
-                      source={require('../../../assets/save.png')}
-                    />
-                  </TouchableOpacity> */}
                   <TouchableOpacity onPress={() => handleRemoveItem(index)}>
                     <Image
                       style={style.buttonIcon}
@@ -961,8 +1041,8 @@ const Cart = () => {
             onPress={PlaceAddOrder}
             style={{
               borderWidth: 1,
-              borderColor: 'green',
-              backgroundColor: 'green',
+              // borderColor: 'green',
+              backgroundColor: '#390050',
               paddingVertical: 15,
               paddingHorizontal: 20,
             }}>
@@ -1058,103 +1138,103 @@ const Cart = () => {
             onConfirm={handleDateConfirm}
             onCancel={hideDatePicker}
           />
-           <View>
-          <Modal
-            animationType="fade"
-            transparent={true}
-            visible={isLocationModalVisible}
-            onRequestClose={() => {
-              toggleLocationModal();
-            }}>
-            <View style={style.modalContainer}>
-              <View style={style.modalContent}>
-                <Text style={style.modalTitle}>Location Details</Text>
-                <TextInput
-                  style={[style.input, {color: '#000'}]}
-                  placeholder="Location Name"
-                  placeholderTextColor="#000"
-                  onChangeText={text =>
-                    setLocationInputValues({
-                      ...locationInputValues,
-                      locationName: text,
-                    })
-                  }
-                />
-                <TextInput
-                  style={[style.input, {color: '#000'}]}
-                  placeholder="phone number"
-                  placeholderTextColor="#000"
-                  onChangeText={text =>
-                    setLocationInputValues({
-                      ...locationInputValues,
-                      phoneNumber: text,
-                    })
-                  }
-                />
-                <TextInput
-                  style={[style.input, {color: '#000'}]}
-                  placeholder="Locality"
-                  placeholderTextColor="#000"
-                  onChangeText={text =>
-                    setLocationInputValues({
-                      ...locationInputValues,
-                      locality: text,
-                    })
-                  }
-                />
-                <TextInput
-                  style={[style.input, {color: '#000'}]}
-                  placeholder="city or town"
-                  placeholderTextColor="#000"
-                  onChangeText={text =>
-                    setLocationInputValues({
-                      ...locationInputValues,
-                      cityOrTown: text,
-                    })
-                  }
-                />
-                <TextInput
-                  style={[style.input, {color: '#000'}]}
-                  placeholderTextColor="#000"
-                  placeholder="state"
-                  onChangeText={text =>
-                    setLocationInputValues({
-                      ...locationInputValues,
-                      state: text,
-                    })
-                  }
-                />
-                <TextInput
-                  style={[style.input, {color: '#000'}]}
-                  placeholderTextColor="#000"
-                  placeholder="Pincode"
-                  onChangeText={text =>
-                    setLocationInputValues({
-                      ...locationInputValues,
-                      pincode: text,
-                    })
-                  }
-                />
-                <TextInput
-                  style={[style.input, {color: '#000'}]}
-                  placeholderTextColor="#000"
-                  placeholder="country"
-                  onChangeText={text =>
-                    setLocationInputValues({
-                      ...locationInputValues,
-                      country: text,
-                    })
-                  }
-                />
-                <TouchableOpacity
-                  onPress={handleSaveLocationButtonPress}
-                  style={style.saveButton}>
-                  <Text style={style.saveButtonText}>Save</Text>
-                </TouchableOpacity>
+          <View>
+            <Modal
+              animationType="fade"
+              transparent={true}
+              visible={isLocationModalVisible}
+              onRequestClose={() => {
+                toggleLocationModal();
+              }}>
+              <View style={style.modalContainer}>
+                <View style={style.modalContent}>
+                  <Text style={style.modalTitle}>Location Details</Text>
+                  <TextInput
+                    style={[style.input, {color: '#000'}]}
+                    placeholder="Location Name"
+                    placeholderTextColor="#000"
+                    onChangeText={text =>
+                      setLocationInputValues({
+                        ...locationInputValues,
+                        locationName: text,
+                      })
+                    }
+                  />
+                  <TextInput
+                    style={[style.input, {color: '#000'}]}
+                    placeholder="phone number"
+                    placeholderTextColor="#000"
+                    onChangeText={text =>
+                      setLocationInputValues({
+                        ...locationInputValues,
+                        phoneNumber: text,
+                      })
+                    }
+                  />
+                  <TextInput
+                    style={[style.input, {color: '#000'}]}
+                    placeholder="Locality"
+                    placeholderTextColor="#000"
+                    onChangeText={text =>
+                      setLocationInputValues({
+                        ...locationInputValues,
+                        locality: text,
+                      })
+                    }
+                  />
+                  <TextInput
+                    style={[style.input, {color: '#000'}]}
+                    placeholder="city or town"
+                    placeholderTextColor="#000"
+                    onChangeText={text =>
+                      setLocationInputValues({
+                        ...locationInputValues,
+                        cityOrTown: text,
+                      })
+                    }
+                  />
+                  <TextInput
+                    style={[style.input, {color: '#000'}]}
+                    placeholderTextColor="#000"
+                    placeholder="state"
+                    onChangeText={text =>
+                      setLocationInputValues({
+                        ...locationInputValues,
+                        state: text,
+                      })
+                    }
+                  />
+                  <TextInput
+                    style={[style.input, {color: '#000'}]}
+                    placeholderTextColor="#000"
+                    placeholder="Pincode"
+                    onChangeText={text =>
+                      setLocationInputValues({
+                        ...locationInputValues,
+                        pincode: text,
+                      })
+                    }
+                  />
+                  <TextInput
+                    style={[style.input, {color: '#000'}]}
+                    placeholderTextColor="#000"
+                    placeholder="country"
+                    onChangeText={text =>
+                      setLocationInputValues({
+                        ...locationInputValues,
+                        country: text,
+                      })
+                    }
+                  />
+                  <TouchableOpacity
+                    onPress={handleSaveLocationButtonPress}
+                    style={style.saveButton}>
+                    <Text style={style.saveButtonText}>Save</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
-            </View>
-          </Modal>
-        </View>
+            </Modal>
+          </View>
         </View>
       </View>
     </KeyboardAvoidingView>
@@ -1250,7 +1330,7 @@ const style = StyleSheet.create({
     width: '100%',
   },
   saveButton: {
-    backgroundColor: 'green',
+    backgroundColor: '#390050',
     padding: 10,
     borderRadius: 5,
     marginTop: 20,

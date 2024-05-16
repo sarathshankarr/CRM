@@ -52,7 +52,7 @@ const ModalComponent = ({modalVisible, closeModal, selectedItem,inputValuess, on
   }, []);
 
   useEffect(() => {
-    console.log('selectedItem:', selectedItem);
+    // console.log('selectedItem:', selectedItem);
     if (selectedItem) {
       getQuantityStyles();
     }
@@ -79,7 +79,7 @@ const ModalComponent = ({modalVisible, closeModal, selectedItem,inputValuess, on
   // console.log('inputValue:', JSON.stringify(inputValues));
 
   const handleSaveItem = () => {
-    console.log("item",selectedItem)
+    // console.log("item",selectedItem)
     const sizeDesc = selectedItemState?.selectedSize || 'Default Size';
     const inputValue = inputValues[sizeDesc] || '';
     const itemWithDetails = {
@@ -193,7 +193,7 @@ const ModalComponent = ({modalVisible, closeModal, selectedItem,inputValuess, on
             <Text style={styles.quantitytxt}>Price</Text>
           </View>
           {loading ? (
-            <ActivityIndicator color="green" style={{marginTop: 10}} /> // Show ActivityIndicator if loading
+            <ActivityIndicator color="#390050" style={{marginTop: 10}} /> // Show ActivityIndicator if loading
           ) : (
             <ScrollView style={{maxHeight: '70%'}}>
               {stylesData &&
@@ -296,7 +296,7 @@ const ModalComponent = ({modalVisible, closeModal, selectedItem,inputValuess, on
               style={{
                 borderWidth: 1,
                 borderColor: '#000',
-                backgroundColor: '#D4A017',
+                backgroundColor: 'gray',
                 marginLeft: 10,
                 paddingVertical: 10,
                 paddingHorizontal: 10,
@@ -311,7 +311,7 @@ const ModalComponent = ({modalVisible, closeModal, selectedItem,inputValuess, on
               style={{
                 borderWidth: 1,
                 borderColor: '#000',
-                backgroundColor: 'green',
+                backgroundColor: '#390050',
                 marginLeft: 10,
                 paddingVertical: 10,
                 paddingHorizontal: 35,
@@ -358,7 +358,7 @@ const styles = StyleSheet.create({
   },
 
   activeCategory: {
-    backgroundColor: 'green',
+    backgroundColor: '#390050',
   },
   activeText: {
     color: '#fff',
@@ -443,7 +443,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   addqtyhead: {
-    backgroundColor: 'green',
+    backgroundColor: '#390050',
     padding: 10,
   },
   addqtytxt: {
