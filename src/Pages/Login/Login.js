@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Alert, Image, StyleSheet, Text, TextInput, TouchableOpacity, View, ActivityIndicator } from 'react-native';
+import { Alert, Image, StyleSheet, Text, TextInput, TouchableOpacity, View, ActivityIndicator, Keyboard } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
 import { encode as base64Encode } from 'base-64';
@@ -43,6 +43,7 @@ const Login = () => {
         }
       })
       .finally(() => setLoading(false));
+      Keyboard.dismiss();
   };
   
   const saveToken = async data => {

@@ -23,18 +23,6 @@ const Categories = ({navigation}) => {
   useEffect(() => {
     fetchCategories();
 
-    const backHandler = BackHandler.addEventListener(
-      'hardwareBackPress',
-      () => {
-        if (navigation.isFocused()) {
-          showAlertOnBack();
-          return true; // Prevent default behavior (closing the app)
-        }
-        return false;
-      }
-    );
-
-    return () => backHandler.remove();
   }, []);
 
   useEffect(() => {
@@ -102,14 +90,13 @@ const Categories = ({navigation}) => {
             style={{
               borderColor: '#000',
               backgroundColor: '#fff',
-              marginHorizontal: 5,
             }}>
             <Text
               style={[
                 styles.productName,
                 item.imageUrls &&
                   item.imageUrls.length > 0 && {
-                    backgroundColor: 'rgba(0, 0, 0, 0.2)',
+                    backgroundColor: 'rgba(0, 0, 0, 0.3)',
                   },
               ]}>
               {categoryDesc}
@@ -120,21 +107,6 @@ const Categories = ({navigation}) => {
     );
   };
 
-  const showAlertOnBack = () => {
-    Alert.alert(
-      'Exit App',
-      'Do you want to close the app?',
-      [
-        {
-          text: 'No',
-          onPress: () => null,
-          style: 'cancel',
-        },
-        { text: 'Yes', onPress: () => BackHandler.exitApp() },
-      ],
-      { cancelable: false }
-    );
-  };
 
   return (
     <View style={styles.container}>

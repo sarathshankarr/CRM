@@ -102,14 +102,13 @@ const HomeCategories = ({navigation}) => {
             style={{
               borderColor: '#000',
               backgroundColor: '#fff',
-              marginHorizontal: 5,
             }}>
             <Text
               style={[
                 styles.productName,
                 item.imageUrls &&
                   item.imageUrls.length > 0 && {
-                    backgroundColor: 'rgba(0, 0, 0, 0.2)',
+                    backgroundColor: 'rgba(0, 0, 0, 0.3)',
                   },
               ]}>
               {categoryDesc}
