@@ -12,6 +12,9 @@ const Splash = () => {
     const checkLogin = async () => {
       const userToken = await AsyncStorage.getItem('userdata');
       const isLoggedIn = await AsyncStorage.getItem('loggedIn');
+      console.log('userToken:', userToken); // Log userToken
+      console.log('isLoggedIn:', isLoggedIn); // Log isLoggedIn
+
       if (isValidString(userToken) && isLoggedIn === 'true') {
         global.userData = JSON.parse(userToken);
         setUserData(JSON.parse(userToken));
@@ -31,7 +34,7 @@ const Splash = () => {
     };
 
     checkLogin();
-  }, []);
+  }, [navigation]);
 
   return (
     <View style={styles.container}>

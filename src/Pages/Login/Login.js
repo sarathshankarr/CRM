@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Alert, Image, StyleSheet, Text, TextInput, TouchableOpacity, View, ActivityIndicator, Keyboard } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
@@ -16,95 +16,90 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     setLoading(true);
     const postData = new URLSearchParams();
     postData.append('username', username);
     postData.append('grant_type', 'password');
     postData.append('password', password);
     const credentials = base64Encode(`${USER_ID}:${USER_PASSWORD}`);
-  
+
     const headers = {
       'Content-Type': 'application/x-www-form-urlencoded',
       Authorization: `Basic ${credentials}`,
     };
-  
-    axios.post(API.LOGIN, postData.toString(), { headers })
-      .then(response => {
-        if (isValidString(response.data)) {
-          saveToken(response.data); // Save token immediately after login
-        } else {
-          console.log('Response:', JSON.stringify(response.data));
-        }
-      })
-      .catch(error => {
-        if (error?.response?.data?.error_description) {
-          Alert.alert('crm.codeverse.co.says', error.response.data.error_description);
-        }
-      })
-      .finally(() => setLoading(false));
-      Keyboard.dismiss();
-  };
-  
-  const saveToken = async data => {
+
     try {
+      const response = await axios.post(API.LOGIN, postData.toString(), { headers });
+      if (isValidString(response.data)) {
+        await saveToken(response.data);
+        await getUsers(response.data);
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'Main' }],
+        });
+      } else {
+        console.log('Response:', JSON.stringify(response.data));
+      }
+    } catch (error) {
+      if (error?.response?.data?.error_description) {
+        Alert.alert('crm.codeverse.co.says', error.response.data.error_description);
+      }
+    } finally {
+      setLoading(false);
+      Keyboard.dismiss();
+    }
+  };
+
+  const saveToken = async (data) => {
+    try {
+      console.log('Saving token:', JSON.stringify(data));
       await AsyncStorage.setItem('userdata', JSON.stringify(data));
-      await AsyncStorage.setItem('loggedIn', 'true'); // Add this line to indicate that the user is logged in
-      getToken(data); // After saving token, get user data
+      await AsyncStorage.setItem('loggedIn', 'true');
+      global.userData = data; // Ensure global userData is updated
     } catch (error) {
       console.error('Error saving token:', error);
     }
   };
-  
-  
-  const getToken = async userData => {
-    const userToken = JSON.stringify(userData);
-    console.log(userData);
-    global.userData = userData;
-    await AsyncStorage.setItem('loggedInUser', JSON.stringify(userData)); // Store logged-in user data
-    getUsers(); // Proceed to fetch additional user data
-  };
-  
 
-  const getUsers = () => {
+  const getUsers = async (userData) => {
+    console.log('getUsers userData:', userData);
     const apiUrl = `${API.ADD_USERS}`;
-    axios.get(apiUrl, { headers: { Authorization: `Bearer ${global.userData.access_token}` } })
-      .then(response => {
-        const users = response.data.response.users;
-        const loggedInUserId = global.userData.userId; // Get the logged-in user's ID
-        const loggedInUser = users.find(user => user.userId === loggedInUserId); // Find the logged-in user
-        if (loggedInUser) {
-          console.log('Logged in user:', loggedInUser);
-          dispatch(setLoggedInUser(loggedInUser)); // Dispatch setLoggedInUser action with loggedInUser data
-          dispatch(setUserRole(loggedInUser.role)); // Dispatch setUserRole action with user role
-          saveUserDataToStorage(loggedInUser); // Save user data to AsyncStorage
-          const roles = loggedInUser.role;
-          let roleName = '';
-          let roleId = '';
-          for (const role of roles) {
-            const name = role.role;
-            if (name) {
-              if (name === 'admin' || name === 'Distributor' || name === 'Retailer') {
-                roleName = name; // Set roleName based on user role
-                roleId = role.id; // Set roleId based on user role
-                break; // Exit loop after finding a valid role
-              }
+    try {
+      const response = await axios.get(apiUrl, { headers: { Authorization: `Bearer ${userData.access_token}` } });
+      const users = response.data.response.users;
+      const loggedInUserId = userData.userId;
+      const loggedInUser = users.find(user => user.userId === loggedInUserId);
+      if (loggedInUser) {
+        console.log('Logged in user:', loggedInUser);
+        dispatch(setLoggedInUser(loggedInUser));
+        dispatch(setUserRole(loggedInUser.role));
+        await saveUserDataToStorage(loggedInUser);
+        const roles = loggedInUser.role;
+        let roleName = '';
+        let roleId = '';
+        for (const role of roles) {
+          const name = role.role;
+          if (name) {
+            if (name === 'admin' || name === 'Distributor' || name === 'Retailer') {
+              roleName = name;
+              roleId = role.id;
+              break;
             }
           }
-          if (roleName && roleId) {
-            saveRoleToStorage({ roleName, roleId }); // Save roleName and roleId to AsyncStorage
-            navigation.navigate('Main'); // Navigate to Main screen
-          } else {
-            Alert.alert('Unauthorized role', 'You do not have access to this application.');
-          }
-        } else {
-          Alert.alert('No user data found', 'Failed to fetch user data.');
         }
-      })
-      .catch(error => {
-        console.error('Error fetching user data:', error);
-        Alert.alert('Failed to fetch user data', 'An error occurred while fetching user data.');
-      });
+        if (roleName && roleId) {
+          await saveRoleToStorage({ roleName, roleId });
+        } else {
+          Alert.alert('Unauthorized role', 'You do not have access to this application.');
+        }
+      } else {
+        Alert.alert('No user data found', 'Failed to fetch user data.');
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+      Alert.alert('Failed to fetch user data', 'An error occurred while fetching user data.');
+    }
   };
 
   const saveUserDataToStorage = async (userData) => {
@@ -170,11 +165,11 @@ const Login = () => {
 
         <View style={styles.rowContainer}>
           <TouchableOpacity onPress={handleForgotPassword}>
-            <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+            <Text style={styles.text}>Forgot Password?</Text>
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity
+      <TouchableOpacity
           style={styles.button}
           onPress={handleLogin}
           disabled={loading}>
@@ -184,10 +179,10 @@ const Login = () => {
             <Text style={styles.buttonText}>Login</Text>
           )}
         </TouchableOpacity>
-        <View style={styles.line} />
+ <View style={styles.line} />
       </View>
-      <View style={{ justifyContent: 'flex-end', flex: 1, marginVertical: 10 }}>
-        <Text style={{ textAlign: 'center' }}>
+<View style={{justifyContent: 'flex-end', flex: 1, marginVertical: 10}}>
+        <Text style={{textAlign: 'center'}}>
           All rights with Codeverse Technologies
         </Text>
       </View>

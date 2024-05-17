@@ -1,6 +1,6 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { API, BASE_URL } from './apiConfig';
+import { API, BASE_URL, USER_ID, USER_PASSWORD } from './apiConfig';
 
 let ApiClient = axios.create({
   baseURL: BASE_URL.SIT,
@@ -26,7 +26,7 @@ const refreshToken = async () => {
       },
     });
     if (response.status === 200) {
-      saveToken(response.data);
+      await saveToken(response.data);
       return response.data.access_token;
     }
   } catch (error) {
@@ -35,26 +35,8 @@ const refreshToken = async () => {
   }
 };
 
-
-ApiClient.interceptors.request.use(
-  async configure => {
-    const newUserData = await AsyncStorage.getItem('userData');
-    global.userData = JSON.parse(newUserData);
-    console.log('Bearer token is ' + global.userData.access_token);
-    if (global.userData != null) {
-      configure.headers.Authorization = `Bearer ${global.userData.access_token}`;
-    }
-    return configure;
-  },
-  error => {
-    return Promise.reject(error);
-  },
-);
-
-
-
 // Function to save token and update headers
-const saveToken = async data => {
+const saveToken = async (data) => {
   try {
     await AsyncStorage.setItem('userData', JSON.stringify(data));
     ApiClient.defaults.headers.common['Authorization'] = `Bearer ${data.access_token}`;
@@ -63,11 +45,24 @@ const saveToken = async data => {
   }
 };
 
+ApiClient.interceptors.request.use(
+  async (config) => {
+    const newUserData = await AsyncStorage.getItem('userData');
+    global.userData = JSON.parse(newUserData);
+    console.log('Bearer token is ' + global.userData?.access_token);
+    if (global.userData && global.userData.access_token) {
+      config.headers.Authorization = `Bearer ${global.userData.access_token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
-// Response interceptor to handle token expiration
 ApiClient.interceptors.response.use(
-  response => response,
-  async error => {
+  (response) => response,
+  async (error) => {
     const originalRequest = error.config;
     if (error.response && error.response.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
