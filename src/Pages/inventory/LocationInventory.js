@@ -41,7 +41,7 @@ const LocationInventory = () => {
           },
         },
       );
-      console.log('Response:', response.data);
+      // console.log('Response:', response.data);
       setInventoryData(response.data.gsCodesList);
       setFilteredData(response.data.gsCodesList); // Initialize filtered data
     } catch (error) {

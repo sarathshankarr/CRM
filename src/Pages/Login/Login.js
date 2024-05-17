@@ -1,13 +1,23 @@
-import React, { useState } from 'react';
-import { Alert, Image, StyleSheet, Text, TextInput, TouchableOpacity, View, ActivityIndicator, Keyboard } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { useDispatch } from 'react-redux';
-import { encode as base64Encode } from 'base-64';
+import React, {useState} from 'react';
+import {
+  Alert,
+  Image,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+  ActivityIndicator,
+  Keyboard,
+} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
+import {useDispatch} from 'react-redux';
+import {encode as base64Encode} from 'base-64';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { isValidString } from '../../Helper/Helper';
-import { API, USER_ID, USER_PASSWORD } from '../../config/apiConfig';
-import { setLoggedInUser, setUserRole } from '../../redux/actions/Actions';
+import {isValidString} from '../../Helper/Helper';
+import {API, USER_ID, USER_PASSWORD} from '../../config/apiConfig';
+import {setLoggedInUser, setUserRole} from '../../redux/actions/Actions';
 
 const Login = () => {
   const navigation = useNavigation();
@@ -15,6 +25,10 @@ const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const goingToSignUp = () => {
+    navigation.navigate('SignUp');
+  };
 
   const handleLogin = async () => {
     setLoading(true);
@@ -30,20 +44,25 @@ const Login = () => {
     };
 
     try {
-      const response = await axios.post(API.LOGIN, postData.toString(), { headers });
+      const response = await axios.post(API.LOGIN, postData.toString(), {
+        headers,
+      });
       if (isValidString(response.data)) {
         await saveToken(response.data);
         await getUsers(response.data);
         navigation.reset({
           index: 0,
-          routes: [{ name: 'Main' }],
+          routes: [{name: 'Main'}],
         });
       } else {
         console.log('Response:', JSON.stringify(response.data));
       }
     } catch (error) {
       if (error?.response?.data?.error_description) {
-        Alert.alert('crm.codeverse.co.says', error.response.data.error_description);
+        Alert.alert(
+          'crm.codeverse.co.says',
+          error.response.data.error_description,
+        );
       }
     } finally {
       setLoading(false);
@@ -51,7 +70,7 @@ const Login = () => {
     }
   };
 
-  const saveToken = async (data) => {
+  const saveToken = async data => {
     try {
       console.log('Saving token:', JSON.stringify(data));
       await AsyncStorage.setItem('userdata', JSON.stringify(data));
@@ -62,11 +81,13 @@ const Login = () => {
     }
   };
 
-  const getUsers = async (userData) => {
+  const getUsers = async userData => {
     console.log('getUsers userData:', userData);
     const apiUrl = `${API.ADD_USERS}`;
     try {
-      const response = await axios.get(apiUrl, { headers: { Authorization: `Bearer ${userData.access_token}` } });
+      const response = await axios.get(apiUrl, {
+        headers: {Authorization: `Bearer ${userData.access_token}`},
+      });
       const users = response.data.response.users;
       const loggedInUserId = userData.userId;
       const loggedInUser = users.find(user => user.userId === loggedInUserId);
@@ -81,7 +102,11 @@ const Login = () => {
         for (const role of roles) {
           const name = role.role;
           if (name) {
-            if (name === 'admin' || name === 'Distributor' || name === 'Retailer') {
+            if (
+              name === 'admin' ||
+              name === 'Distributor' ||
+              name === 'Retailer'
+            ) {
               roleName = name;
               roleId = role.id;
               break;
@@ -89,20 +114,26 @@ const Login = () => {
           }
         }
         if (roleName && roleId) {
-          await saveRoleToStorage({ roleName, roleId });
+          await saveRoleToStorage({roleName, roleId});
         } else {
-          Alert.alert('Unauthorized role', 'You do not have access to this application.');
+          Alert.alert(
+            'Unauthorized role',
+            'You do not have access to this application.',
+          );
         }
       } else {
         Alert.alert('No user data found', 'Failed to fetch user data.');
       }
     } catch (error) {
       console.error('Error fetching user data:', error);
-      Alert.alert('Failed to fetch user data', 'An error occurred while fetching user data.');
+      Alert.alert(
+        'Failed to fetch user data',
+        'An error occurred while fetching user data.',
+      );
     }
   };
 
-  const saveUserDataToStorage = async (userData) => {
+  const saveUserDataToStorage = async userData => {
     try {
       await AsyncStorage.setItem('userData', JSON.stringify(userData));
     } catch (error) {
@@ -110,7 +141,7 @@ const Login = () => {
     }
   };
 
-  const saveRoleToStorage = async ({ roleName, roleId }) => {
+  const saveRoleToStorage = async ({roleName, roleId}) => {
     try {
       await AsyncStorage.setItem('userRole', roleName);
       await AsyncStorage.setItem('userRoleId', roleId.toString());
@@ -127,7 +158,7 @@ const Login = () => {
     <View style={styles.container}>
       <View style={styles.imageContainer}>
         <Image
-          style={{ height: 103, width: 103, marginTop: 30 }}
+          style={{height: 103, width: 103, marginTop: 30}}
           source={require('../../../assets/loginbg.png')}
         />
       </View>
@@ -169,7 +200,7 @@ const Login = () => {
           </TouchableOpacity>
         </View>
 
-      <TouchableOpacity
+        <TouchableOpacity
           style={styles.button}
           onPress={handleLogin}
           disabled={loading}>
@@ -179,9 +210,35 @@ const Login = () => {
             <Text style={styles.buttonText}>Login</Text>
           )}
         </TouchableOpacity>
- <View style={styles.line} />
+        <View style={styles.line} />
+        {/* <View>
+          <Text style={styles.signintext}>Or sign in with</Text>
+        </View> */}
+        {/* <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'center',
+            alignItems: 'center',
+            marginTop: 10,
+          }}>
+          <View>
+          <TouchableOpacity>
+            <Image
+              style={styles.googleimg}
+              source={require('../../../assets/google.png')}></Image></TouchableOpacity>
+          </View>
+          <View>
+            <TouchableOpacity>
+            <Image
+              style={styles.facebookimg}
+              source={require('../../../assets/Facebook.png')}></Image></TouchableOpacity>
+          </View>
+        </View> */}
       </View>
-<View style={{justifyContent: 'flex-end', flex: 1, marginVertical: 10}}>
+      <View style={{justifyContent: 'flex-end', flex: 1, marginVertical: 10}}>
+        {/* <TouchableOpacity onPress={goingToSignUp}>
+                <Text style={{textAlign:'center'}}>Don’t have an account? Sign Up</Text>
+        </TouchableOpacity> */}
         <Text style={{textAlign: 'center'}}>
           All rights with Codeverse Technologies
         </Text>
@@ -253,6 +310,19 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     marginVertical: 30,
     marginHorizontal: 30,
+  },
+  signintext: {
+    textAlign: 'center',
+    fontWeight: 'bold',
+    fontSize: 15,
+  },
+  googleimg: {
+    height: 34,
+    width: 34,
+  },
+  facebookimg: {
+    height: 38,
+    width: 38,
   },
   infoText: {
     marginTop: 20,

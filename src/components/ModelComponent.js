@@ -169,7 +169,7 @@ const ModalComponent = ({modalVisible, closeModal, selectedItem,inputValuess, on
 
   // console.log('selectedItem:', selectedItem);
   // console.log('inputValue:', inputValues);
-
+  
   return (
     <Modal
       animationType="slide"
@@ -184,6 +184,9 @@ const ModalComponent = ({modalVisible, closeModal, selectedItem,inputValuess, on
         keyboardShouldPersistTaps="handled">
         <View style={styles.modalContent}>
           <View style={styles.addqtyhead}>
+          <TouchableOpacity onPress={closeModal}>
+            <Image style={{height:30,width:30,tintColor: 'white',}} source={(require('../../assets/back_arrow.png'))}/>
+            </TouchableOpacity>
             <Text style={styles.addqtytxt}>Add Quantity</Text>
           </View>
 
@@ -445,10 +448,13 @@ const styles = StyleSheet.create({
   addqtyhead: {
     backgroundColor: '#390050',
     padding: 10,
+    flexDirection:"row",
+    alignItems:"center",
   },
   addqtytxt: {
     color: 'white',
     fontWeight: 'bold',
+    marginLeft:10
   },
   sizehead: {
     padding: 1,
