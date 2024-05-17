@@ -179,7 +179,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     borderWidth: 1,
-    backgroundColor: 'gray',
+    backgroundColor: '#390050',
     width: '100%',
     paddingVertical: 13,
     position: 'absolute',

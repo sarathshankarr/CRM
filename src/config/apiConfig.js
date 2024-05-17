@@ -15,7 +15,9 @@ export const API = {
   GET_CUSTOMER_LOCATION: BASE_URL.SIT + '/erpportal/api/location/getLocationsAccCustomer',
   ADD_CUSTOMER_DETAILS:BASE_URL.SIT + '/erpportal/api/customers/addcustomer',
   ADD_CUSTOMER_LOCATION:BASE_URL.SIT +'/erpportal/api/location/addlocation',
-  ADD_USERS: BASE_URL.SIT + '/erpportal/api/users'
+  ADD_USERS: BASE_URL.SIT + '/erpportal/api/users',
+  ADD_PRODUCT_INVENTORY: BASE_URL.SIT + '/erpportal/api/style/cedge/getMainInventory',
+  ADD_LOCATION_INVENTORY: BASE_URL.SIT + '/erpportal/api/style/cedge/getLocationInventory'
 };
 
 export const USER_ID = 'adminClientId';

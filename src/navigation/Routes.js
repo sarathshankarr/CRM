@@ -12,6 +12,8 @@ import CommonHeader from '../components/CommonHeader';
 import AddNote from '../Pages/notes/AddNote';
 import LoaderComponent from '../utils/loaderComponent/loaderComponent';
 import CustomDropDown from '../components/CustomDropDown';
+import ProductInventory from '../Pages/inventory/ProductInventory';
+import LocationInventory from '../Pages/inventory/LocationInventory';
 
 const Stack = createNativeStackNavigator();
 
@@ -99,6 +101,16 @@ const Routes = () => {
           name="CustomDropDown"
           component={CustomDropDown}
           options={{ headerShown: true }}
+        />
+         <Stack.Screen
+          name="ProductInventory"
+          component={ProductInventory}
+          options={{ headerShown: false }}
+        />
+          <Stack.Screen
+          name="LocationInventory"
+          component={LocationInventory}
+          options={{ headerShown: false }}
         />
       </Stack.Navigator>
 

@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Image,
   StyleSheet,
@@ -7,17 +7,18 @@ import {
   View,
   Modal,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ImagePicker from 'react-native-image-crop-picker';
 
-const Sidebar = ({navigation, route}) => {
+const Sidebar = ({ navigation, route }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [image, setImage] = useState(require('../assets/profile.png'));
   const [userData, setUserData] = useState(null);
+  const [dropdownVisible, setDropdownVisible] = useState(false);
 
   useEffect(() => {
-    const {params} = route ?? {};
+    const { params } = route ?? {};
     if (params && params.userData) {
       setUserData(params.userData);
     } else {
@@ -40,6 +41,12 @@ const Sidebar = ({navigation, route}) => {
     }
   };
 
+  const toggleDropdown = () => {
+    setDropdownVisible(!dropdownVisible);
+  };
+
+ 
+
   const goToHome = () => {
     navigation.navigate('Home');
   };
@@ -50,6 +57,12 @@ const Sidebar = ({navigation, route}) => {
 
   const goToOrder = () => {
     navigation.navigate('Order');
+  };
+  const goToProductInventory = () => {
+    navigation.navigate('ProductInventory');
+  };
+  const goToLocationInventory = () => {
+    navigation.navigate('LocationInventory');
   };
 
   const goToEditProfile = () => {
@@ -63,11 +76,11 @@ const Sidebar = ({navigation, route}) => {
       cropping: true,
       compressImageQuality: 0.7,
     })
-      .then(image => {
-        setImage({uri: image.path});
+      .then((image) => {
+        setImage({ uri: image.path });
         setModalVisible(false);
       })
-      .catch(error => {
+      .catch((error) => {
         console.log('Error taking photo from camera:', error);
         setModalVisible(false);
       });
@@ -80,11 +93,11 @@ const Sidebar = ({navigation, route}) => {
       cropping: true,
       compressImageQuality: 0.7,
     })
-      .then(image => {
-        setImage({uri: image.path});
+      .then((image) => {
+        setImage({ uri: image.path });
         setModalVisible(false);
       })
-      .catch(error => {
+      .catch((error) => {
         console.log('Error choosing photo from library:', error);
         setModalVisible(false);
       });
@@ -105,22 +118,15 @@ const Sidebar = ({navigation, route}) => {
 
   return (
     <View style={styles.container}>
-      <View style={{backgroundColor: '#390050'}}>
+      <View style={{ backgroundColor: '#390050' }}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => setModalVisible(true)}>
             <Image
-              style={[styles.img, {borderRadius: 30, tintColor: '#fff'}]}
+              style={[styles.img, { borderRadius: 30, tintColor: '#fff' }]}
               source={image}
             />
           </TouchableOpacity>
-          <Text style={{color: '#fff', fontSize: 20}}>Profile</Text>
-          {/* <TouchableOpacity onPress={goToEditProfile} style={styles.editbox}>
-            <Image
-              style={[styles.editimg, { tintColor: '#fff' }]}
-              source={require('../assets/edit.png')}
-            />
-            <Text style={styles.edittxt}>EDIT PROFILE</Text>
-          </TouchableOpacity> */}
+          <Text style={{ color: '#fff', fontSize: 20 }}>Profile</Text>
         </View>
         <View>
           {userData && (
@@ -130,6 +136,7 @@ const Sidebar = ({navigation, route}) => {
           )}
         </View>
       </View>
+
       <TouchableOpacity onPress={goToHome} style={styles.homeheader}>
         <Image style={styles.homeimg} source={require('../assets/store.png')} />
         <Text style={styles.hometxt}>Home</Text>
@@ -137,17 +144,43 @@ const Sidebar = ({navigation, route}) => {
       <TouchableOpacity onPress={goToCategories} style={styles.categorieshead}>
         <Image
           style={styles.categoriesimg}
-          source={require('../assets/cate.png')}
+          source={require('../assets/menu-1.png')}
         />
         <Text style={styles.categoriestxt}>Categories</Text>
       </TouchableOpacity>
       <TouchableOpacity onPress={goToOrder} style={styles.orderhead}>
         <Image
           style={styles.orderimg}
-          source={require('../assets/order.png')}
+          source={require('../assets/order-1.png')}
         />
         <Text style={styles.ordertxt}>Order</Text>
       </TouchableOpacity>
+
+      <TouchableOpacity style={styles.inventoryhead} onPress={toggleDropdown}>
+        <Image
+          style={styles.orderimg}
+          source={require('../assets/inventory.png')}
+        />
+        <Text style={styles.ordertxt}>Inventory</Text>
+        <View style={{ marginLeft: 'auto' }}>
+          <Image
+            source={require('../assets/dropdown.png')}
+            style={{ width: 20, height: 20 }}
+          />
+        </View>
+      </TouchableOpacity>
+
+      {dropdownVisible && (
+        <View style={styles.dropdown}>
+          <TouchableOpacity onPress={() => goToProductInventory('Product Inventory')}>
+            <Text style={styles.dropdownItem}>Product Inventory</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => goToLocationInventory('Location Wise Inventory')}>
+            <Text style={styles.dropdownItemm}>Location Wise Inventory</Text>
+          </TouchableOpacity>
+          {/* Add more dropdown items here */}
+        </View>
+      )}
 
       <Modal
         animationType="slide"
@@ -171,7 +204,7 @@ const Sidebar = ({navigation, route}) => {
             <TouchableOpacity
               style={styles.modalCancelButton}
               onPress={() => setModalVisible(false)}>
-              <Text style={{color: 'white'}}>Cancel</Text>
+              <Text style={{ color: 'white' }}>Cancel</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -183,7 +216,7 @@ const Sidebar = ({navigation, route}) => {
             resizeMode="contain"
             style={[
               styles.logoutimg,
-              {tintColor: '#fff', height: 20, width: 20},
+              { tintColor: '#fff', height: 20, width: 20 },
             ]}
             source={require('../assets/logout.png')}
           />
@@ -209,38 +242,12 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     marginVertical: 10,
   },
-  editimg: {
-    height: 15,
-    width: 15,
-    alignItems: 'center',
-    marginTop: 3,
-    marginRight: 8,
-  },
-  editbox: {
-    borderWidth: 1,
-    borderColor: '#fff',
-    borderRadius: 15,
-    paddingHorizontal: 10,
-    paddingVertical: 9,
-    flexDirection: 'row',
-    marginLeft: 30,
-  },
-  edittxt: {
-    color: '#fff',
-    fontWeight: 'bold',
-  },
   usertxt: {
     marginLeft: 20,
     fontSize: 20,
     marginHorizontal: 10,
     marginVertical: 10,
     color: '#fff',
-  },
-  companynametxt: {
-    marginLeft: 20,
-    fontSize: 20,
-    color: '#fff',
-    marginBottom: 10,
   },
   homeheader: {
     flexDirection: 'row',
@@ -249,8 +256,8 @@ const styles = StyleSheet.create({
     marginVertical: 25,
   },
   homeimg: {
-    height: 40,
-    width: 40,
+    height: 30,
+    width: 30,
   },
   hometxt: {
     fontSize: 16,
@@ -262,8 +269,8 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
   },
   categoriesimg: {
-    height: 40,
-    width: 40,
+    height: 25,
+    width: 25,
   },
   categoriestxt: {
     fontSize: 16,
@@ -275,13 +282,28 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
     marginVertical: 25,
   },
+  inventoryhead: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 10,
+  },
   orderimg: {
-    height: 40,
-    width: 40,
+    height: 30,
+    width: 30,
   },
   ordertxt: {
     fontSize: 16,
     marginLeft: 10,
+  },
+  dropdownItem: {
+    fontSize: 16,
+    marginHorizontal:30,
+    marginTop:15
+  },
+  dropdownItemm: {
+    fontSize: 16,
+    marginHorizontal:30,
+    marginTop:15
   },
   logoutContainer: {
     position: 'absolute',

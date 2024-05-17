@@ -17,9 +17,9 @@ const HomeScreen = ({navigation}) => {
           if (route.name === 'Home') {
             icon = require('../../assets/store.png');
           } else if (route.name === 'Categories') {
-            icon = require('../../assets/cate.png');
+            icon = require('../../assets/menu-1.png');
           } else if (route.name === 'Order') {
-            icon = require('../../assets/order.png');
+            icon = require('../../assets/order-1.png');
           }
           return (
             <Image
