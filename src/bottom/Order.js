@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, {useEffect, useState, useCallback} from 'react';
 import {
   Text,
   View,
@@ -9,8 +9,8 @@ import {
   Modal,
 } from 'react-native';
 import axios from 'axios';
-import { useFocusEffect } from '@react-navigation/native';
-import { API } from '../config/apiConfig';
+import {useFocusEffect} from '@react-navigation/native';
+import {API} from '../config/apiConfig';
 
 const Order = () => {
   const [orders, setOrders] = useState([]);
@@ -76,9 +76,9 @@ const Order = () => {
     }
   };
 
-  const renderItem = ({ item }) => {
+  const renderItem = ({item}) => {
     if (!item) return null; // Add null check here
-  
+
     return (
       <View style={style.container}>
         <TouchableOpacity
@@ -90,7 +90,9 @@ const Order = () => {
               <Text>Ship Date: {item.shipDate}</Text>
             </View>
             <View style={style.custtlheader}>
-              <Text style={{ flex: 0.9 }}>Customer Name: {item.customerName}</Text>
+              <Text style={{flex: 0.9}}>
+                Customer Name: {item.customerName}
+              </Text>
               <Text>Total Amount: {item.totalAmount}</Text>
             </View>
             <View>
@@ -100,7 +102,7 @@ const Order = () => {
                   backgroundColor:
                     item.orderStatus.toLowerCase() === 'open'
                       ? '#FF3333'
-                      : '#390050',
+                      : 'green',
                   padding: 5,
                   color: '#fff',
                   borderRadius: 5,
@@ -114,15 +116,15 @@ const Order = () => {
       </View>
     );
   };
-  
+
   return (
-    <View style={{ backgroundColor: '#fff', flex: 1 }}>
-      <Text style={{ marginHorizontal: 10, marginVertical: 5 }}>Orders</Text>
+    <View style={{backgroundColor: '#fff', flex: 1}}>
+      <Text style={{marginHorizontal: 10, marginVertical: 5}}>Orders</Text>
       {loading && orders.length === 0 ? (
         <ActivityIndicator
           size="large"
           color="#390050"
-          style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
+          style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}
         />
       ) : (
         <FlatList
@@ -130,8 +132,7 @@ const Order = () => {
           renderItem={renderItem}
           keyExtractor={(item, index) =>
             item && item.orderId ? item.orderId.toString() : index.toString()
-        }
-        
+          }
           onEndReached={loadMoreOrders}
           onEndReachedThreshold={0.1}
           refreshing={loading}
@@ -153,16 +154,18 @@ const Order = () => {
                 <Text>Ship Date: {selectedOrder.shipDate}</Text>
               </View>
               <View style={style.custtlheader}>
-                <Text style={{ flex: 0.9 }}>Customer Name: {selectedOrder.customerName}</Text>
+                <Text style={{flex: 0.9}}>
+                  Customer Name: {selectedOrder.customerName}
+                </Text>
                 <Text>Total Amount: {selectedOrder.totalAmount}</Text>
               </View>
-              <Text style={{ textAlign: 'right', marginHorizontal: 10 }}>
+              <Text style={{textAlign: 'right', marginHorizontal: 10}}>
                 Status: {selectedOrder.orderStatus}
               </Text>
               <TouchableOpacity
                 style={style.closeButton}
                 onPress={() => setSelectedOrder(null)}>
-                <Text style={{ color: '#fff' }}>Close</Text>
+                <Text style={{color: '#fff'}}>Close</Text>
               </TouchableOpacity>
             </View>
           </View>

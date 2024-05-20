@@ -15,6 +15,7 @@ import CustomDropDown from '../components/CustomDropDown';
 import ProductInventory from '../Pages/inventory/ProductInventory';
 import LocationInventory from '../Pages/inventory/LocationInventory';
 import SignUp from '../Pages/signup/SignUp';
+import ImageSlider from '../components/ImageSlider';
 
 const Stack = createNativeStackNavigator();
 
@@ -116,6 +117,11 @@ const Routes = () => {
         <Stack.Screen
           name="SignUp"
           component={SignUp}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="ImageSlider"
+          component={ImageSlider}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>

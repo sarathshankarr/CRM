@@ -179,7 +179,6 @@ const styles = StyleSheet.create({
   headerText: {
     flex: 0.9,
     textAlign: 'center',
-    marginLeft:10
   },
   headerText1: {
     flex: 2,

@@ -2,16 +2,15 @@ import React, { useState } from 'react';
 import {
   Text,
   View,
-  Image,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
   Dimensions,
 } from 'react-native';
-import { SliderBox } from 'react-native-image-slider-box';
 import { useDispatch } from 'react-redux';
 import { addItemToCart } from '../../redux/actions/Actions';
 import ModalComponent from '../../components/ModelComponent';
+import ImageSlider from '../../components/ImageSlider';  // Adjust the import path as necessary
 
 const Details = ({ route }) => {
   const {
@@ -53,25 +52,10 @@ const Details = ({ route }) => {
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollView}>
-        <SliderBox
-          images={item && item.imageUrls ? item.imageUrls : []}
-          sliderBoxHeight={Dimensions.get('window').height * 0.5}
-          resizeMethod={'resize'}
-          resizeMode={'contain'}
-        />
+        <ImageSlider imageUrls={item && item.imageUrls ? item.imageUrls : []} />
         <View style={styles.priceContainer}>
           <Text style={styles.priceText}>Price: {item.mrp}</Text>
-          {/* <TouchableOpacity>
-            <Image
-              style={styles.priceImage}
-              source={require('../../../assets/heart.png')}
-            />
-          </TouchableOpacity> */}
         </View>
-        {/* <View style={styles.categoryContainer}>
-          <Text style={styles.detailLabel}>Category:</Text>
-          <Text style={styles.detailValue}>{category}</Text>
-        </View> */}
         <View style={styles.tagsContainer}>
           <Text style={styles.detailLabel}>Style Name</Text>
           <Text style={styles.detailValue}>{item.styleName}</Text>
@@ -86,8 +70,8 @@ const Details = ({ route }) => {
         </View>
       </ScrollView>
       <TouchableOpacity onPress={() => openModal(item)} style={styles.buttonContainer}>
-  <Text style={styles.buttonText}>ADD QUANTITY</Text>
-</TouchableOpacity>
+        <Text style={styles.buttonText}>ADD QUANTITY</Text>
+      </TouchableOpacity>
 
       <ModalComponent
         modalVisible={modalVisible}
@@ -116,14 +100,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#000',
     marginVertical: 10,
-  },
-  categoryContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    width: '100%',
-    borderBottomWidth: 1,
-    borderBottomColor: '#000',
   },
   tagsContainer: {
     marginHorizontal: 20,
@@ -154,10 +130,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: '#000',
     fontWeight: 'bold',
-  },
-  priceImage: {
-    width: 40,
-    height: 40,
   },
   detailLabel: {
     fontSize: 18,
