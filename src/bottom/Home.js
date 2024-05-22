@@ -1,17 +1,27 @@
-import React, { useState, useEffect } from 'react';
-import { View, TouchableOpacity, Text, StyleSheet, Image, ScrollView, ActivityIndicator } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { useSelector, useDispatch } from 'react-redux';
-import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import React, {useState, useEffect} from 'react';
+import {
+  View,
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+  Image,
+  ScrollView,
+  ActivityIndicator,
+} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
+import {useSelector, useDispatch} from 'react-redux';
+import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
 import HomeCategories from '../Pages/catogiries/HomeCategories';
 import HomeAllProducts from '../Pages/catogiries/HomeAllProducts';
-import { setLoggedInUser } from '../redux/actions/Actions';
+import {setLoggedInUser} from '../redux/actions/Actions';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { SET_SELECTED_COMPANY } from '../redux/ActionTypes';
+import {SET_SELECTED_COMPANY} from '../redux/ActionTypes';
+import CommonHeader from '../components/CommonHeader';
+import CommenHeaderHomeScreen from '../components/CommenHeaderHomeScreen';
 
 const Tab = createMaterialTopTabNavigator();
 
-const CustomTabBar = ({ state, descriptors }) => {
+const CustomTabBar = ({state, descriptors, route}) => {
   const navigation = useNavigation();
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState(null);
@@ -30,7 +40,7 @@ const CustomTabBar = ({ state, descriptors }) => {
           if (userData && userData.compList && userData.compList.length > 0) {
             const initialCompany = userData.compList[0];
             setSelectedCompany(initialCompany); // Initialize selectedCompany with the first company
-            dispatch({ type: SET_SELECTED_COMPANY, payload: initialCompany }); // Store initial selected company in Redux store
+            dispatch({type: SET_SELECTED_COMPANY, payload: initialCompany}); // Store initial selected company in Redux store
             console.log('Initial Selected Company:', initialCompany); // Log initial selected company
           }
         }
@@ -38,7 +48,6 @@ const CustomTabBar = ({ state, descriptors }) => {
         console.error('Error fetching user data:', error);
       }
     };
-    
 
     fetchUserData();
   }, [dispatch]);
@@ -51,58 +60,79 @@ const CustomTabBar = ({ state, descriptors }) => {
     setSelectedCompany(company); // Update selected company
     console.log('Selected Company:', company); // Log the selected company
     setDropdownVisible(false);
-    dispatch({ type: SET_SELECTED_COMPANY, payload: company }); // Dispatch action to update selected company in Redux store
+    dispatch({type: SET_SELECTED_COMPANY, payload: company}); // Dispatch action to update selected company in Redux store
   };
 
   const companyName = selectedCompany ? selectedCompany.companyName : '';
 
   return (
-    <View style={{ backgroundColor: '#fff' }}>
-      <TouchableOpacity
-        onPress={() => setDropdownVisible(!dropdownVisible)}
-        style={{
-          width: '50%',
-          borderRadius: 10,
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          paddingLeft: 15,
-          paddingRight: 15,
-        }}>
-        <Text style={{ fontWeight: '600' }}>{companyName}</Text>
-        <Image
-          source={require('../../assets/dropdown.png')}
-          style={{ width: 20, height: 20 }}
+    <View style={{backgroundColor: '#fff'}}>
+      <View
+        style={{flexDirection: 'row', alignItems: 'center', marginLeft: 10}}>
+        <TouchableOpacity onPress={() => navigation.openDrawer()}>
+          <Image
+            resizeMode="contain"
+            source={require('../../assets/menu.png')}
+            style={{height: 30, width: 30, marginHorizontal: 5}}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => setDropdownVisible(!dropdownVisible)}
+          style={{
+            flex: 1,
+            width: '50%',
+            borderRadius: 10,
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            paddingLeft: 15,
+            paddingRight: 15,
+            marginLeft: 8,
+          }}>
+          <Text style={{fontWeight: '600'}}>{companyName}</Text>
+          <Image
+            style={{height: 22, width: 22}}
+            source={require('../../assets/edit.png')}
+          />
+        </TouchableOpacity>
+        {dropdownVisible && (
+          <View style={styles.dropdownContainer}>
+            <ScrollView>
+              {loggedInUser && loggedInUser.compList
+                ? loggedInUser.compList.map((company, index) => (
+                    <TouchableOpacity
+                      key={index}
+                      onPress={() => handleCompanySelect(company)}
+                      style={{
+                        width: '100%',
+                        height: 50,
+                        justifyContent: 'center',
+                        borderBottomWidth: 0.5,
+                        borderColor: '#8e8e8e',
+                      }}>
+                      <Text
+                        style={{
+                          fontWeight: '600',
+                          marginHorizontal: 15,
+                        }}>
+                        {company.companyName}
+                      </Text>
+                    </TouchableOpacity>
+                  ))
+                : null}
+            </ScrollView>
+          </View>
+        )}
+        <CommenHeaderHomeScreen
+          navigation={navigation}
+          // title={route.name}
+          // showDrawerButton={showDrawerButton}
+          showMessageIcon={true}
+          showCartIcon={true}
+          showLocationIcon={true}
         />
-      </TouchableOpacity>
-      {dropdownVisible && (
-        <View style={styles.dropdownContainer}>
-          <ScrollView>
-            {loggedInUser && loggedInUser.compList ? (
-              loggedInUser.compList.map((company, index) => (
-                <TouchableOpacity
-                  key={index}
-                  onPress={() => handleCompanySelect(company)}
-                  style={{
-                    width: '100%',
-                    height: 50,
-                    justifyContent: 'center',
-                    borderBottomWidth: 0.5,
-                    borderColor: '#8e8e8e',
-                  }}>
-                  <Text
-                    style={{
-                      fontWeight: '600',
-                      marginHorizontal: 15,
-                    }}>
-                    {company.companyName}
-                  </Text>
-                </TouchableOpacity>
-              ))
-            ) : null}
-          </ScrollView>
-        </View>
-      )}
+      </View>
+
       <View style={styles.tabContainer}>
         {state.routes.map((route, index) => {
           const label = route.name;
@@ -159,8 +189,8 @@ const styles = StyleSheet.create({
   dropdownContainer: {
     marginLeft: 10,
     position: 'absolute',
-    top: 30,
-    left: 0,
+    top: 45,
+    left: 30,
     right: 0,
     backgroundColor: '#fff',
     elevation: 5,

@@ -308,6 +308,8 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
   },
   buttonqty: {
+    marginHorizontal:3,
+    marginVertical:3,
     borderWidth: 1,
     paddingVertical: 10,
     borderRadius: 5,

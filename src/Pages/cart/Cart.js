@@ -489,8 +489,17 @@ const Cart = () => {
 
   const openModal = item => {
     setSelectedItem(item);
+    setInputValuess(item.inputValue || {}); // Set to an empty object if item.inputValue is empty
     setModalVisible(true);
   };
+  useEffect(() => {
+    if (selectedItem) {
+      setInputValuess(selectedItem.inputValue || {}); // Set to an empty object if selectedItem.inputValue is empty
+      console.log("Input Values:", inputValuess); // Log the inputValues state
+    }
+  }, [selectedItem]);
+    
+  
   const closeModal = () => {
     setModalVisible(false);
     setSelectedItem(null);
@@ -1301,6 +1310,7 @@ const style = StyleSheet.create({
     color: '#000',
     fontSize: 15,
     fontWeight: 'bold',
+    marginHorizontal:5
   },
   imgContainer: {
     flexDirection: 'row',

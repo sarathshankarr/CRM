@@ -15,7 +15,7 @@ const CommenHeaderHomeScreen = ({ title, showDrawerButton, showMessageIcon, show
 
   return (
     <View style={styles.header}>
-     {showDrawerButton && (
+       {showDrawerButton && (
         <TouchableOpacity onPress={() => navigation.openDrawer()}>
           <Image
             resizeMode="contain"
@@ -71,8 +71,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 10,
     paddingVertical:10,
-    backgroundColor: "#fff",
-    flex:1,
+    backgroundColor: "#fff"
   },
   rightContainer: {
     flexDirection: 'row',
