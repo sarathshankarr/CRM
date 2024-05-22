@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import {NavigationContainer} from '@react-navigation/native';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import Login from '../Pages/Login/Login';
 import Splash from '../Pages/Splash';
 import Details from '../Pages/details/Details';
@@ -16,6 +16,7 @@ import ProductInventory from '../Pages/inventory/ProductInventory';
 import LocationInventory from '../Pages/inventory/LocationInventory';
 import SignUp from '../Pages/signup/SignUp';
 import ImageSlider from '../components/ImageSlider';
+import CommenHeaderHomeScreen from '../components/CommenHeaderHomeScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -26,22 +27,22 @@ const Routes = () => {
         <Stack.Screen
           name="Splash"
           component={Splash}
-          options={{ headerShown: false }}
+          options={{headerShown: false}}
         />
         <Stack.Screen
           name="Login"
           component={Login}
-          options={{ headerShown: false }}
+          options={{headerShown: false}}
         />
         <Stack.Screen
           name="Main"
           component={Main}
-          options={{ headerShown: false }}
+          options={{headerShown: false}}
         />
         <Stack.Screen
           name="Details"
           component={Details}
-          options={({ navigation }) => ({
+          options={({navigation}) => ({
             header: () => (
               <CommonHeader
                 navigation={navigation}
@@ -57,7 +58,7 @@ const Routes = () => {
         <Stack.Screen
           name="Cart"
           component={Cart}
-          options={({ navigation }) => ({
+          options={({navigation}) => ({
             header: () => (
               <CommonHeader
                 navigation={navigation}
@@ -71,12 +72,12 @@ const Routes = () => {
         <Stack.Screen
           name="Profile"
           component={Profile}
-          options={{ headerShown: true }}
+          options={{headerShown: true}}
         />
         <Stack.Screen
           name="AllCategoriesListed"
           component={AllCategoriesListed}
-          options={({ navigation }) => ({
+          options={({navigation}) => ({
             header: () => (
               <CommonHeader
                 navigation={navigation}
@@ -92,40 +93,44 @@ const Routes = () => {
         <Stack.Screen
           name="Add Note"
           component={AddNote}
-          options={{ headerShown: true }}
+          options={{headerShown: true}}
         />
         <Stack.Screen
           name="LoaderComponent"
           component={LoaderComponent}
-          options={{ headerShown: true }}
+          options={{headerShown: true}}
         />
-         <Stack.Screen
+        <Stack.Screen
           name="CustomDropDown"
           component={CustomDropDown}
-          options={{ headerShown: true }}
+          options={{headerShown: true}}
         />
-         <Stack.Screen
+        <Stack.Screen
           name="ProductInventory"
           component={ProductInventory}
-          options={{ headerShown: false }}
+          options={{headerShown: false}}
         />
-          <Stack.Screen
+        <Stack.Screen
           name="LocationInventory"
           component={LocationInventory}
-          options={{ headerShown: false }}
+          options={{headerShown: false}}
         />
         <Stack.Screen
           name="SignUp"
           component={SignUp}
-          options={{ headerShown: false }}
+          options={{headerShown: false}}
         />
         <Stack.Screen
           name="ImageSlider"
           component={ImageSlider}
-          options={{ headerShown: false }}
+          options={{headerShown: false}}
+        />
+         <Stack.Screen
+          name="CommenHeaderHomeScreen"
+          component={CommenHeaderHomeScreen}
+          options={{headerShown: false}}
         />
       </Stack.Navigator>
-
     </NavigationContainer>
   );
 };

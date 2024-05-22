@@ -3,9 +3,12 @@ import { Image, StyleSheet, Text, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import { isValidString } from '../Helper/Helper';
+import { useDispatch } from 'react-redux'; // Import useDispatch
+import { setLoggedInUser } from '../redux/actions/Actions';
 
 const Splash = () => {
   const navigation = useNavigation();
+  const dispatch = useDispatch(); // Initialize useDispatch
   const [userData, setUserData] = useState(null);
 
   useEffect(() => {
@@ -34,7 +37,12 @@ const Splash = () => {
     };
 
     checkLogin();
-  }, [navigation]);
+
+    // Dispatch setLoggedInUser action when userData changes
+    if (userData) {
+      dispatch(setLoggedInUser(userData));
+    }
+  }, [dispatch, navigation, userData]);
 
   return (
     <View style={styles.container}>

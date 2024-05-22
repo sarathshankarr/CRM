@@ -9,6 +9,7 @@ import {
   SET_LOGGED_IN_USER,
   SET_NOTE_DETAILS,
   SET_NOTE_SAVED,
+  SET_SELECTED_COMPANY,
   SET_USER_ROLE,
   UPDATE_CART_ITEM,
 } from '../ActionTypes';
@@ -26,6 +27,7 @@ const initialState = {
   cartItems: [],
   userRole: null,
   loggedInUser: null,
+  selectedCompany: null,
 };
 
 const reducers = (state = initialState, action) => {
@@ -109,6 +111,11 @@ const reducers = (state = initialState, action) => {
         ...state,
         loggedInUser: action.payload,
       };
+      case SET_SELECTED_COMPANY:
+        return {
+          ...state,
+          selectedCompany: action.payload,
+        };
 
     default:
       return state;

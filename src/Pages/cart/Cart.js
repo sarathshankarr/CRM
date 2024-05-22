@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {
   Alert,
+  FlatList,
   Image,
   KeyboardAvoidingView,
   Modal,
@@ -10,6 +11,7 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  ActivityIndicator,
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {
@@ -22,7 +24,6 @@ import {
 import Clipboard from '@react-native-clipboard/clipboard';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import {useNavigation} from '@react-navigation/native';
-import CustomDropDown from '../../components/CustomDropDown';
 import ModalComponent from '../../components/ModelComponent';
 import {API} from '../../config/apiConfig';
 import axios from 'axios';
@@ -33,6 +34,11 @@ const Cart = () => {
   const loggedInUser = useSelector(state => state.loggedInUser);
   const dispatch = useDispatch();
   const navigation = useNavigation();
+  const [initialSelectedCompany, setInitialSelectedCompany] = useState(null);
+
+  const selectedCompany = useSelector(state => state.selectedCompany);
+  const [isLoading, setIsLoading] = useState(false);
+
   const [inputValuess, setInputValuess] = useState({});
   const cartItems = useSelector(state => state.cartItems);
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
@@ -52,6 +58,33 @@ const Cart = () => {
   const [selectedShipLocation, setSelectedShipLocation] = useState('');
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedCustomerDetails, setSelectedCustomerDetails] = useState(null);
+
+  useEffect(() => {
+    const fetchInitialSelectedCompany = async () => {
+      try {
+        const initialCompanyData = await AsyncStorage.getItem(
+          'initialSelectedCompany',
+        );
+        if (initialCompanyData) {
+          const initialCompany = JSON.parse(initialCompanyData);
+          setInitialSelectedCompany(initialCompany);
+          console.log('Initial Selected Company:', initialCompany);
+        }
+      } catch (error) {
+        console.error('Error fetching initial selected company:', error);
+      }
+    };
+
+    fetchInitialSelectedCompany();
+  }, []);
+
+  const companyId = selectedCompany
+    ? selectedCompany.id
+    : initialSelectedCompany?.id;
+
+  useEffect(() => {
+    console.log('Companyyyyyyyyy ID:', companyId);
+  }, [companyId]);
 
   useEffect(() => {
     // Fetch user role from AsyncStorage
@@ -155,7 +188,7 @@ const Cart = () => {
       gstNo: 'HUVYYVYH8',
       creditLimit: 0,
       paymentReminderId: 0,
-      companyId: 1,
+      companyId: companyId,
     };
 
     axios
@@ -193,7 +226,6 @@ const Cart = () => {
 
   const getCustomerLocations = customerId => {
     const custometType = 1;
-    const companyId = 1;
 
     console.log('customerId:', customerId);
 
@@ -203,6 +235,7 @@ const Cart = () => {
     }
 
     const apiUrl = `${API.GET_CUSTOMER_LOCATION}/${customerId}/${custometType}/${companyId}`;
+    console.log('Fetching customer locations with companyId:', companyId);
 
     console.log('API URL:', apiUrl);
 
@@ -238,8 +271,8 @@ const Cart = () => {
   };
 
   const getCustomersDetails = () => {
-    const companyId = 1;
     const apiUrl = `${API.ADD_CUSTOMER_LIST}/${companyId}`;
+    setIsLoading(true); // Set loading to true before making the request
     axios
       .get(apiUrl, {
         headers: {
@@ -248,9 +281,11 @@ const Cart = () => {
       })
       .then(response => {
         setCustomers(response?.data?.response?.customerList || []);
+        setIsLoading(false); // Set loading to false after receiving the response
       })
       .catch(error => {
         console.error('Error:', error);
+        setIsLoading(false); // Set loading to false in case of error
       });
   };
 
@@ -294,8 +329,8 @@ const Cart = () => {
       }
     } else if (userRole === 'Distributor' || userRole === 'Retailer') {
       // No alert for Distributor or Retailer
-    } 
-    
+    }
+
     if (!selectedLocation) {
       Alert.alert('Alert', 'Please select a Billing to location.');
       return;
@@ -434,7 +469,7 @@ const Cart = () => {
       appComments: '',
       gTranspExp: 0,
       gOtherExp: 0,
-      companyId: '1',
+      companyId: companyId,
     };
     axios
       .post(API.ADD_ORDER_DATA, requestData, {
@@ -588,7 +623,7 @@ const Cart = () => {
       latitude: null,
       longitude: null,
       fullName: null,
-      companyId: '1',
+      companyId: companyId,
       locationType: 0,
     };
 
@@ -666,7 +701,36 @@ const Cart = () => {
                       />
                     </TouchableOpacity>
                     {clicked && (
-                      <View
+                      <FlatList
+                        data={customers}
+                        renderItem={({item, index}) => (
+                          <TouchableOpacity
+                            key={index}
+                            style={{
+                              width: '100%',
+                              height: 50,
+                              justifyContent: 'center',
+                              borderBottomWidth: 0.5,
+                              borderColor: '#8e8e8e',
+                            }}
+                            onPress={() => {
+                              handleCustomerSelection(
+                                item.firstName,
+                                item.lastName,
+                                item.customerId,
+                              );
+                              console.log(item);
+                            }}>
+                            <Text
+                              style={{
+                                fontWeight: '600',
+                                marginHorizontal: 15,
+                              }}>
+                              {item.firstName} {item.lastName}
+                            </Text>
+                          </TouchableOpacity>
+                        )}
+                        keyExtractor={(item, index) => index.toString()}
                         style={{
                           elevation: 5,
                           height: 300,
@@ -674,37 +738,21 @@ const Cart = () => {
                           width: '90%',
                           backgroundColor: '#fff',
                           borderRadius: 10,
-                        }}>
-                        <ScrollView>
-                          {customers.map((item, index) => (
-                            <TouchableOpacity
-                              key={index}
-                              style={{
-                                width: '100%',
-                                height: 50,
-                                justifyContent: 'center',
-                                borderBottomWidth: 0.5,
-                                borderColor: '#8e8e8e',
-                              }}
-                              onPress={() => {
-                                handleCustomerSelection(
-                                  item.firstName,
-                                  item.lastName,
-                                  item.customerId,
-                                );
-                                console.log(item);
-                              }}>
-                              <Text
-                                style={{
-                                  fontWeight: '600',
-                                  marginHorizontal: 15,
-                                }}>
-                                {item.firstName} {item.lastName}
-                              </Text>
-                            </TouchableOpacity>
-                          ))}
-                        </ScrollView>
-                      </View>
+                        }}
+                      />
+                    )}
+                    {isLoading && ( // Show ActivityIndicator if isLoading is true
+                      <ActivityIndicator
+                        style={{
+                          position: 'absolute',
+                          top: '50%',
+                          left: '50%',
+                          marginLeft: -20,
+                          marginTop: -20,
+                        }}
+                        size="large"
+                        color="#390050"
+                      />
                     )}
                   </View>
                   <View>

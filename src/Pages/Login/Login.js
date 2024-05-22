@@ -1,3 +1,4 @@
+
 import React, {useState} from 'react';
 import {
   Alert,
@@ -83,14 +84,12 @@ const Login = () => {
 
   const getUsers = async userData => {
     console.log('getUsers userData:', userData);
-    const apiUrl = `${API.ADD_USERS}`;
+    const apiUrl = `${API.ADD_USERS}/${userData.userId}`; // Update API URL to include dynamic userId
     try {
       const response = await axios.get(apiUrl, {
-        headers: {Authorization: `Bearer ${userData.access_token}`},
+        headers: { Authorization: `Bearer ${userData.access_token}` },
       });
-      const users = response.data.response.users;
-      const loggedInUserId = userData.userId;
-      const loggedInUser = users.find(user => user.userId === loggedInUserId);
+      const loggedInUser = response.data.response.users[0]; // Since response is expected to have only one user with given userId
       if (loggedInUser) {
         console.log('Logged in user:', loggedInUser);
         dispatch(setLoggedInUser(loggedInUser));
@@ -114,7 +113,7 @@ const Login = () => {
           }
         }
         if (roleName && roleId) {
-          await saveRoleToStorage({roleName, roleId});
+          await saveRoleToStorage({ roleName, roleId });
         } else {
           Alert.alert(
             'Unauthorized role',

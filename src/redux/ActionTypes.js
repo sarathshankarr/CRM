@@ -12,3 +12,4 @@ export const SET_NOTE_SAVED = 'SET_NOTE_SAVED';
 export const CLEAR_CART = 'CLEAR_CART';
 export const SET_USER_ROLE = 'SET_USER_ROLE';
 export const SET_LOGGED_IN_USER = 'SET_LOGGED_IN_USER';
+export const SET_SELECTED_COMPANY = 'SET_SELECTED_COMPANY';

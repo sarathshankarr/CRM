@@ -13,6 +13,8 @@ import {
 } from 'react-native';
 import {API} from '../../config/apiConfig';
 import axios from 'axios';
+import { useSelector } from 'react-redux';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ProductInventory = () => {
   const navigation = useNavigation();
@@ -20,6 +22,32 @@ const ProductInventory = () => {
   const [inventoryData, setInventoryData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [initialSelectedCompany, setInitialSelectedCompany] = useState(null);
+
+  const selectedCompany = useSelector(state => state.selectedCompany);
+  useEffect(() => {
+    const fetchInitialSelectedCompany = async () => {
+      try {
+        const initialCompanyData = await AsyncStorage.getItem(
+          'initialSelectedCompany',
+        );
+        if (initialCompanyData) {
+          const initialCompany = JSON.parse(initialCompanyData);
+          setInitialSelectedCompany(initialCompany);
+          console.log('Initial Selected Company:', initialCompany);
+        }
+      } catch (error) {
+        console.error('Error fetching initial selected company:', error);
+      }
+    };
+
+    fetchInitialSelectedCompany();
+  }, []);
+
+  const companyId = selectedCompany
+    ? selectedCompany.id
+    : initialSelectedCompany?.id;
+
 
   useEffect(() => {
     getProductInventory();
@@ -32,7 +60,7 @@ const ProductInventory = () => {
       const response = await axios.post(
         apiUrl,
         {
-          companyId: 1,
+          companyId: companyId
         },
         {
           headers: {

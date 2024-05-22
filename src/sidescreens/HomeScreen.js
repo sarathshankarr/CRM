@@ -51,7 +51,7 @@ const HomeScreen = ({navigation}) => {
       <Bottom.Screen
         name="Home"
         component={Home}
-        options={{headerTitle: 'Home'}}
+        options={{headerTitle: 'Home',headerShown:true}}
       />
       <Bottom.Screen
         name="Categories"
