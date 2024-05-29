@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Text,
   View,
@@ -11,31 +11,47 @@ import {
   BackHandler,
   Alert,
 } from 'react-native';
-import {getAllCategories} from '../../utils/serviceApi/serviceAPIComponent';
+import { getAllCategories } from '../../utils/serviceApi/serviceAPIComponent';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useSelector, useDispatch } from 'react-redux'; // Importing useDispatch
+import {  storeCategoryIds } from '../../redux/actions/Actions';
 
 const HomeCategories = ({navigation}) => {
   const [selectedDetails, setSelectedDetails] = useState([]);
   const [showSearchInput, setShowSearchInput] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
+  const [initialSelectedCompany, setInitialSelectedCompany] = useState(null);
+
+  const selectedCompany = useSelector(state => state.selectedCompany);
+
+  useEffect(() => {
+    const fetchInitialSelectedCompany = async () => {
+      try {
+        const initialCompanyData = await AsyncStorage.getItem(
+          'initialSelectedCompany',
+        );
+        if (initialCompanyData) {
+          const initialCompany = JSON.parse(initialCompanyData);
+          setInitialSelectedCompany(initialCompany);
+          console.log('Initial Selected Company:', initialCompany);
+        }
+      } catch (error) {
+        console.error('Error fetching initial selected company:', error);
+      }
+    };
+
+    fetchInitialSelectedCompany();
+  }, []);
+
+  const companyId = selectedCompany
+    ? selectedCompany.id
+    : initialSelectedCompany?.id;
 
   useEffect(() => {
     fetchCategories();
+  }, [companyId]);
 
-    const backHandler = BackHandler.addEventListener(
-      'hardwareBackPress',
-      () => {
-        if (navigation.isFocused()) {
-          showAlertOnBack();
-          return true; // Prevent default behavior (closing the app)
-        }
-        return false;
-      }
-    );
-
-    return () => backHandler.remove();
-  }, []);
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
@@ -51,10 +67,12 @@ const HomeCategories = ({navigation}) => {
       setLoading(true);
       const [tokenString] = await AsyncStorage.multiGet(['userdata']);
       const token = JSON.parse(tokenString[1]);
-      const {data, error} = await getAllCategories(token.access_token);
-
+      const { data, error } = await getAllCategories(token.access_token, companyId);
+  
       if (data) {
-        setSelectedDetails(data);
+        // Filter categories based on the companyId
+        const filteredCategories = data.filter(category => category.companyId === companyId);
+        setSelectedDetails(filteredCategories);
       } else {
         console.error('Error fetching categories:', error);
       }
@@ -119,21 +137,6 @@ const HomeCategories = ({navigation}) => {
     );
   };
 
-  const showAlertOnBack = () => {
-    Alert.alert(
-      'Exit App',
-      'Do you want to close the app?',
-      [
-        {
-          text: 'No',
-          onPress: () => null,
-          style: 'cancel',
-        },
-        { text: 'Yes', onPress: () => BackHandler.exitApp() },
-      ],
-      { cancelable: false }
-    );
-  };
 
   return (
     <View style={styles.container}>

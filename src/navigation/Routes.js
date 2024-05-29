@@ -17,6 +17,8 @@ import LocationInventory from '../Pages/inventory/LocationInventory';
 import SignUp from '../Pages/signup/SignUp';
 import ImageSlider from '../components/ImageSlider';
 import CommenHeaderHomeScreen from '../components/CommenHeaderHomeScreen';
+import PackingOrders from '../Pages/Packingorders/PackingOrders';
+import DistributorGrn from '../Pages/distributorgrn/DistributorGrn';
 
 const Stack = createNativeStackNavigator();
 
@@ -129,6 +131,16 @@ const Routes = () => {
           name="CommenHeaderHomeScreen"
           component={CommenHeaderHomeScreen}
           options={{headerShown: false}}
+        />
+         <Stack.Screen
+          name="PackingOrders"
+          component={PackingOrders}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="Distributor GRN"
+          component={DistributorGrn}
+          options={{headerShown: true}}
         />
       </Stack.Navigator>
     </NavigationContainer>

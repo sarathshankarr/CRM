@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   Image,
   StyleSheet,
@@ -7,18 +7,18 @@ import {
   View,
   Modal,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ImagePicker from 'react-native-image-crop-picker';
 
-const Sidebar = ({ navigation, route }) => {
+const Sidebar = ({navigation, route}) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [image, setImage] = useState(require('../assets/profile.png'));
   const [userData, setUserData] = useState(null);
   const [dropdownVisible, setDropdownVisible] = useState(false);
 
   useEffect(() => {
-    const { params } = route ?? {};
+    const {params} = route ?? {};
     if (params && params.userData) {
       setUserData(params.userData);
     } else {
@@ -45,8 +45,6 @@ const Sidebar = ({ navigation, route }) => {
     setDropdownVisible(!dropdownVisible);
   };
 
- 
-
   const goToHome = () => {
     navigation.navigate('Home');
   };
@@ -65,6 +63,10 @@ const Sidebar = ({ navigation, route }) => {
     navigation.navigate('LocationInventory');
   };
 
+  const goToDistributorGrn = () => {
+    navigation.navigate('Distributor GRN');
+  };
+
   const goToEditProfile = () => {
     navigation.navigate('Profile');
   };
@@ -76,11 +78,11 @@ const Sidebar = ({ navigation, route }) => {
       cropping: true,
       compressImageQuality: 0.7,
     })
-      .then((image) => {
-        setImage({ uri: image.path });
+      .then(image => {
+        setImage({uri: image.path});
         setModalVisible(false);
       })
-      .catch((error) => {
+      .catch(error => {
         console.log('Error taking photo from camera:', error);
         setModalVisible(false);
       });
@@ -93,11 +95,11 @@ const Sidebar = ({ navigation, route }) => {
       cropping: true,
       compressImageQuality: 0.7,
     })
-      .then((image) => {
-        setImage({ uri: image.path });
+      .then(image => {
+        setImage({uri: image.path});
         setModalVisible(false);
       })
-      .catch((error) => {
+      .catch(error => {
         console.log('Error choosing photo from library:', error);
         setModalVisible(false);
       });
@@ -120,15 +122,15 @@ const Sidebar = ({ navigation, route }) => {
 
   return (
     <View style={styles.container}>
-      <View style={{ backgroundColor: '#390050' }}>
+      <View style={{backgroundColor: '#390050'}}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => setModalVisible(true)}>
             <Image
-              style={[styles.img, { borderRadius: 30, tintColor: '#fff' }]}
+              style={[styles.img, {borderRadius: 30, tintColor: '#fff'}]}
               source={image}
             />
           </TouchableOpacity>
-          <Text style={{ color: '#fff', fontSize: 20 }}>Profile</Text>
+          <Text style={{color: '#fff', fontSize: 20}}>Profile</Text>
         </View>
         <View>
           {userData && (
@@ -164,25 +166,35 @@ const Sidebar = ({ navigation, route }) => {
           source={require('../assets/inventory.png')}
         />
         <Text style={styles.ordertxt}>Inventory</Text>
-        <View style={{ marginLeft: 'auto' }}>
+        <View style={{marginLeft: 'auto'}}>
           <Image
             source={require('../assets/dropdown.png')}
-            style={{ width: 20, height: 20 }}
+            style={{width: 20, height: 20}}
           />
         </View>
       </TouchableOpacity>
+     
 
       {dropdownVisible && (
         <View style={styles.dropdown}>
-          <TouchableOpacity onPress={() => goToProductInventory('Product Inventory')}>
+          <TouchableOpacity
+            onPress={() => goToProductInventory('Product Inventory')}>
             <Text style={styles.dropdownItem}>Product Inventory</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => goToLocationInventory('Location Wise Inventory')}>
+          <TouchableOpacity
+            onPress={() => goToLocationInventory('Location Wise Inventory')}>
             <Text style={styles.dropdownItemm}>Location Wise Inventory</Text>
           </TouchableOpacity>
           {/* Add more dropdown items here */}
         </View>
       )}
+       <TouchableOpacity onPress={goToDistributorGrn} style={styles.distributorhead}>
+        <Image
+          style={styles.distributorimg}
+          source={require('../assets/distributor.png')}
+        />
+        <Text style={styles.ordertxt}>Distributor GRN</Text>
+      </TouchableOpacity>
 
       <Modal
         animationType="slide"
@@ -206,7 +218,7 @@ const Sidebar = ({ navigation, route }) => {
             <TouchableOpacity
               style={styles.modalCancelButton}
               onPress={() => setModalVisible(false)}>
-              <Text style={{ color: 'white' }}>Cancel</Text>
+              <Text style={{color: 'white'}}>Cancel</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -218,7 +230,7 @@ const Sidebar = ({ navigation, route }) => {
             resizeMode="contain"
             style={[
               styles.logoutimg,
-              { tintColor: '#fff', height: 20, width: 20 },
+              {tintColor: '#fff', height: 20, width: 20},
             ]}
             source={require('../assets/logout.png')}
           />
@@ -282,16 +294,27 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginHorizontal: 10,
-    marginVertical: 25,
+    marginTop: 20,
   },
   inventoryhead: {
     flexDirection: 'row',
     alignItems: 'center',
     marginHorizontal: 10,
+    marginTop: 20,
+  },
+  distributorhead: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 10,
+    marginTop: 20,
   },
   orderimg: {
     height: 30,
     width: 30,
+  },
+  distributorimg: {
+    height: 35,
+    width: 35,
   },
   ordertxt: {
     fontSize: 16,
@@ -299,13 +322,13 @@ const styles = StyleSheet.create({
   },
   dropdownItem: {
     fontSize: 16,
-    marginHorizontal:30,
-    marginTop:15
+    marginHorizontal: 30,
+    marginTop: 15,
   },
   dropdownItemm: {
     fontSize: 16,
-    marginHorizontal:30,
-    marginTop:15
+    marginHorizontal: 30,
+    marginTop: 15,
   },
   logoutContainer: {
     position: 'absolute',

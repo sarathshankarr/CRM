@@ -174,9 +174,9 @@ const Cart = () => {
       emailId: 'supervisor381user@codeverse.in',
       action: 'ADD',
       createBy: 1,
-      createOn: '2020-09-16T14:07:33',
+      createOn: new Date().toISOString(),
       modifiedBy: 1,
-      modifiedOn: '2020-09-16T14:07:33',
+      modifiedOn: new Date().toISOString(),
       houseNo: '200 - F',
       street: 'First Lane',
       locality: 'Square Street',
@@ -199,15 +199,18 @@ const Cart = () => {
         },
       })
       .then(response => {
-        console.log(
-          'ADD_CUSTOMER_DETAILS',
-          response.data.response.customerList,
-        );
-        setSelectedCustomerDetails(response.data.response.customerList);
-        toggleModal();
+        const newCustomer = response.data.response.customerList[0];
+        console.log('ADD_CUSTOMER_DETAILS', newCustomer);
 
-        // Once the customer is added, get the locations associated with that customer
-        getCustomerLocations(response.data.response.customerList[0].customerId);
+        // Update the selected customer details and ID
+        setSelectedCustomerDetails([newCustomer]);
+        setSelectedCustomerId(newCustomer.customerId);
+
+        // Fetch and set the customer locations for the new customer
+        getCustomerLocations(newCustomer.customerId);
+
+        // Close the modal
+        toggleModal();
       })
       .catch(error => {
         console.error('Error adding customer:', error);
@@ -495,11 +498,10 @@ const Cart = () => {
   useEffect(() => {
     if (selectedItem) {
       setInputValuess(selectedItem.inputValue || {}); // Set to an empty object if selectedItem.inputValue is empty
-      console.log("Input Values:", inputValuess); // Log the inputValues state
+      console.log('Input Values:', inputValuess); // Log the inputValues state
     }
   }, [selectedItem]);
-    
-  
+
   const closeModal = () => {
     setModalVisible(false);
     setSelectedItem(null);
@@ -704,6 +706,7 @@ const Cart = () => {
                           ? `${selectedCustomerDetails[0].firstName} ${selectedCustomerDetails[0].lastName}`
                           : 'Customer'}
                       </Text>
+
                       <Image
                         source={require('../../../assets/dropdown.png')}
                         style={{width: 20, height: 20}}
@@ -814,7 +817,7 @@ const Cart = () => {
               <View
                 style={{
                   elevation: 5,
-                  height: 300,
+                  height: 175,
                   alignSelf: 'center',
                   width: '85%',
                   backgroundColor: '#fff',
@@ -871,7 +874,7 @@ const Cart = () => {
               <View
                 style={{
                   elevation: 5,
-                  height: 300,
+                  height: 175,
                   alignSelf: 'center',
                   width: '85%',
                   backgroundColor: '#fff',
@@ -1310,7 +1313,7 @@ const style = StyleSheet.create({
     color: '#000',
     fontSize: 15,
     fontWeight: 'bold',
-    marginHorizontal:5
+    marginHorizontal: 5,
   },
   imgContainer: {
     flexDirection: 'row',

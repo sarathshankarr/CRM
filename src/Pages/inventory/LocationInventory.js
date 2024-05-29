@@ -102,7 +102,7 @@ const LocationInventory = () => {
         <Text style={styles.itemText1}>{item.styleName}</Text>
         <Text style={styles.itemText2}>{item.sizeCode}</Text>
         <Text style={styles.itemText3}>{item.availQty}</Text>
-        <Text style={styles.itemText4}>{item.holdQty}</Text>
+        {/* <Text style={styles.itemText4}>{item.holdQty}</Text> */}
       </View>
       <View
         style={{borderBottomWidth: 1, borderBottomColor: 'lightgray'}}></View>
@@ -144,7 +144,7 @@ const LocationInventory = () => {
         <Text style={styles.headerText1}>Style Name</Text>
         <Text style={styles.headerText2}>Size</Text>
         <Text style={styles.headerText3}>Avail Qty</Text>
-        <Text style={styles.headerText4}>Hold Qty</Text>
+        {/* <Text style={styles.headerText4}>Hold Qty</Text> */}
       </View>
       {loading ? (
         <ActivityIndicator
@@ -235,7 +235,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   itemText: {
-    flex: 0.9,
+    flex: 1,
     textAlign: 'center',
   },
   itemText1: {

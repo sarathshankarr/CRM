@@ -13,17 +13,44 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {getAllCategories} from '../utils/serviceApi/serviceAPIComponent';
+import { useSelector } from 'react-redux';
 
 const Categories = ({navigation}) => {
   const [selectedDetails, setSelectedDetails] = useState([]);
   const [showSearchInput, setShowSearchInput] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
+  const [initialSelectedCompany, setInitialSelectedCompany] = useState(null);
+
+  const selectedCompany = useSelector(state => state.selectedCompany);
+
+  useEffect(() => {
+    const fetchInitialSelectedCompany = async () => {
+      try {
+        const initialCompanyData = await AsyncStorage.getItem(
+          'initialSelectedCompany',
+        );
+        if (initialCompanyData) {
+          const initialCompany = JSON.parse(initialCompanyData);
+          setInitialSelectedCompany(initialCompany);
+          console.log('Initial Selected Company:', initialCompany);
+        }
+      } catch (error) {
+        console.error('Error fetching initial selected company:', error);
+      }
+    };
+
+    fetchInitialSelectedCompany();
+  }, []);
+
+  const companyId = selectedCompany
+    ? selectedCompany.id
+    : initialSelectedCompany?.id;
 
   useEffect(() => {
     fetchCategories();
+  }, [companyId]);
 
-  }, []);
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
@@ -39,10 +66,12 @@ const Categories = ({navigation}) => {
       setLoading(true);
       const [tokenString] = await AsyncStorage.multiGet(['userdata']);
       const token = JSON.parse(tokenString[1]);
-      const {data, error} = await getAllCategories(token.access_token);
-
+      const { data, error } = await getAllCategories(token.access_token, companyId);
+  
       if (data) {
-        setSelectedDetails(data);
+        // Filter categories based on the companyId
+        const filteredCategories = data.filter(category => category.companyId === companyId);
+        setSelectedDetails(filteredCategories);
       } else {
         console.error('Error fetching categories:', error);
       }

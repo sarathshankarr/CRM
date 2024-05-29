@@ -79,14 +79,15 @@ const AllCategoriesListed = ({ navigation, route }) => {
             source={item.imageUrls && item.imageUrls.length > 0 ? { uri: item.imageUrls[0] } : require('../../../assets/Noimg.jpg')}
             onError={(error) => console.error('Error loading image:', error)}
           />
-         <Text style={[styles.productName, item.imageUrls && item.imageUrls.length > 0 && { backgroundColor: 'rgba(0, 0, 0, 0.2)' }]}>
-          {item.styleName}</Text>
+          <Text style={[styles.productName, item.imageUrls && item.imageUrls.length > 0 && { backgroundColor: 'rgba(0, 0, 0, 0.2)' }]}>
+            {item.styleName}
+          </Text>
         </View>
         <View style={styles.detailsContainer}></View>
       </View>
       <View style={styles.additionalDetailsContainer}>
         <Text>Price: {item.mrp}</Text>
-        <Text numberOfLines={1} ellipsizeMode="tail" >color Name: {item.colorName}</Text>
+        <Text numberOfLines={1} ellipsizeMode="tail">Color Name: {item.colorName}</Text>
         <View style={styles.notesContainer}>
           <Text numberOfLines={1} ellipsizeMode="tail" style={styles.descriptionText}>
             Description: {item.styleDesc}
@@ -99,7 +100,6 @@ const AllCategoriesListed = ({ navigation, route }) => {
       </View>
     </TouchableOpacity>
   );
-  
 
   if (isLoading) {
     return (
@@ -110,14 +110,20 @@ const AllCategoriesListed = ({ navigation, route }) => {
   }
 
   return (
-    <View style={{backgroundColor:"#fff",flex:1}}>
-      <FlatList
-        data={selectedDetails}
-        renderItem={renderProductItem}
-        keyExtractor={(item, index) => index.toString()}
-        numColumns={2}
-        contentContainerStyle={styles.flatListContainer}
-      />
+    <View style={{ backgroundColor: "#fff", flex: 1 }}>
+      {selectedDetails.length === 0 ? (
+        <View style={styles.noProductsContainer}>
+          <Text style={styles.noProductsText}>There are no products available.</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={selectedDetails}
+          renderItem={renderProductItem}
+          keyExtractor={(item, index) => index.toString()}
+          numColumns={2}
+          contentContainerStyle={styles.flatListContainer}
+        />
+      )}
       <ModalComponent
         modalVisible={modalVisible}
         closeModal={() => setModalVisible(false)}
@@ -173,8 +179,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   buttonqty: {
-    marginHorizontal:3,
-    marginVertical:3,
+    marginHorizontal: 3,
+    marginVertical: 3,
     borderWidth: 1,
     paddingVertical: 10,
     borderRadius: 5,
@@ -192,7 +198,16 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor:"#fff"
+    backgroundColor: "#fff"
+  },
+  noProductsContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  noProductsText: {
+    fontSize: 18,
+    color: '#000',
   },
 });
 

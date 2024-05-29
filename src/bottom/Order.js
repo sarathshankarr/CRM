@@ -9,7 +9,7 @@ import {
   Modal,
 } from 'react-native';
 import axios from 'axios';
-import {useFocusEffect} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {API} from '../config/apiConfig';
 
 const Order = () => {
@@ -19,6 +19,8 @@ const Order = () => {
   const [loading, setLoading] = useState(false);
   const [firstLoad, setFirstLoad] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [refreshingOrders, setRefreshingOrders] = useState(false);
+  const navigation = useNavigation();
 
   const getAllOrders = useCallback(() => {
     setLoading(true);
@@ -26,7 +28,7 @@ const Order = () => {
       pageNo: pageNo.toString(),
       pageSize: pageSize.toString(),
       userId: '1',
-      orderId: '',
+      orderId: orders.length > 0 ? orders[orders.length - 1].orderId : '',
     });
 
     axios
@@ -40,10 +42,14 @@ const Order = () => {
         if (pageNo === 1) {
           setOrders(response.data.response.ordersList);
         } else {
-          setOrders(prevOrders => [
-            ...prevOrders,
-            ...response.data.response.ordersList,
-          ]);
+          // Filter out orders that already exist in the list
+          const newOrders = response.data.response.ordersList.filter(
+            order =>
+              !orders.some(
+                existingOrder => existingOrder.orderId === order.orderId,
+              ),
+          );
+          setOrders(prevOrders => [...prevOrders, ...newOrders]);
         }
       })
       .catch(error => {
@@ -52,7 +58,7 @@ const Order = () => {
       .finally(() => {
         setLoading(false);
       });
-  }, [pageNo, pageSize]);
+  }, [pageNo, pageSize, orders]);
 
   useEffect(() => {
     if (firstLoad) {
@@ -76,6 +82,14 @@ const Order = () => {
     }
   };
 
+  const handleOrderPress = item => {
+    if (item.packedStts === 'YET TO PACK') {
+      setSelectedOrder(item);
+    } else {
+      navigation.navigate('PackingOrders', {orderId: item.orderId});
+    }
+  };
+
   const renderItem = ({item}) => {
     if (!item) return null; // Add null check here
 
@@ -83,8 +97,11 @@ const Order = () => {
       <View style={style.container}>
         <TouchableOpacity
           style={style.header}
-          onPress={() => setSelectedOrder(item)}>
+          onPress={() => handleOrderPress(item)}>
           <View style={style.ordheader}>
+            <View style={style.orderidd}>
+              <Text>OrderId : {item.orderId}</Text>
+            </View>
             <View style={style.ordshpheader}>
               <Text>Order Date: {item.orderDate}</Text>
               <Text>Ship Date: {item.shipDate}</Text>
@@ -94,6 +111,9 @@ const Order = () => {
                 Customer Name: {item.customerName}
               </Text>
               <Text>Total Amount: {item.totalAmount}</Text>
+            </View>
+            <View style={style.PackedStatus}>
+              <Text>Packing status: {item.packedStts}</Text>
             </View>
             <View>
               <Text
@@ -135,9 +155,11 @@ const Order = () => {
           }
           onEndReached={loadMoreOrders}
           onEndReachedThreshold={0.1}
-          refreshing={loading}
+          refreshing={refreshingOrders}
           onRefresh={() => {
-            setPageNo(1);
+            setRefreshingOrders(true); // Set refreshing flag to true
+            setPageNo(1); // Reset page number
+            setRefreshingOrders(false); // Reset refreshing flag after fetching new data
           }}
         />
       )}
@@ -146,22 +168,25 @@ const Order = () => {
           <View style={style.modalContainer}>
             <View style={style.modalContent}>
               <View style={style.custtlheader}>
-                <Text>OrderId:{selectedOrder.orderId}</Text>
-                <Text>TotalQty:{selectedOrder.totalQty}</Text>
+                <Text>OrderId : {selectedOrder.orderId}</Text>
+                <Text>TotalQty :{selectedOrder.totalQty}</Text>
               </View>
               <View style={style.modelordshpheader}>
-                <Text>Order Date: {selectedOrder.orderDate}</Text>
-                <Text>Ship Date: {selectedOrder.shipDate}</Text>
+                <Text>Order Date : {selectedOrder.orderDate}</Text>
+                <Text>Ship Date : {selectedOrder.shipDate}</Text>
               </View>
               <View style={style.custtlheader}>
                 <Text style={{flex: 0.9}}>
-                  Customer Name: {selectedOrder.customerName}
+                  Customer Name : {selectedOrder.customerName}
                 </Text>
-                <Text>Total Amount: {selectedOrder.totalAmount}</Text>
+                <Text>Total Amount : {selectedOrder.totalAmount}</Text>
               </View>
-              <Text style={{textAlign: 'right', marginHorizontal: 10}}>
-                Status: {selectedOrder.orderStatus}
-              </Text>
+              <View style={style.custtlheader}>
+                <Text style={{flex: 0.9}}>
+                  Packing status : {selectedOrder.packedStts}
+                </Text>
+                <Text> Status : {selectedOrder.orderStatus} </Text>
+              </View>
               <TouchableOpacity
                 style={style.closeButton}
                 onPress={() => setSelectedOrder(null)}>
@@ -187,6 +212,14 @@ const style = StyleSheet.create({
     borderRadius: 10,
   },
   ordheader: {
+    marginVertical: 5,
+  },
+  orderidd: {
+    marginHorizontal: 10,
+    marginVertical: 5,
+  },
+  PackedStatus: {
+    marginHorizontal: 10,
     marginVertical: 5,
   },
   ordshpheader: {

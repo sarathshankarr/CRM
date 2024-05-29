@@ -89,20 +89,21 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flexGrow: 1,
+    paddingBottom: 60, // Ensure space for the button
   },
   priceContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     marginTop: 20,
-    paddingHorizontal: 20,
+    paddingHorizontal: 10,
     width: '100%',
     borderBottomWidth: 1,
     borderBottomColor: '#000',
     marginVertical: 10,
   },
   tagsContainer: {
-    marginHorizontal: 20,
+    marginHorizontal: 10,
     width: '100%',
     borderBottomWidth: 1,
     borderBottomColor: '#000',
@@ -110,7 +111,7 @@ const styles = StyleSheet.create({
   },
   setContainer: {
     flexDirection: 'row',
-    paddingHorizontal: 20,
+    paddingHorizontal: 10,
     width: '100%',
     borderBottomWidth: 1,
     borderBottomColor: '#000',
@@ -118,12 +119,11 @@ const styles = StyleSheet.create({
     alignItems: "center"
   },
   notesContainer: {
-    flexDirection: 'row',
+    marginHorizontal: 10,
     width: '100%',
     borderBottomWidth: 1,
     borderBottomColor: '#000',
-    alignItems: "center",
-    marginHorizontal: 20
+    marginBottom: 10,
   },
   priceText: {
     marginVertical: 10,
@@ -139,6 +139,7 @@ const styles = StyleSheet.create({
   },
   detailValue: {
     fontSize: 18,
+    marginHorizontal:5
   },
   notesLabel: {
     fontSize: 18,
@@ -147,15 +148,13 @@ const styles = StyleSheet.create({
   txt: {
     fontSize: 20,
     color: '#000',
-    marginHorizontal: 5
+    marginHorizontal: 5,
   },
   buttonContainer: {
     borderWidth: 1,
     backgroundColor: '#390050',
     width: '100%',
     paddingVertical: 13,
-    position: 'absolute',
-    bottom: 0,
   },
   buttonText: {
     textAlign: 'center',

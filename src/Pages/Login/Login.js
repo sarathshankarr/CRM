@@ -1,4 +1,3 @@
-
 import React, {useState} from 'react';
 import {
   Alert,
@@ -26,6 +25,11 @@ const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false); // State for toggling password visibility
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
 
   const goingToSignUp = () => {
     navigation.navigate('SignUp');
@@ -87,7 +91,7 @@ const Login = () => {
     const apiUrl = `${API.ADD_USERS}/${userData.userId}`; // Update API URL to include dynamic userId
     try {
       const response = await axios.get(apiUrl, {
-        headers: { Authorization: `Bearer ${userData.access_token}` },
+        headers: {Authorization: `Bearer ${userData.access_token}`},
       });
       const loggedInUser = response.data.response.users[0]; // Since response is expected to have only one user with given userId
       if (loggedInUser) {
@@ -113,7 +117,7 @@ const Login = () => {
           }
         }
         if (roleName && roleId) {
-          await saveRoleToStorage({ roleName, roleId });
+          await saveRoleToStorage({roleName, roleId});
         } else {
           Alert.alert(
             'Unauthorized role',
@@ -183,22 +187,22 @@ const Login = () => {
             style={styles.input}
             placeholder="Password"
             placeholderTextColor="#000"
-            secureTextEntry={true}
+            secureTextEntry={!showPassword} // Toggle secureTextEntry based on state
             onChangeText={text => setPassword(text)}
             value={password}
           />
-          <Image
-            source={require('../../../assets/lock.png')}
-            style={styles.inputImage}
-          />
-        </View>
-
-        <View style={styles.rowContainer}>
-          <TouchableOpacity onPress={handleForgotPassword}>
-            <Text style={styles.text}>Forgot Password?</Text>
+          <TouchableOpacity onPress={togglePasswordVisibility}>
+            <Image
+              source={require('../../../assets/lock.png')}
+              style={styles.inputImage}
+            />
           </TouchableOpacity>
         </View>
-
+        <View style={styles.rowContainer}>
+          {/* <TouchableOpacity onPress={handleForgotPassword}>
+            <Text style={styles.text}>Forgot Password?</Text>
+          </TouchableOpacity> */}
+        </View>
         <TouchableOpacity
           style={styles.button}
           onPress={handleLogin}

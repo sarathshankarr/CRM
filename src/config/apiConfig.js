@@ -17,8 +17,12 @@ export const API = {
   ADD_CUSTOMER_LOCATION:BASE_URL.SIT +'/erpportal/api/location/addlocation',
   ADD_USERS: BASE_URL.SIT + '/erpportal/api/users',
   ADD_PRODUCT_INVENTORY: BASE_URL.SIT + '/erpportal/api/style/cedge/getMainInventory',
-  ADD_LOCATION_INVENTORY: BASE_URL.SIT + '/erpportal/api/style/cedge/getLocationInventory'
+  ADD_LOCATION_INVENTORY: BASE_URL.SIT + '/erpportal/api/style/cedge/getLocationInventory',
+  GET_ORDER_PACKING: BASE_URL.SIT + '/erpportal/api/ordermgmt/getOrderPacking',
+  ADD_GENERATED_PDF: BASE_URL.SIT+ '/erpportal/api/ordermgmt/generatePdf',
+  GET_DISTRIBUTOR_GRN: BASE_URL.SIT+ '/erpportal/api/ordermgmt/findAllGrnOrders'
 };
+
 
 export const USER_ID = 'adminClientId';
 export const USER_PASSWORD = 'erpPortalAdmin';
