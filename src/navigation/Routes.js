@@ -19,6 +19,7 @@ import ImageSlider from '../components/ImageSlider';
 import CommenHeaderHomeScreen from '../components/CommenHeaderHomeScreen';
 import PackingOrders from '../Pages/Packingorders/PackingOrders';
 import DistributorGrn from '../Pages/distributorgrn/DistributorGrn';
+import DistributorOrder from '../Pages/distributororder/DistributorOrder';
 
 const Stack = createNativeStackNavigator();
 
@@ -83,7 +84,7 @@ const Routes = () => {
             header: () => (
               <CommonHeader
                 navigation={navigation}
-                title="All Categories"
+                title="Categories"
                 showMessageIcon={true}
                 showCartIcon={true}
                 showLocationIcon={true}
@@ -141,6 +142,11 @@ const Routes = () => {
           name="Distributor GRN"
           component={DistributorGrn}
           options={{headerShown: true}}
+        />
+          <Stack.Screen
+          name="DistributorOrder"
+          component={DistributorOrder}
+          options={{headerShown: false}}
         />
       </Stack.Navigator>
     </NavigationContainer>

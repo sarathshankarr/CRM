@@ -113,7 +113,7 @@ const Order = () => {
               <Text>Total Amount: {item.totalAmount}</Text>
             </View>
             <View style={style.PackedStatus}>
-              <Text>Packing status: {item.packedStts}</Text>
+              <Text style={{fontWeight:"bold"}}>Packing status: {item.packedStts}</Text>
             </View>
             <View>
               <Text

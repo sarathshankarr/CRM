@@ -20,7 +20,9 @@ export const API = {
   ADD_LOCATION_INVENTORY: BASE_URL.SIT + '/erpportal/api/style/cedge/getLocationInventory',
   GET_ORDER_PACKING: BASE_URL.SIT + '/erpportal/api/ordermgmt/getOrderPacking',
   ADD_GENERATED_PDF: BASE_URL.SIT+ '/erpportal/api/ordermgmt/generatePdf',
-  GET_DISTRIBUTOR_GRN: BASE_URL.SIT+ '/erpportal/api/ordermgmt/findAllGrnOrders'
+  GET_DISTRIBUTOR_GRN: BASE_URL.SIT+ '/erpportal/api/ordermgmt/findAllGrnOrders',
+  GET_DISTRIBUTOR_ORDER: BASE_URL.SIT + '/erpportal/api/ordermgmt/disOrdersById',
+  ADD_GRN_ORDER: BASE_URL.SIT + '/erpportal/api/ordermgmt/addgrnorder'
 };
 
 

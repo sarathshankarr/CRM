@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
   },
   productImage: {
     width: '100%',
-    height: 300,
+    height: 200,
     resizeMode: 'cover',
   },
   productName: {

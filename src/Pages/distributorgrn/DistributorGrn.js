@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, FlatList, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native'; // Import ActivityIndicator
 import { API } from '../../config/apiConfig';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation } from '@react-navigation/native';
 
 const DistributorGrn = () => {
+  const navigation = useNavigation();
   const [initialSelectedCompany, setInitialSelectedCompany] = useState(null);
   const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(false); // State to manage loading state
 
   const selectedCompany = useSelector(state => state.selectedCompany);
 
@@ -37,6 +40,7 @@ const DistributorGrn = () => {
   }, [companyId]);
 
   const getDistributorGrn = async () => {
+    setLoading(true); // Set loading to true when fetching data
     const apiUrl = `${API.GET_DISTRIBUTOR_GRN}?companyId=${companyId}`;
     try {
       const response = await axios.get(apiUrl, {
@@ -53,11 +57,17 @@ const DistributorGrn = () => {
       }
     } catch (error) {
       console.error('Error:', error);
+    } finally {
+      setLoading(false); // Set loading to false when data fetching is completed
     }
   };
 
+  const gotoDistributorOrder = (orderId) => {
+    navigation.navigate("DistributorOrder", { orderId });
+  };
+
   const renderOrderItem = ({ item }) => (
-    <TouchableOpacity style={styles.orderItem}>
+    <TouchableOpacity onPress={() => gotoDistributorOrder(item.orderId)} style={styles.orderItem}>
       <Text style={styles.orderIdText}>{item.orderId}</Text>
       <Text style={styles.customerText}>{item.customerName}</Text>
       <Text style={styles.qtyText}>{item.totalShippedQty || 0}</Text>
@@ -75,11 +85,15 @@ const DistributorGrn = () => {
         <Text style={styles.statusText}>Status</Text>
         <Text style={styles.dateText}>Order Date</Text>
       </View>
-      <FlatList
-        data={orders}
-        renderItem={renderOrderItem}
-        keyExtractor={item => item.orderId.toString()}
-      />
+      {loading ? ( // Render ActivityIndicator when loading is true
+        <ActivityIndicator size="large" color="#0000ff" style={styles.activityIndicator} />
+      ) : (
+        <FlatList
+          data={orders}
+          renderItem={renderOrderItem}
+          keyExtractor={item => item.orderId.toString()}
+        />
+      )}
     </View>
   );
 };
@@ -116,11 +130,16 @@ const styles = StyleSheet.create({
   },
   statusText: {
     flex: 1.4,
-    marginLeft:10
+    marginLeft: 10,
   },
   dateText: {
     flex: 1.5,
     textAlign: 'center',
+  },
+  activityIndicator: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

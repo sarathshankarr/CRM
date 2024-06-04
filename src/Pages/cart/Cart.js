@@ -42,7 +42,7 @@ const Cart = () => {
   const [inputValuess, setInputValuess] = useState({});
   const cartItems = useSelector(state => state.cartItems);
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
-  const [selatedDate, setSelectedDate] = useState('Expexted Delivery Date');
+  const [selatedDate, setSelectedDate] = useState('Expected delivery date');
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
@@ -58,6 +58,7 @@ const Cart = () => {
   const [selectedShipLocation, setSelectedShipLocation] = useState('');
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedCustomerDetails, setSelectedCustomerDetails] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const fetchInitialSelectedCompany = async () => {
@@ -325,6 +326,10 @@ const Cart = () => {
   // console.log('selecteditem', selectedItem);
 
   const PlaceAddOrder = () => {
+    if (isSubmitting) return; // Prevent multiple submissions
+
+    if (isSubmitting) return;
+
     if (userRole === 'admin') {
       if (!selectedCustomer) {
         Alert.alert('Alert', 'Please select a customer.');
@@ -333,6 +338,7 @@ const Cart = () => {
     } else if (userRole === 'Distributor' || userRole === 'Retailer') {
       // No alert for Distributor or Retailer
     }
+    
 
     if (!selectedLocation) {
       Alert.alert('Alert', 'Please select a Billing to location.');
@@ -347,6 +353,7 @@ const Cart = () => {
       Alert.alert('Alert', 'No items selected. Please add items to the cart.');
       return;
     }
+    setIsSubmitting(true);
 
     console.log('loggedInUser:', loggedInUser);
     console.log('userRole:', userRole);
@@ -487,6 +494,10 @@ const Cart = () => {
       })
       .catch(error => {
         console.error('Error placing order:', error);
+      })
+      .finally(() => {
+        // Reset loading state after order placement completes
+        setIsSubmitting(false);
       });
   };
 
@@ -1099,12 +1110,13 @@ const Cart = () => {
 
           <TouchableOpacity
             onPress={PlaceAddOrder}
+            disabled={isSubmitting} // Disable button when submitting
             style={{
               borderWidth: 1,
-              // borderColor: 'green',
               backgroundColor: '#390050',
               paddingVertical: 15,
               paddingHorizontal: 20,
+              opacity: isSubmitting ? 0.5 : 1, // Dim button when submitting
             }}>
             <Text
               style={{
@@ -1113,7 +1125,7 @@ const Cart = () => {
                 fontWeight: 'bold',
                 fontSize: 20,
               }}>
-              PLACE ORDER
+              {isSubmitting ? 'Placing Order...' : 'PLACE ORDER'}
             </Text>
           </TouchableOpacity>
 
