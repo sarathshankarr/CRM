@@ -11,54 +11,67 @@ import {
 import axios from 'axios';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {API} from '../config/apiConfig';
+import { useSelector } from 'react-redux';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Order = () => {
   const [orders, setOrders] = useState([]);
   const [pageNo, setPageNo] = useState(1);
   const [pageSize, setPageSize] = useState(20);
+  const [initialSelectedCompany, setInitialSelectedCompany] = useState(null);
   const [loading, setLoading] = useState(false);
   const [firstLoad, setFirstLoad] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [refreshingOrders, setRefreshingOrders] = useState(false);
   const navigation = useNavigation();
+  const selectedCompany = useSelector(state => state.selectedCompany);
 
-  const getAllOrders = useCallback(() => {
-    setLoading(true);
-    const queryParams = new URLSearchParams({
-      pageNo: pageNo.toString(),
-      pageSize: pageSize.toString(),
-      userId: '1',
-      orderId: orders.length > 0 ? orders[orders.length - 1].orderId : '',
-    });
+  useEffect(() => {
+    const fetchInitialSelectedCompany = async () => {
+      try {
+        const initialCompanyData = await AsyncStorage.getItem('initialSelectedCompany');
+        if (initialCompanyData) {
+          const initialCompany = JSON.parse(initialCompanyData);
+          setInitialSelectedCompany(initialCompany);
+          console.log('Initial Selected Company:', initialCompany);
+        }
+      } catch (error) {
+        console.error('Error fetching initial selected company:', error);
+      }
+    };
 
+    fetchInitialSelectedCompany();
+  }, []);
+
+  const companyId = selectedCompany ? selectedCompany.id : initialSelectedCompany?.id;
+
+  useEffect(() => {
+    if (companyId) {
+      getAllOrders();
+    }
+  }, [companyId]);
+
+  const getAllOrders = () => {
+    setLoading(true); // Show loading indicator
+    const apiUrl = `${API.GET_ALL_ORDER}/${0}/${companyId}`;
+    console.log("companyId",companyId)
     axios
-      .get(`${API.GET_ALL_ORDER}?${queryParams}`, {
+      .get(apiUrl, {
         headers: {
-          'Content-Type': 'application/json',
           Authorization: `Bearer ${global.userData.access_token}`,
         },
       })
       .then(response => {
-        if (pageNo === 1) {
-          setOrders(response.data.response.ordersList);
-        } else {
-          // Filter out orders that already exist in the list
-          const newOrders = response.data.response.ordersList.filter(
-            order =>
-              !orders.some(
-                existingOrder => existingOrder.orderId === order.orderId,
-              ),
-          );
-          setOrders(prevOrders => [...prevOrders, ...newOrders]);
-        }
-      })
+        console.log(response.data); // Log the response data to see its structure
+        setOrders(response.data.response.ordersList);      })
       .catch(error => {
         console.error('Error:', error);
       })
       .finally(() => {
-        setLoading(false);
+        setLoading(false); // Hide loading indicator
       });
-  }, [pageNo, pageSize, orders]);
+  };
+
 
   useEffect(() => {
     if (firstLoad) {

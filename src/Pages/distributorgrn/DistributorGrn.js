@@ -41,7 +41,8 @@ const DistributorGrn = () => {
 
   const getDistributorGrn = async () => {
     setLoading(true); // Set loading to true when fetching data
-    const apiUrl = `${API.GET_DISTRIBUTOR_GRN}?companyId=${companyId}`;
+    const apiUrl = `${API.GET_DISTRIBUTOR_GRN}/${companyId}`;
+    console.log("companyId",companyId)
     try {
       const response = await axios.get(apiUrl, {
         headers: {
@@ -61,6 +62,7 @@ const DistributorGrn = () => {
       setLoading(false); // Set loading to false when data fetching is completed
     }
   };
+
 
   const gotoDistributorOrder = (orderId) => {
     navigation.navigate("DistributorOrder", { orderId });

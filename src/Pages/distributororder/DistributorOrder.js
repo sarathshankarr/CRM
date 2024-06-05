@@ -257,7 +257,7 @@ const DistributorOrder = () => {
   
     return (
       <View style={styles.orderItem}>
-        <Text style={{flex: 0.5}}>{item.styleId}</Text>
+        <Text style={{marginRight:1}}>{item.styleId}</Text>
         <Text style={[styles.orderText, {flex: 2.2}]}>{item.styleName}</Text>
         <Text style={[styles.orderText, {flex: 1.6}]}>{item.colorName}</Text>
         <Text style={[styles.orderText, {flex: 1}]}>{item.size}</Text>
