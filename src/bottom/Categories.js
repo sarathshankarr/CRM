@@ -103,6 +103,7 @@ const Categories = ({navigation}) => {
           navigation.navigate('AllCategoriesListed', {
             item,
             categoryId: item.categoryId,
+            categoryDesc: item.categoryDesc,
           });
         }}>
         <View style={styles.productImageContainer}>

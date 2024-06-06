@@ -19,7 +19,13 @@ import {API} from '../config/apiConfig';
 
 const dynamicPart = 0; // Need to change this as a dynamic
 
-const ModalComponent = ({modalVisible, closeModal, selectedItem,inputValuess, onInputValueChange}) => {
+const ModalComponent = ({
+  modalVisible,
+  closeModal,
+  selectedItem,
+  inputValuess,
+  onInputValueChange,
+}) => {
   // console.log('Modal selectedItem:', selectedItem);
   const [selectedItemState, setSelectedItem] = useState(selectedItem);
   const [keyboardSpace, setKeyboardSpace] = useState(0);
@@ -104,7 +110,7 @@ const ModalComponent = ({modalVisible, closeModal, selectedItem,inputValuess, on
         item.sizeDesc === sizeDesc &&
         item.colorName === selectedItem.colorName,
     );
-    
+
     if (existingItemIndex !== -1) {
       // If item exists in cart, update its quantity
       dispatch(updateCartItem(existingItemIndex, 'inputValue', inputValues));
@@ -116,14 +122,21 @@ const ModalComponent = ({modalVisible, closeModal, selectedItem,inputValuess, on
     setInputValues({});
   };
 
-  const handleQuantityChange = (text, index) => {
-    if (stylesData.length > index && stylesData[index].sizeList) {
+  const handleQuantityChange = (text, styleIndex, sizeIndex) => {
+    console.log('Text:', text);
+    console.log('Style Index:', styleIndex);
+    console.log('Size Index:', sizeIndex);
+
+    if (stylesData.length > styleIndex && stylesData[styleIndex].sizeList) {
       const updatedItem = {...selectedItemState};
-      const sizeDesc = stylesData[index].sizeList[index].sizeDesc; // Get sizeDesc from styleList
-      updatedItem.selectedSize = sizeDesc; // Update selectedSize
-      updatedItem[sizeDesc] = text;
-      setSelectedItem(updatedItem);
-      // console.log('Selected size:', sizeDesc); // Log selected size
+      const sizeList = stylesData[styleIndex].sizeList;
+      if (sizeList.length > sizeIndex) {
+        const sizeDesc = sizeList[sizeIndex].sizeDesc;
+        updatedItem.selectedSize = sizeDesc; // Update selectedSize
+        updatedItem[sizeDesc] = text;
+        setSelectedItem(updatedItem);
+        console.log('Selected size:', sizeDesc); // Log selected size
+      }
     }
   };
 
@@ -169,7 +182,7 @@ const ModalComponent = ({modalVisible, closeModal, selectedItem,inputValuess, on
 
   // console.log('selectedItem:', selectedItem);
   // console.log('inputValue:', inputValues);
-  
+
   return (
     <Modal
       animationType="slide"
@@ -184,8 +197,11 @@ const ModalComponent = ({modalVisible, closeModal, selectedItem,inputValuess, on
         keyboardShouldPersistTaps="handled">
         <View style={styles.modalContent}>
           <View style={styles.addqtyhead}>
-          <TouchableOpacity onPress={closeModal}>
-            <Image style={{height:30,width:30,tintColor: 'white',}} source={(require('../../assets/back_arrow.png'))}/>
+            <TouchableOpacity onPress={closeModal}>
+              <Image
+                style={{height: 30, width: 30, tintColor: 'white'}}
+                source={require('../../assets/back_arrow.png')}
+              />
             </TouchableOpacity>
             <Text style={styles.addqtytxt}>Add Quantity</Text>
           </View>
@@ -207,10 +223,13 @@ const ModalComponent = ({modalVisible, closeModal, selectedItem,inputValuess, on
                         flexDirection: 'row',
                         justifyContent: 'space-between',
                         marginHorizontal: 5,
-                        marginTop:5
+                        marginTop: 5,
                       }}>
                       <View>
-                      <Text>ColorName - {selectedItem ? selectedItem.colorName : ''}</Text>
+                        <Text>
+                          ColorName -{' '}
+                          {selectedItem ? selectedItem.colorName : ''}
+                        </Text>
                       </View>
                       <TouchableOpacity
                         style={{
@@ -273,7 +292,7 @@ const ModalComponent = ({modalVisible, closeModal, selectedItem,inputValuess, on
                                 const updatedInputValues = {...inputValues};
                                 updatedInputValues[size.sizeDesc] = text;
                                 setInputValues(updatedInputValues);
-                                handleQuantityChange(text, index); // Pass index instead of sizeDesc
+                                handleQuantityChange(text, index, sizeIndex); // Pass index and sizeIndex
                               }}
                             />
                             <View style={{flex: 0.4}}>
@@ -448,13 +467,13 @@ const styles = StyleSheet.create({
   addqtyhead: {
     backgroundColor: '#390050',
     padding: 10,
-    flexDirection:"row",
-    alignItems:"center",
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   addqtytxt: {
     color: 'white',
     fontWeight: 'bold',
-    marginLeft:10
+    marginLeft: 10,
   },
   sizehead: {
     padding: 1,

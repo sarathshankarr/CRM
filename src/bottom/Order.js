@@ -62,7 +62,7 @@ const Order = () => {
         },
       })
       .then(response => {
-        console.log(response.data); // Log the response data to see its structure
+        // console.log(response.data); // Log the response data to see its structure
         setOrders(response.data.response.ordersList);      })
       .catch(error => {
         console.error('Error:', error);

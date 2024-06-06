@@ -104,6 +104,7 @@ const HomeCategories = ({navigation}) => {
           navigation.navigate('AllCategoriesListed', {
             item,
             categoryId: item.categoryId,
+            categoryDesc: item.categoryDesc, // Pass the category description
           });
         }}>
         <View style={styles.productImageContainer}>

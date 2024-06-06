@@ -77,14 +77,14 @@ const Routes = () => {
           component={Profile}
           options={{headerShown: true}}
         />
-        <Stack.Screen
+         <Stack.Screen
           name="AllCategoriesListed"
           component={AllCategoriesListed}
-          options={({navigation}) => ({
+          options={({route, navigation}) => ({
             header: () => (
               <CommonHeader
                 navigation={navigation}
-                title="Categories"
+                title={route.params.categoryDesc} // Set the header title dynamically
                 showMessageIcon={true}
                 showCartIcon={true}
                 showLocationIcon={true}
