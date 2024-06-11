@@ -2,47 +2,64 @@ import React, { useEffect, useState } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
-import { isValidString } from '../Helper/Helper';
-import { useDispatch } from 'react-redux'; // Import useDispatch
+import { useDispatch } from 'react-redux';
 import { setLoggedInUser } from '../redux/actions/Actions';
+import { isValidString } from '../Helper/Helper';
 
 const Splash = () => {
   const navigation = useNavigation();
-  const dispatch = useDispatch(); // Initialize useDispatch
+  const dispatch = useDispatch();
   const [userData, setUserData] = useState(null);
 
   useEffect(() => {
     const checkLogin = async () => {
-      const userToken = await AsyncStorage.getItem('userdata');
-      const isLoggedIn = await AsyncStorage.getItem('loggedIn');
-      console.log('userToken:', userToken); // Log userToken
-      console.log('isLoggedIn:', isLoggedIn); // Log isLoggedIn
-
-      if (isValidString(userToken) && isLoggedIn === 'true') {
-        global.userData = JSON.parse(userToken);
-        setUserData(JSON.parse(userToken));
-        console.log('User is logged in');
-        console.log('Logged in user:', JSON.stringify(JSON.parse(userToken)));
-        navigation.reset({
-          index: 0,
-          routes: [{ name: 'Main' }],
-        });
-      } else {
-        console.log('User is not logged in');
-        navigation.reset({
-          index: 0,
-          routes: [{ name: 'Login' }],
-        });
-      }
+      // Clear any stored user data and login status
+      await AsyncStorage.removeItem('userData');
+      await AsyncStorage.removeItem('loggedIn');
+      
+      // Navigate to the login screen
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Login' }],
+      });
     };
 
+    // Call the checkLogin function when the Splash component is mounted
     checkLogin();
+  }, [navigation]);
 
-    // Dispatch setLoggedInUser action when userData changes
-    if (userData) {
-      dispatch(setLoggedInUser(userData));
-    }
-  }, [dispatch, navigation, userData]);
+  // useEffect(() => {
+  //   const checkLogin = async () => {
+  //     const userToken = await AsyncStorage.getItem('userData');
+  //     const isLoggedIn = await AsyncStorage.getItem('loggedIn');
+  //     console.log('userToken:', userToken);
+  //     console.log('isLoggedIn:', isLoggedIn);
+
+  //     if (isValidString(userToken) && isLoggedIn === 'true') {
+  //       global.userData = JSON.parse(userToken);
+  //       console.log("global.userData",global.userData)
+  //       setUserData(JSON.parse(userToken));
+  //       console.log('User is logged in');
+  //       console.log('Logged in user:', JSON.stringify(JSON.parse(userToken)));
+  //       navigation.reset({
+  //         index: 0,
+  //         routes: [{ name: 'Main' }],
+  //       });
+  //     } else {
+  //       console.log('User is not logged in');
+  //       navigation.reset({
+  //         index: 0,
+  //         routes: [{ name: 'Login' }],
+  //       });
+  //     }
+  //   };
+
+  //   checkLogin();
+
+  //   if (userData) {
+  //     dispatch(setLoggedInUser(userData));
+  //   }
+  // }, [dispatch, navigation, userData]);
 
   return (
     <View style={styles.container}>
@@ -65,9 +82,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   logo: {
-    width: '95%', // Adjust the width as needed
-    height: '95%', // Adjust the height as needed
-    resizeMode: 'contain', // This ensures the image fits within the bounds
+    width: '95%',
+    height: '95%',
+    resizeMode: 'contain',
   },
   userInfo: {
     marginTop: 20,

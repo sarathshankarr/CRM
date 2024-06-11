@@ -11,7 +11,7 @@ import {
 import axios from 'axios';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {API} from '../config/apiConfig';
-import { useSelector } from 'react-redux';
+import {useSelector} from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Order = () => {
@@ -29,7 +29,9 @@ const Order = () => {
   useEffect(() => {
     const fetchInitialSelectedCompany = async () => {
       try {
-        const initialCompanyData = await AsyncStorage.getItem('initialSelectedCompany');
+        const initialCompanyData = await AsyncStorage.getItem(
+          'initialSelectedCompany',
+        );
         if (initialCompanyData) {
           const initialCompany = JSON.parse(initialCompanyData);
           setInitialSelectedCompany(initialCompany);
@@ -43,7 +45,9 @@ const Order = () => {
     fetchInitialSelectedCompany();
   }, []);
 
-  const companyId = selectedCompany ? selectedCompany.id : initialSelectedCompany?.id;
+  const companyId = selectedCompany
+    ? selectedCompany.id
+    : initialSelectedCompany?.id;
 
   useEffect(() => {
     if (companyId) {
@@ -53,17 +57,18 @@ const Order = () => {
 
   const getAllOrders = () => {
     setLoading(true); // Show loading indicator
-    const apiUrl = `${API.GET_ALL_ORDER}/${0}/${companyId}`;
-    console.log("companyId",companyId)
+    const apiUrl = `${global?.userData?.productURL}${API.GET_ALL_ORDER}/${0}/${companyId}`;
+    console.log('companyId', companyId);
     axios
       .get(apiUrl, {
         headers: {
-          Authorization: `Bearer ${global.userData.access_token}`,
+          Authorization: `Bearer ${global.userData.token.access_token}`,
         },
       })
       .then(response => {
         // console.log(response.data); // Log the response data to see its structure
-        setOrders(response.data.response.ordersList);      })
+        setOrders(response.data.response.ordersList);
+      })
       .catch(error => {
         console.error('Error:', error);
       })
@@ -71,7 +76,6 @@ const Order = () => {
         setLoading(false); // Hide loading indicator
       });
   };
-
 
   useEffect(() => {
     if (firstLoad) {
@@ -126,7 +130,9 @@ const Order = () => {
               <Text>Total Amount: {item.totalAmount}</Text>
             </View>
             <View style={style.PackedStatus}>
-              <Text style={{fontWeight:"bold"}}>Packing status: {item.packedStts}</Text>
+              <Text style={{fontWeight: 'bold'}}>
+                Packing status: {item.packedStts}
+              </Text>
             </View>
             <View>
               <Text

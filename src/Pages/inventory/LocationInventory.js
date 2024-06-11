@@ -56,7 +56,7 @@ const LocationInventory = () => {
   }, []);
 
   const getLocationInventory = async () => {
-    const apiUrl = `${API.ADD_LOCATION_INVENTORY}`;
+    const apiUrl = `${global?.userData?.productURL}${API.ADD_LOCATION_INVENTORY}`;
     try {
       setLoading(true);
       const response = await axios.post(
@@ -67,7 +67,7 @@ const LocationInventory = () => {
         {
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${global.userData.access_token}`,
+            Authorization: `Bearer ${global.userData.token.access_token}`,
           },
         },
       );

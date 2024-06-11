@@ -1,14 +1,23 @@
 import { API } from '../../config/apiConfig';
 
-export async function getAllProducts(token, jsonValue) {
+export async function getAllProducts(userDetails, jsonValue) {
   try {
-    const response = await fetch(API.ALL_PRODUCTS_DATA, {
+    console.log("userDetails?.productURL+API.ALL_PRODUCTS_DATA", global?.userData?.productURL+ API.ALL_PRODUCTS_DATA);
+    console.log("ttoooo",global.userData.token.access_token)
+    console.log('userDetails?.productURL:', global?.userData?.productURL);
+console.log('API.ALL_PRODUCTS_DATA:', API.ALL_PRODUCTS_DATA);
+
+
+    const response = await fetch(userDetails?.productURL+API.ALL_PRODUCTS_DATA, {
+      
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         Accept: 'application/json',
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${global.userData.token.access_token}`,
+      
       },
+      
       body: JSON.stringify(jsonValue),
     });
 
@@ -31,7 +40,7 @@ export async function getAllCategories(token) {
   let errorValue = undefined;
 
   try {
-    const response = await fetch(API.ALL_CATEGORIES_DATA, {
+    const response = await fetch(token.productURL+API.ALL_CATEGORIES_DATA, {
       method: 'GET',
       headers: {
         Accept: 'application/json',

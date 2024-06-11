@@ -16,7 +16,12 @@ import {encode as base64Encode} from 'base-64';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {isValidString} from '../../Helper/Helper';
-import {API, USER_ID, USER_PASSWORD} from '../../config/apiConfig';
+import {
+  API,
+  CUSTOMER_URL,
+  USER_ID,
+  USER_PASSWORD,
+} from '../../config/apiConfig';
 import {setLoggedInUser, setUserRole} from '../../redux/actions/Actions';
 
 const Login = () => {
@@ -26,6 +31,28 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false); // State for toggling password visibility
+  const [code, setCode] = useState('');
+
+  const getCustomerUrl = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get(CUSTOMER_URL + code);
+      setLoading(false);
+      console.log('API Response:', response.data.response.url);
+      if (isValidString(response?.data?.response?.url)) {
+        handleLogin(response?.data?.response?.url);
+      } else {
+        Alert.alert('Invalid Code', 'Please enter a valid customer code.');
+      }
+    } catch (error) {
+      setLoading(false);
+      if (error.response && error.response.status === 400) {
+        Alert.alert('Invalid Code', 'Please enter a valid customer code.');
+      } else {
+        Alert.alert('Error', 'An error occurred. Please try again later.');
+      }
+    }
+  };
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -35,7 +62,7 @@ const Login = () => {
     navigation.navigate('SignUp');
   };
 
-  const handleLogin = async () => {
+  const handleLogin = async (productURL) => {
     setLoading(true);
     const postData = new URLSearchParams();
     postData.append('username', username);
@@ -49,12 +76,13 @@ const Login = () => {
     };
 
     try {
-      const response = await axios.post(API.LOGIN, postData.toString(), {
+      const response = await axios.post( productURL+API.LOGIN, postData.toString(), {
         headers,
       });
       if (isValidString(response.data)) {
-        await saveToken(response.data);
-        await getUsers(response.data);
+        let data= {token:response.data,productURL:productURL}
+        await saveToken(data);
+        await getUsers(response.data,productURL);
         navigation.reset({
           index: 0,
           routes: [{name: 'Main'}],
@@ -81,21 +109,23 @@ const Login = () => {
       await AsyncStorage.setItem('userdata', JSON.stringify(data));
       await AsyncStorage.setItem('loggedIn', 'true');
       global.userData = data; // Ensure global userData is updated
+      console.log("globaluserData",global.userData)
     } catch (error) {
       console.error('Error saving token:', error);
     }
   };
 
-  const getUsers = async userData => {
+  const getUsers = async (userData, productURL) => {
     console.log('getUsers userData:', userData);
-    const apiUrl = `${API.ADD_USERS}/${userData.userId}`; // Update API URL to include dynamic userId
+    const apiUrl = `${productURL}${API.ADD_USERS}/${userData.userId}`; // Update API URL to include dynamic userId
+    console.log("apurl",apiUrl)
     try {
       const response = await axios.get(apiUrl, {
         headers: {Authorization: `Bearer ${userData.access_token}`},
       });
       const loggedInUser = response.data.response.users[0]; // Since response is expected to have only one user with given userId
       if (loggedInUser) {
-        console.log('Logged in user:', loggedInUser);
+        // console.log('Logged in user:', loggedInUser);
         dispatch(setLoggedInUser(loggedInUser));
         dispatch(setUserRole(loggedInUser.role));
         await saveUserDataToStorage(loggedInUser);
@@ -167,7 +197,19 @@ const Login = () => {
       </View>
       <View style={styles.formContainer}>
         <Text style={styles.title}>Login to Your Account</Text>
-
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Code"
+            placeholderTextColor="#000"
+            onChangeText={text => setCode(text)}
+            value={code}
+          />
+          <Image
+            source={require('../../../assets/email.png')}
+            style={styles.inputImage}
+          />
+        </View>
         <View style={styles.inputContainer}>
           <TextInput
             style={styles.input}
@@ -205,7 +247,7 @@ const Login = () => {
         </View>
         <TouchableOpacity
           style={styles.button}
-          onPress={handleLogin}
+          onPress={getCustomerUrl}
           disabled={loading}>
           {loading ? (
             <ActivityIndicator color="#fff" />

@@ -41,13 +41,13 @@ const DistributorGrn = () => {
 
   const getDistributorGrn = async () => {
     setLoading(true); // Set loading to true when fetching data
-    const apiUrl = `${API.GET_DISTRIBUTOR_GRN}/${companyId}`;
+    const apiUrl = `${global?.userData?.productURL}${API.GET_DISTRIBUTOR_GRN}/${companyId}`;
     console.log("companyId",companyId)
     try {
       const response = await axios.get(apiUrl, {
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${global.userData.access_token}`,
+          Authorization: `Bearer ${global.userData.token.access_token}`,
         },
       });
       if (response.data.status.success) {
@@ -72,7 +72,7 @@ const DistributorGrn = () => {
     <TouchableOpacity onPress={() => gotoDistributorOrder(item.orderId)} style={styles.orderItem}>
       <Text style={styles.orderIdText}>{item.orderId}</Text>
       <Text style={styles.customerText}>{item.customerName}</Text>
-      <Text style={styles.qtyText}>{item.totalShippedQty || 0}</Text>
+      <Text style={styles.qtyText}>{item.shipQty || 0}</Text>
       <Text style={styles.statusText}>{item.orderStatus}</Text>
       <Text style={styles.dateText}>{item.orderDate}</Text>
     </TouchableOpacity>

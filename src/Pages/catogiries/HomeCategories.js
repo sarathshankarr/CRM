@@ -15,6 +15,8 @@ import { getAllCategories } from '../../utils/serviceApi/serviceAPIComponent';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useSelector, useDispatch } from 'react-redux'; // Importing useDispatch
 import {  storeCategoryIds } from '../../redux/actions/Actions';
+import { API } from '../../config/apiConfig';
+import axios from 'axios';
 
 const HomeCategories = ({navigation}) => {
   const [selectedDetails, setSelectedDetails] = useState([]);
@@ -28,9 +30,7 @@ const HomeCategories = ({navigation}) => {
   useEffect(() => {
     const fetchInitialSelectedCompany = async () => {
       try {
-        const initialCompanyData = await AsyncStorage.getItem(
-          'initialSelectedCompany',
-        );
+        const initialCompanyData = await AsyncStorage.getItem('initialSelectedCompany');
         if (initialCompanyData) {
           const initialCompany = JSON.parse(initialCompanyData);
           setInitialSelectedCompany(initialCompany);
@@ -44,14 +44,14 @@ const HomeCategories = ({navigation}) => {
     fetchInitialSelectedCompany();
   }, []);
 
-  const companyId = selectedCompany
-    ? selectedCompany.id
-    : initialSelectedCompany?.id;
+  const companyId = selectedCompany ? selectedCompany.id : initialSelectedCompany?.id;
 
   useEffect(() => {
-    fetchCategories();
+    if (companyId) {
+      fetchCategories(companyId);
+    }
   }, [companyId]);
-
+  
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
@@ -62,27 +62,32 @@ const HomeCategories = ({navigation}) => {
     return unsubscribe;
   }, [navigation]);
 
-  const fetchCategories = async () => {
-    try {
-      setLoading(true);
-      const [tokenString] = await AsyncStorage.multiGet(['userdata']);
-      const token = JSON.parse(tokenString[1]);
-      const { data, error } = await getAllCategories(token.access_token, companyId);
+ 
+  const fetchCategories = async (companyId) => {
+    setLoading(true);
+    const apiUrl = `${global?.userData?.productURL}${API.ALL_CATEGORIES_DATA}`;
   
-      if (data) {
-        // Filter categories based on the companyId
-        const filteredCategories = data.filter(category => category.companyId === companyId);
-        setSelectedDetails(filteredCategories);
-      } else {
-        console.error('Error fetching categories:', error);
-      }
+    try {
+      const response = await axios.get(apiUrl, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${global.userData.token.access_token}`,
+        },
+      });
+  
+      // Filter categories based on the companyId
+      const filteredCategories = response.data.filter(category => category.companyId === companyId);
+      setSelectedDetails(filteredCategories);
     } catch (error) {
       console.error('Error fetching categories:', error);
+      // Handle the error here, possibly set selectedDetails to an empty array or display an error message
     } finally {
       setLoading(false);
     }
   };
-
+  
+  
+  
   const toggleSearchInput = () => {
     setShowSearchInput(!showSearchInput);
     if (showSearchInput) {
@@ -185,14 +190,17 @@ const HomeCategories = ({navigation}) => {
         />
       ) : (
         <FlatList
-          data={selectedDetails.filter(item =>
-            item.categoryDesc.toLowerCase().includes(searchQuery.toLowerCase()),
-          )}
-          renderItem={renderProductItem}
-          keyExtractor={(item, index) => index.toString()}
-          numColumns={2}
-          contentContainerStyle={styles.productList}
-        />
+        data={selectedDetails && Array.isArray(selectedDetails) && selectedDetails.filter(item =>
+          item.categoryDesc.toLowerCase().includes(searchQuery.toLowerCase())
+        )}
+        renderItem={renderProductItem}
+        keyExtractor={(item, index) => index.toString()}
+        numColumns={2}
+        contentContainerStyle={styles.productList}
+      />
+      
+      
+      
       )}
     </View>
   );

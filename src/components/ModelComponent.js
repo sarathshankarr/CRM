@@ -142,11 +142,11 @@ const ModalComponent = ({
 
   const getQuantityStyles = () => {
     setLoading(true); // Show loading indicator
-    const apiUrl = `${API.STYLE_QUNTITY_DATA}/${selectedItem.styleId}/${dynamicPart}`;
+    const apiUrl = `${global?.userData?.productURL}${API.STYLE_QUNTITY_DATA}/${selectedItem.styleId}/${dynamicPart}`;
     axios
       .get(apiUrl, {
         headers: {
-          Authorization: `Bearer ${global.userData.access_token}`,
+          Authorization: `Bearer ${global.userData.token.access_token}`,
         },
       })
       .then(response => {

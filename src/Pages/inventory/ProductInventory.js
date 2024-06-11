@@ -54,7 +54,7 @@ const ProductInventory = () => {
   }, []);
 
   const getProductInventory = async () => {
-    const apiUrl = `${API.ADD_PRODUCT_INVENTORY}`;
+    const apiUrl = `${global?.userData?.productURL}${API.ADD_PRODUCT_INVENTORY}`;
     try {
       setLoading(true);
       const response = await axios.post(
@@ -65,7 +65,7 @@ const ProductInventory = () => {
         {
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${global.userData.access_token}`,
+            Authorization: `Bearer ${global.userData.token.access_token}`,
           },
         },
       );

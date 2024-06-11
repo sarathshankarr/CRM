@@ -33,11 +33,11 @@ const PackingOrders = () => {
   }, [orderId]);
 
   const getOrderPacking = orderId => {
-    const apiUrl = `${API.GET_ORDER_PACKING}/${orderId}`;
+    const apiUrl = `${global?.userData?.productURL}${API.GET_ORDER_PACKING}/${orderId}`;
     axios
       .get(apiUrl, {
         headers: {
-          Authorization: `Bearer ${global.userData.access_token}`,
+          Authorization: `Bearer ${global.userData.token.access_token}`,
         },
       })
       .then(response => {
@@ -97,14 +97,14 @@ const PackingOrders = () => {
   };
 
   const getInvoice = async (orderId, pId) => {
-    const apiUrl = `${API.ADD_GENERATED_PDF}/${orderId}/P/${pId}/I`;
+    const apiUrl = `${global?.userData?.productURL}${API.ADD_GENERATED_PDF}/${orderId}/P/${pId}/I`;
     try {
       const response = await axios.post(
         apiUrl,
         {},
         {
           headers: {
-            Authorization: `Bearer ${global.userData.access_token}`,
+            Authorization: `Bearer ${global.userData.token.access_token}`,
             'Content-Type': 'application/json',
           },
         },
@@ -136,14 +136,14 @@ const PackingOrders = () => {
   };
 
   const getPackingList = async (orderId, pId) => {
-    const apiUrl = `${API.ADD_GENERATED_PDF}/${orderId}/P/${pId}/P`;
+    const apiUrl = `${global?.userData?.productURL}${API.ADD_GENERATED_PDF}/${orderId}/P/${pId}/P`;
     try {
       const response = await axios.post(
         apiUrl,
         {},
         {
           headers: {
-            Authorization: `Bearer ${global.userData.access_token}`,
+            Authorization: `Bearer ${global.userData.token.access_token}`,
             'Content-Type': 'application/json',
           },
         },

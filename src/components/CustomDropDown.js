@@ -16,11 +16,11 @@ const CustomDropDown = () => {
 
   const getCustomersDetails = () => {
     const companyId = 1; // Company ID
-    const apiUrl = `${API.ADD_CUSTOMER_LIST}/${companyId}`;
+    const apiUrl = `${global?.userData?.productURL}${API.ADD_CUSTOMER_LIST}/${companyId}`;
     axios
       .get(apiUrl, {
         headers: {
-          Authorization: `Bearer ${global.userData.access_token}`,
+          Authorization: `Bearer ${global.userData.token.access_token}`,
         },
       })
       .then(response => {

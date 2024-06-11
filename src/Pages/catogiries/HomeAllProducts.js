@@ -13,6 +13,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Apicall from './../../utils/serviceApi/serviceAPIComponent';
 import { PRODUCT_DETAILS } from '../../components/ProductDetails';
 import ModalComponent from '../../components/ModelComponent';
+import { API } from '../../config/apiConfig';
+import axios from 'axios';
+import ApiClient from '../../config/apiClient';
+
 
 class ProductItem extends PureComponent {
   render() {
@@ -90,43 +94,42 @@ const HomeAllProducts = ({ navigation }) => {
   }, [searchQuery, selectedDetails]);
 
   const getAllProducts = async () => {
-    if (isFetching) return;
-
-    setIsFetching(true);
     setIsLoading(true);
-    const userData = await AsyncStorage.getItem('userdata');
-    const token = JSON.parse(userData);
-
-    let json = {
-      pageNo: String(pageNo),
-      pageSize: '10', // Change this to your desired page size
-      categoryId: '',
-    };
-
-    let allProductsApi = await Apicall.getAllProducts(token.access_token, json);
-    setIsLoading(false);
-
-    if (allProductsApi && allProductsApi.data) {
-      if (allProductsApi.data.error) {
-        // Handle error
+    const apiUrl = `${global?.userData?.productURL}${API.ALL_PRODUCTS_DATA}`;
+    console.log("apiurll", apiUrl);
+    
+    try {
+      const userData = await AsyncStorage.getItem('userdata');
+      const userDetails = JSON.parse(userData);
+  
+      const requestData = {
+        pageNo: String(pageNo),
+        pageSize: "20",
+        categoryId: ""
+      };
+  
+      const response = await axios.post(apiUrl, requestData, {
+        headers: {
+          Authorization: `Bearer ${global.userData.token.access_token}`,
+          'Content-Type': 'application/json'
+        },
+      });
+  
+      const data = response.data.content;
+      if (pageNo === 1) {
+        setSelectedDetails(data);
+        setTotalItems(response.data.totalItems);
       } else {
-        if (pageNo === 1) {
-          setSelectedDetails(allProductsApi.data.content);
-          setTotalItems(allProductsApi.data.totalItems); // Set total items from API response
-        } else {
-          setSelectedDetails(prev => [...prev, ...allProductsApi.data.content]);
-        }
-        setTotalPages(allProductsApi.data.totalPages);
+        setSelectedDetails(prev => [...prev, ...data]);
       }
-    } else if (allProductsApi && allProductsApi.error) {
-      // Handle error
-      console.log('error ', allProductsApi.error);
-    } else {
-      // Handle error
+      setTotalPages(response.data.totalPages);
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setIsLoading(false);
     }
-
-    setIsFetching(false);
   };
+  
 
   const toggleSearchInput = () => {
     setShowSearchInput(!showSearchInput);

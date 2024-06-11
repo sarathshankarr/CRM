@@ -4,7 +4,8 @@ import { useDispatch } from 'react-redux';
 import { addItemToCart } from '../../redux/actions/Actions';
 import ModalComponent from '../../components/ModelComponent';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as Apicall from './../../utils/serviceApi/serviceAPIComponent';
+import axios from 'axios';
+import { API } from '../../config/apiConfig';
 
 const AllCategoriesListed = ({ navigation, route }) => {
   const { categoryId } = route.params;
@@ -34,25 +35,33 @@ const AllCategoriesListed = ({ navigation, route }) => {
   };
 
   const getAllCategories = async () => {
+    setIsLoading(true);
+    const apiUrl = `${global?.userData?.productURL}${API.ALL_PRODUCTS_DATA}`;
+    console.log("apiUrl", apiUrl);
+
     try {
       const userData = await AsyncStorage.getItem('userdata');
-      const token = JSON.parse(userData);
-      let json = {
-        pageNo: '1',
-        pageSize: '10',
-        categoryId: categoryId,
-      };
-      setIsLoading(true);
-      let allProductsApi = await Apicall.getAllProducts(token.access_token, json);
-      setIsLoading(false);
+      const userDetails = JSON.parse(userData);
 
-      if (allProductsApi && allProductsApi.data && !allProductsApi.data.error) {
-        setSelectedDetails(allProductsApi.data.content);
-      } else {
-        console.error('Error fetching data:', allProductsApi && allProductsApi.error);
-      }
+      const requestData = {
+        pageNo: "1",
+        pageSize: "20",
+        categoryId: categoryId
+      };
+
+      const response = await axios.post(apiUrl, requestData, {
+        headers: {
+          Authorization: `Bearer ${global.userData.token.access_token}`,
+          'Content-Type': 'application/json'
+        },
+      });
+
+      const data = response.data.content;
+      setSelectedDetails(data);
+      setIsLoading(false);
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error('Error:', error);
+      setIsLoading(false);
     }
   };
 

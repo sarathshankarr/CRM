@@ -34,7 +34,7 @@ const CustomTabBar = ({state, descriptors, route}) => {
         const storedUserData = await AsyncStorage.getItem('userData');
         if (storedUserData) {
           const userData = JSON.parse(storedUserData);
-          console.log('Stored User Data:', userData); // Log stored user data
+          // console.log('Stored User Data:', userData); // Log stored user data
           dispatch(setLoggedInUser(userData));
           // Set the initially selected company to the first company in the compList
           if (userData && userData.compList && userData.compList.length > 0) {

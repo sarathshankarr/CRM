@@ -14,6 +14,8 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {getAllCategories} from '../utils/serviceApi/serviceAPIComponent';
 import { useSelector } from 'react-redux';
+import axios from 'axios';
+import { API } from '../config/apiConfig';
 
 const Categories = ({navigation}) => {
   const [selectedDetails, setSelectedDetails] = useState([]);
@@ -47,10 +49,11 @@ const Categories = ({navigation}) => {
     ? selectedCompany.id
     : initialSelectedCompany?.id;
 
-  useEffect(() => {
-    fetchCategories();
-  }, [companyId]);
-
+    useEffect(() => {
+      if (companyId) {
+        fetchCategories(companyId);
+      }
+    }, [companyId]);
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
@@ -61,22 +64,24 @@ const Categories = ({navigation}) => {
     return unsubscribe;
   }, [navigation]);
 
-  const fetchCategories = async () => {
-    try {
-      setLoading(true);
-      const [tokenString] = await AsyncStorage.multiGet(['userdata']);
-      const token = JSON.parse(tokenString[1]);
-      const { data, error } = await getAllCategories(token.access_token, companyId);
+  const fetchCategories = async (companyId) => {
+    setLoading(true);
+    const apiUrl = `${global?.userData?.productURL}${API.ALL_CATEGORIES_DATA}`;
   
-      if (data) {
-        // Filter categories based on the companyId
-        const filteredCategories = data.filter(category => category.companyId === companyId);
-        setSelectedDetails(filteredCategories);
-      } else {
-        console.error('Error fetching categories:', error);
-      }
+    try {
+      const response = await axios.get(apiUrl, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${global.userData.token.access_token}`,
+        },
+      });
+  
+      // Filter categories based on the companyId
+      const filteredCategories = response.data.filter(category => category.companyId === companyId);
+      setSelectedDetails(filteredCategories);
     } catch (error) {
       console.error('Error fetching categories:', error);
+      // Handle the error here, possibly set selectedDetails to an empty array or display an error message
     } finally {
       setLoading(false);
     }

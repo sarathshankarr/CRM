@@ -112,7 +112,6 @@ const Sidebar = ({navigation, route}) => {
       await AsyncStorage.removeItem('userRoleId'); // Remove the user role ID from AsyncStorage
       await AsyncStorage.removeItem('loggedInUser'); // Remove the logged-in user data from AsyncStorage
       await AsyncStorage.removeItem('selectedCompany'); // Remove the logged-in user data from AsyncStorage
-
       navigation.closeDrawer(); // Close the drawer
       navigation.navigate('Login');
     } catch (error) {
@@ -135,7 +134,7 @@ const Sidebar = ({navigation, route}) => {
         <View>
           {userData && (
             <Text style={styles.usertxt}>
-              Name : {userData.firstName} {userData.lastName}
+              Name : {userData.token.firstName} {userData.token.lastName}
             </Text>
           )}
         </View>

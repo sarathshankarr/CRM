@@ -20,6 +20,7 @@ import CommenHeaderHomeScreen from '../components/CommenHeaderHomeScreen';
 import PackingOrders from '../Pages/Packingorders/PackingOrders';
 import DistributorGrn from '../Pages/distributorgrn/DistributorGrn';
 import DistributorOrder from '../Pages/distributororder/DistributorOrder';
+import { NavigationProvider } from '../components/navigationContext/NavigationContext';
 
 const Stack = createNativeStackNavigator();
 
@@ -146,6 +147,11 @@ const Routes = () => {
           <Stack.Screen
           name="DistributorOrder"
           component={DistributorOrder}
+          options={{headerShown: false}}
+        />
+         <Stack.Screen
+          name="NavigationProvider"
+          component={NavigationProvider}
           options={{headerShown: false}}
         />
       </Stack.Navigator>

@@ -67,12 +67,12 @@ const DistributorOrder = () => {
   
   const getDistributorOrder = async () => {
     setLoading(true); // Set loading to true when starting to fetch data
-    const apiUrl = `${API.GET_DISTRIBUTOR_ORDER}/${orderId}`;
+    const apiUrl = `${global?.userData?.productURL}${API.GET_DISTRIBUTOR_ORDER}/${orderId}`;
     try {
       const response = await axios.get(apiUrl, {
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${global.userData.access_token}`,
+          Authorization: `Bearer ${global.userData.token.access_token}`,
         },
       });
       if (response.data.status.success) {
@@ -183,10 +183,13 @@ const DistributorOrder = () => {
         const gst = parseFloat(item.gst);
         const gross = qty * unitPrice + (qty * unitPrice * gst) / 100;
         const grossWithoutDecimals = Math.floor(gross);
-        const enterQty = isChecked ? item.shipQty : parseInt(item.grnQty || 0) + parseInt(inputValues[item.orderLineitemId] || 0);
-        const grnQty = isChecked ? item.shipQty : parseInt(item.grnQty || 0) + parseInt(inputValues[item.orderLineitemId] || 0);
-  
-        return {
+        const enterQty = isChecked
+        ? shippedQty
+        : parseInt(inputValues[item.orderLineitemId] || 0);
+      const grnQty = isChecked
+        ? item.shipQty
+        : parseInt(item.grnQty || 0) + parseInt(inputValues[item.orderLineitemId] || 0);
+      return {
           qty: item.qty,
           orderLineitemId: item.orderLineitemId,
           styleId: item.styleId,
@@ -212,10 +215,10 @@ const DistributorOrder = () => {
   
     console.log("Request Data:", requestData);
     axios
-    .post(API.ADD_GRN_ORDER, requestData, {
+    .post(global?.userData?.productURL+API.ADD_GRN_ORDER, requestData, {
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${global.userData.access_token}`,
+        Authorization: `Bearer ${global.userData.token.access_token}`,
       },
     })
     .then(response => {
@@ -254,7 +257,8 @@ const DistributorOrder = () => {
     // Calculate gross total dynamically based on full quantity and price
     const grnGross = qty * unitPrice + (qty * unitPrice * gst) / 100;
     const grossWithoutDecimals = Math.floor(grnGross); // Remove decimals
-  
+    console.log("Size:", item.size);
+
     return (
       <View style={styles.orderItem}>
         <Text style={{marginRight:1}}>{item.styleId}</Text>
@@ -322,7 +326,7 @@ const DistributorOrder = () => {
         </View>
         <Text style={[styles.orderDetailsText, {flex: 1}]}>Price</Text>
         <Text style={[styles.orderDetailsText, {flex: 1}]}>GST</Text>
-        <Text style={[styles.orderDetailsText, {flex: 1}]}>Gross</Text>
+        <Text style={[styles.orderDetailsText, {flex: 1.1}]}>Gross</Text>
       </View>
       <FlatList
         data={order.orderLineItems}

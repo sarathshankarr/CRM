@@ -151,7 +151,7 @@ const Cart = () => {
         const storedUserData = await AsyncStorage.getItem('userData');
         if (storedUserData) {
           const userData = JSON.parse(storedUserData);
-          console.log('Stored User Data:', userData);
+          // console.log('Stored User Data:', userData);
           // Dispatch action to set user data in Redux
           dispatch(setLoggedInUser(userData));
         }
@@ -193,10 +193,10 @@ const Cart = () => {
     };
 
     axios
-      .post(API.ADD_CUSTOMER_DETAILS, requestData, {
+      .post(global?.userData?.productURL+API.ADD_CUSTOMER_DETAILS, requestData, {
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${global.userData.access_token}`,
+          Authorization: `Bearer ${global.userData.token.access_token}`,
         },
       })
       .then(response => {
@@ -238,7 +238,7 @@ const Cart = () => {
       return;
     }
 
-    const apiUrl = `${API.GET_CUSTOMER_LOCATION}/${customerId}/${custometType}/${companyId}`;
+    const apiUrl = `${global?.userData?.productURL}${API.GET_CUSTOMER_LOCATION}/${customerId}/${custometType}/${companyId}`;
     console.log('Fetching customer locations with companyId:', companyId);
 
     console.log('API URL:', apiUrl);
@@ -246,7 +246,7 @@ const Cart = () => {
     axios
       .get(apiUrl, {
         headers: {
-          Authorization: `Bearer ${global.userData.access_token}`,
+          Authorization: `Bearer ${global.userData.token.access_token}`,
         },
       })
       .then(response => {
@@ -275,12 +275,12 @@ const Cart = () => {
   };
 
   const getCustomersDetails = () => {
-    const apiUrl = `${API.ADD_CUSTOMER_LIST}/${companyId}`;
+    const apiUrl = `${global?.userData?.productURL}${API.ADD_CUSTOMER_LIST}/${companyId}`;
     setIsLoading(true); // Set loading to true before making the request
     axios
       .get(apiUrl, {
         headers: {
-          Authorization: `Bearer ${global.userData.access_token}`,
+          Authorization: `Bearer ${global.userData.token.access_token}`,
         },
       })
       .then(response => {
@@ -482,10 +482,10 @@ const Cart = () => {
       companyId: companyId,
     };
     axios
-      .post(API.ADD_ORDER_DATA, requestData, {
+      .post(global?.userData?.productURL+API.ADD_ORDER_DATA, requestData, {
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${global.userData.access_token}`,
+          Authorization: `Bearer ${global.userData.token.access_token}`,
         },
       })
       .then(response => {
@@ -650,10 +650,10 @@ const Cart = () => {
     };
 
     axios
-      .post(API.ADD_CUSTOMER_LOCATION, requestLocationData, {
+      .post(global?.userData?.productURL+API.ADD_CUSTOMER_LOCATION, requestLocationData, {
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${global.userData.access_token}`,
+          Authorization: `Bearer ${global.userData.token.access_token}`,
         },
       })
       .then(response => {
