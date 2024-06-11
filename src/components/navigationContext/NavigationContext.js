@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useRef } from 'react';
 import { CommonActions } from '@react-navigation/native';
 
-const NavigationContext = createContext();
+export const NavigationContext = createContext();
 
 export const NavigationProvider = ({ children }) => {
   const navigationRef = useRef();

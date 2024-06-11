@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect,useCallback} from 'react';
 import {
   Text,
   View,
@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
   BackHandler,
   Alert,
+  RefreshControl,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {getAllCategories} from '../utils/serviceApi/serviceAPIComponent';
@@ -17,21 +18,20 @@ import { useSelector } from 'react-redux';
 import axios from 'axios';
 import { API } from '../config/apiConfig';
 
-const Categories = ({navigation}) => {
+const Categories = ({ navigation }) => {
   const [selectedDetails, setSelectedDetails] = useState([]);
   const [showSearchInput, setShowSearchInput] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [initialSelectedCompany, setInitialSelectedCompany] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
 
-  const selectedCompany = useSelector(state => state.selectedCompany);
+  const selectedCompany = useSelector((state) => state.selectedCompany);
 
   useEffect(() => {
     const fetchInitialSelectedCompany = async () => {
       try {
-        const initialCompanyData = await AsyncStorage.getItem(
-          'initialSelectedCompany',
-        );
+        const initialCompanyData = await AsyncStorage.getItem('initialSelectedCompany');
         if (initialCompanyData) {
           const initialCompany = JSON.parse(initialCompanyData);
           setInitialSelectedCompany(initialCompany);
@@ -45,15 +45,13 @@ const Categories = ({navigation}) => {
     fetchInitialSelectedCompany();
   }, []);
 
-  const companyId = selectedCompany
-    ? selectedCompany.id
-    : initialSelectedCompany?.id;
+  const companyId = selectedCompany ? selectedCompany.id : initialSelectedCompany?.id;
 
-    useEffect(() => {
-      if (companyId) {
-        fetchCategories(companyId);
-      }
-    }, [companyId]);
+  useEffect(() => {
+    if (companyId) {
+      fetchCategories(companyId);
+    }
+  }, [companyId]);
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
@@ -64,10 +62,16 @@ const Categories = ({navigation}) => {
     return unsubscribe;
   }, [navigation]);
 
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    fetchCategories(companyId);
+    setRefreshing(false);
+  }, [companyId]);
+
   const fetchCategories = async (companyId) => {
     setLoading(true);
     const apiUrl = `${global?.userData?.productURL}${API.ALL_CATEGORIES_DATA}`;
-  
+
     try {
       const response = await axios.get(apiUrl, {
         headers: {
@@ -75,9 +79,9 @@ const Categories = ({navigation}) => {
           Authorization: `Bearer ${global.userData.token.access_token}`,
         },
       });
-  
+
       // Filter categories based on the companyId
-      const filteredCategories = response.data.filter(category => category.companyId === companyId);
+      const filteredCategories = response.data.filter((category) => category.companyId === companyId);
       setSelectedDetails(filteredCategories);
     } catch (error) {
       console.error('Error fetching categories:', error);
@@ -94,12 +98,13 @@ const Categories = ({navigation}) => {
     }
   };
 
-  const onChangeText = text => {
+  const onChangeText = (text) => {
     setSearchQuery(text);
   };
 
-  const renderProductItem = ({item}) => {
-    const {categoryDesc, imageUrls} = item;
+  const renderProductItem = ({ item }) => {
+    const { categoryDesc, category, imageUrls } = item;
+    const displayCategory = item.categoryDesc !== item.category ? item.category : item.categoryDesc;
 
     return (
       <TouchableOpacity
@@ -108,12 +113,12 @@ const Categories = ({navigation}) => {
           navigation.navigate('AllCategoriesListed', {
             item,
             categoryId: item.categoryId,
-            categoryDesc: item.categoryDesc,
+            categoryDesc: displayCategory, // Pass the category description
           });
         }}>
         <View style={styles.productImageContainer}>
           {imageUrls && imageUrls.length > 0 ? (
-            <Image style={styles.productImage} source={{uri: imageUrls[0]}} />
+            <Image style={styles.productImage} source={{ uri: imageUrls[0] }} />
           ) : (
             <Image
               style={styles.productImage}
@@ -129,19 +134,17 @@ const Categories = ({navigation}) => {
             <Text
               style={[
                 styles.productName,
-                item.imageUrls &&
-                  item.imageUrls.length > 0 && {
-                    backgroundColor: 'rgba(0, 0, 0, 0.3)',
-                  },
+                item.imageUrls && item.imageUrls.length > 0 && {
+                  backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                },
               ]}>
-              {categoryDesc}
+              {displayCategory}
             </Text>
           </View>
         </View>
       </TouchableOpacity>
     );
   };
-
 
   return (
     <View style={styles.container}>
@@ -167,9 +170,7 @@ const Categories = ({navigation}) => {
               : ''}
           </Text>
         )}
-        <TouchableOpacity
-          style={styles.searchButton}
-          onPress={toggleSearchInput}>
+        <TouchableOpacity style={styles.searchButton} onPress={toggleSearchInput}>
           <Image
             style={styles.image}
             source={
@@ -183,19 +184,26 @@ const Categories = ({navigation}) => {
 
       {loading ? (
         <ActivityIndicator
-          style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}
+          style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
           size="large"
           color="#390050"
         />
       ) : (
         <FlatList
-          data={selectedDetails.filter(item =>
-            item.categoryDesc.toLowerCase().includes(searchQuery.toLowerCase()),
-          )}
+          data={
+            selectedDetails &&
+            Array.isArray(selectedDetails) &&
+            selectedDetails.filter((item) =>
+              item.categoryDesc.toLowerCase().includes(searchQuery.toLowerCase())
+            )
+          }
           renderItem={renderProductItem}
           keyExtractor={(item, index) => index.toString()}
           numColumns={2}
           contentContainerStyle={styles.productList}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#000', '#689F38']} />
+          }
         />
       )}
     </View>

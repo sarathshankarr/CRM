@@ -63,8 +63,6 @@ const DistributorOrder = () => {
     }
   }, [companyId, orderId]);
 
-
-  
   const getDistributorOrder = async () => {
     setLoading(true); // Set loading to true when starting to fetch data
     const apiUrl = `${global?.userData?.productURL}${API.GET_DISTRIBUTOR_ORDER}/${orderId}`;
@@ -87,7 +85,6 @@ const DistributorOrder = () => {
       setLoading(false); // Set loading to false when data fetching is completed
     }
   };
-  
 
   useEffect(() => {
     if (order) {
@@ -99,26 +96,29 @@ const DistributorOrder = () => {
     let totalQty = 0;
     let totalGst = 0;
     let totalCost = 0;
-
-    order.orderLineItems.forEach(item => {
-      const shippedQty = parseInt(item.shipQty);
-      const receivedQty = parseInt(item.grnQty);
-      const inputQty = parseInt(inputValues[item.orderLineitemId]) || 0;
-      const qty = isChecked ? shippedQty : receivedQty + inputQty;
-      const unitPrice = parseFloat(item.unitPrice);
-      const gst = parseFloat(item.gst);
-
-      totalQty += qty;
-      totalGst += ((unitPrice * gst) / 100) * qty;
-      totalCost += unitPrice * qty + ((unitPrice * gst) / 100) * qty; // Add GST to the total cost calculation
-    });
-
+  
+    if (order && order.orderLineItems) {
+      order.orderLineItems.forEach(item => {
+        const shippedQty = parseInt(item.shipQty);
+        const receivedQty = parseInt(item.grnQty);
+        const inputQty = parseInt(inputValues[item.orderLineitemId]) || 0;
+        const qty = isChecked ? shippedQty : receivedQty + inputQty;
+        const unitPrice = parseFloat(item.unitPrice);
+        const gst = parseFloat(item.gst);
+  
+        totalQty += qty;
+        totalGst += ((unitPrice * gst) / 100) * qty;
+        totalCost += unitPrice * qty + ((unitPrice * gst) / 100) * qty; // Add GST to the total cost calculation
+      });
+    }
+  
     setTotals({
       totalQty: Math.floor(totalQty),
       totalGst: Math.floor(totalGst),
       totalCost: Math.floor(totalCost),
     });
   };
+  
 
   const handleCheckBoxToggle = () => {
     setIsChecked(prevChecked => {
@@ -130,23 +130,23 @@ const DistributorOrder = () => {
     });
   };
 
- const handleQtyChange = (text, itemId) => {
-  const qty = parseInt(text);
-  const orderLineItem = order.orderLineItems.find(
-    item => item.orderLineitemId === itemId,
-  );
-  const remainingQty = orderLineItem.shipQty - orderLineItem.grnQty;
 
-  if (qty > remainingQty) {
-    Alert.alert('Alert', 'Quantity should be less. Please check.');
-  } else {
-    setInputValues(prevInputValues => ({
-      ...prevInputValues,
-      [itemId]: text,
-    }));
-  }
-};
+  const handleQtyChange = (text, itemId) => {
+    const qty = parseInt(text);
+    const orderLineItem = order.orderLineItems.find(
+      item => item.orderLineitemId === itemId,
+    );
+    const remainingQty = orderLineItem.shipQty - orderLineItem.grnQty;
 
+    if (qty > remainingQty) {
+      Alert.alert('Alert', 'Quantity should be less. Please check.');
+    } else {
+      setInputValues(prevInputValues => ({
+        ...prevInputValues,
+        [itemId]: text,
+      }));
+    }
+  };
 
   if (loading) {
     // Render ActivityIndicator while loading
@@ -167,7 +167,7 @@ const DistributorOrder = () => {
       totalDiscount: 0,
       totalGst: totals.totalGst, // Use dynamic totalGst from state
       totalQty: totals.totalQty, // Use dynamic totalQty from state
-      orderStatus: "PENDING",
+      orderStatus: 'PENDING',
       orderId: order.orderId, // Use orderId from state
       shippingAddressId: order.shippingAddressId, // Use shippingAddressId from state
       customerLocation: order.customerLocation, // Use customerLocation from state
@@ -184,22 +184,27 @@ const DistributorOrder = () => {
         const gross = qty * unitPrice + (qty * unitPrice * gst) / 100;
         const grossWithoutDecimals = Math.floor(gross);
         const enterQty = isChecked
-        ? shippedQty
-        : parseInt(inputValues[item.orderLineitemId] || 0);
-      const grnQty = isChecked
-        ? item.shipQty
-        : parseInt(item.grnQty || 0) + parseInt(inputValues[item.orderLineitemId] || 0);
-      return {
+          ? shippedQty
+          : parseInt(inputValues[item.orderLineitemId] || 0);
+        const grnQty = isChecked
+          ? item.shipQty
+          : parseInt(item.grnQty || 0) +
+            parseInt(inputValues[item.orderLineitemId] || 0);
+        return {
           qty: item.qty,
           orderLineitemId: item.orderLineitemId,
           styleId: item.styleId,
           colorId: item.colorId,
           gscodeMapId: item.gscodeMapId,
+          styleId: item.styleId,
+          styleName:item.styleName,
           size: item.size,
+          sizeId:item.sizeId,
           gsCode: item.gsCode,
-          availQty: item.availQty,
+          availQty: item.shipQty,
           unitPrice: item.unitPrice,
-          price: item.price,
+          orderLineitemId: item.orderLineitemId,
+          price: item.unitPrice,
           gross: grossWithoutDecimals,
           enterqty: enterQty,
           discountPercentage: item.discountPercentage,
@@ -212,34 +217,33 @@ const DistributorOrder = () => {
         };
       }),
     };
-  
-    console.log("Request Data:", requestData);
-    axios
-    .post(global?.userData?.productURL+API.ADD_GRN_ORDER, requestData, {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${global.userData.token.access_token}`,
-      },
-    })
-    .then(response => {
-      console.log("Response received:", response.data);
-      navigation.navigate('Distributor GRN');
-      getDistributorOrder()
-    })
-    .catch(error => {
-      console.error('Error placing order:', error);
-    })
 
-};
-  
-  
+    console.log('Request Data:', requestData);
+    axios
+      .post(global?.userData?.productURL + API.ADD_GRN_ORDER, requestData, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${global.userData.token.access_token}`,
+        },
+      })
+      .then(response => {
+        console.log('Response received:', response.data);
+        navigation.navigate('Distributor GRN');
+        getDistributorOrder();
+      })
+      .catch(error => {
+        console.error('Error placing order:', error);
+      });
+  };
+
   const renderOrderLineItem = ({item}) => {
+    // console.log('Sizeasfafdfhsdfsdku:', item.size);
     const shippedQty = parseInt(item.shipQty);
     const receivedQty = parseInt(item.grnQty);
-  
+
     // Initially set inputQty to 0
     let inputQty = '0';
-  
+
     // If isChecked is true, update inputQty to shippedQty - receivedQty
     if (isChecked) {
       inputQty = (shippedQty - receivedQty).toString();
@@ -249,19 +253,19 @@ const DistributorOrder = () => {
         inputQty = inputValues[item.orderLineitemId].toString();
       }
     }
-  
+
     const qty = isChecked ? shippedQty : receivedQty + parseInt(inputQty || 0);
     const unitPrice = parseFloat(item.unitPrice);
     const gst = parseFloat(item.gst);
-  
+
     // Calculate gross total dynamically based on full quantity and price
     const grnGross = qty * unitPrice + (qty * unitPrice * gst) / 100;
     const grossWithoutDecimals = Math.floor(grnGross); // Remove decimals
-    console.log("Size:", item.size);
+    console.log('Size:', item.size);
 
     return (
       <View style={styles.orderItem}>
-        <Text style={{marginRight:1}}>{item.styleId}</Text>
+        <Text style={{marginRight: 1}}>{item.styleId}</Text>
         <Text style={[styles.orderText, {flex: 2.2}]}>{item.styleName}</Text>
         <Text style={[styles.orderText, {flex: 1.6}]}>{item.colorName}</Text>
         <Text style={[styles.orderText, {flex: 1}]}>{item.size}</Text>
@@ -293,7 +297,6 @@ const DistributorOrder = () => {
       </View>
     );
   };
-  
 
   return (
     <View style={styles.container}>
@@ -302,8 +305,10 @@ const DistributorOrder = () => {
           <Text style={[styles.headerText, {flex: 1}]}>
             Order ID: {order.orderId}
           </Text>
-          <TouchableOpacity onPress={addGrnOrder} style={{borderWidth:1,paddingHorizontal:10,borderRadius:5}}>
-          <Text style={styles.headerText}>Add</Text>
+          <TouchableOpacity
+            onPress={addGrnOrder}
+            style={{borderWidth: 1, paddingHorizontal: 10, borderRadius: 5}}>
+            <Text style={styles.headerText}>Add</Text>
           </TouchableOpacity>
         </View>
         <Text style={styles.headerText}>

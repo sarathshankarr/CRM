@@ -413,7 +413,7 @@ const Cart = () => {
     console.log('billingAddressId:', billingAddressId);
     console.log('shippingAddressId:', shippingAddressId);
     console.log('customerId', customerId);
-
+console.log("cartItems",cartItems)
     const requestData = {
       totalAmount: totalPrice.toString(),
       totalDiscount: '0',
@@ -432,6 +432,7 @@ const Cart = () => {
       agentId: '0',
       subAgentId: '0',
       orderLineItems: cartItems.map(item => ({
+      
         qty: totalQty.toString(),
         styleId: item.styleId,
         colorId: item.colorId,
@@ -448,7 +449,7 @@ const Cart = () => {
         itemStatus: 'OPEN',
         pcqty: '0',
         pack_qty: 0,
-        sizeId: 0,
+        sizeId: item.sizeId,
         packageId: 0,
         cedgeFlag: '0',
         cedgeStyleId: 0,

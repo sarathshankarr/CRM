@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Text,
   View,
@@ -10,22 +10,22 @@ import {
   ActivityIndicator,
   BackHandler,
   Alert,
+  RefreshControl,
 } from 'react-native';
-import { getAllCategories } from '../../utils/serviceApi/serviceAPIComponent';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useSelector, useDispatch } from 'react-redux'; // Importing useDispatch
-import {  storeCategoryIds } from '../../redux/actions/Actions';
+import { useSelector } from 'react-redux';
 import { API } from '../../config/apiConfig';
 import axios from 'axios';
 
-const HomeCategories = ({navigation}) => {
+const HomeCategories = ({ navigation }) => {
   const [selectedDetails, setSelectedDetails] = useState([]);
   const [showSearchInput, setShowSearchInput] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [initialSelectedCompany, setInitialSelectedCompany] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
 
-  const selectedCompany = useSelector(state => state.selectedCompany);
+  const selectedCompany = useSelector((state) => state.selectedCompany);
 
   useEffect(() => {
     const fetchInitialSelectedCompany = async () => {
@@ -51,7 +51,6 @@ const HomeCategories = ({navigation}) => {
       fetchCategories(companyId);
     }
   }, [companyId]);
-  
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
@@ -62,11 +61,16 @@ const HomeCategories = ({navigation}) => {
     return unsubscribe;
   }, [navigation]);
 
- 
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    fetchCategories(companyId);
+    setRefreshing(false);
+  }, [companyId]);
+
   const fetchCategories = async (companyId) => {
     setLoading(true);
     const apiUrl = `${global?.userData?.productURL}${API.ALL_CATEGORIES_DATA}`;
-  
+
     try {
       const response = await axios.get(apiUrl, {
         headers: {
@@ -74,9 +78,9 @@ const HomeCategories = ({navigation}) => {
           Authorization: `Bearer ${global.userData.token.access_token}`,
         },
       });
-  
+
       // Filter categories based on the companyId
-      const filteredCategories = response.data.filter(category => category.companyId === companyId);
+      const filteredCategories = response.data.filter((category) => category.companyId === companyId);
       setSelectedDetails(filteredCategories);
     } catch (error) {
       console.error('Error fetching categories:', error);
@@ -85,9 +89,7 @@ const HomeCategories = ({navigation}) => {
       setLoading(false);
     }
   };
-  
-  
-  
+
   const toggleSearchInput = () => {
     setShowSearchInput(!showSearchInput);
     if (showSearchInput) {
@@ -95,12 +97,13 @@ const HomeCategories = ({navigation}) => {
     }
   };
 
-  const onChangeText = text => {
+  const onChangeText = (text) => {
     setSearchQuery(text);
   };
 
-  const renderProductItem = ({item}) => {
-    const {categoryDesc, imageUrls} = item;
+  const renderProductItem = ({ item }) => {
+    const { categoryDesc, category, imageUrls } = item;
+    const displayCategory = item.categoryDesc !== item.category ? item.category : item.categoryDesc;
 
     return (
       <TouchableOpacity
@@ -109,12 +112,12 @@ const HomeCategories = ({navigation}) => {
           navigation.navigate('AllCategoriesListed', {
             item,
             categoryId: item.categoryId,
-            categoryDesc: item.categoryDesc, // Pass the category description
+            categoryDesc: displayCategory, // Pass the category description
           });
         }}>
         <View style={styles.productImageContainer}>
           {imageUrls && imageUrls.length > 0 ? (
-            <Image style={styles.productImage} source={{uri: imageUrls[0]}} />
+            <Image style={styles.productImage} source={{ uri: imageUrls[0] }} />
           ) : (
             <Image
               style={styles.productImage}
@@ -130,19 +133,17 @@ const HomeCategories = ({navigation}) => {
             <Text
               style={[
                 styles.productName,
-                item.imageUrls &&
-                  item.imageUrls.length > 0 && {
-                    backgroundColor: 'rgba(0, 0, 0, 0.3)',
-                  },
+                item.imageUrls && item.imageUrls.length > 0 && {
+                  backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                },
               ]}>
-              {categoryDesc}
+              {displayCategory}
             </Text>
           </View>
         </View>
       </TouchableOpacity>
     );
   };
-
 
   return (
     <View style={styles.container}>
@@ -168,9 +169,7 @@ const HomeCategories = ({navigation}) => {
               : ''}
           </Text>
         )}
-        <TouchableOpacity
-          style={styles.searchButton}
-          onPress={toggleSearchInput}>
+        <TouchableOpacity style={styles.searchButton} onPress={toggleSearchInput}>
           <Image
             style={styles.image}
             source={
@@ -184,23 +183,27 @@ const HomeCategories = ({navigation}) => {
 
       {loading ? (
         <ActivityIndicator
-          style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}
+          style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
           size="large"
           color="#390050"
         />
       ) : (
         <FlatList
-        data={selectedDetails && Array.isArray(selectedDetails) && selectedDetails.filter(item =>
-          item.categoryDesc.toLowerCase().includes(searchQuery.toLowerCase())
-        )}
-        renderItem={renderProductItem}
-        keyExtractor={(item, index) => index.toString()}
-        numColumns={2}
-        contentContainerStyle={styles.productList}
-      />
-      
-      
-      
+          data={
+            selectedDetails &&
+            Array.isArray(selectedDetails) &&
+            selectedDetails.filter((item) =>
+              item.categoryDesc.toLowerCase().includes(searchQuery.toLowerCase())
+            )
+          }
+          renderItem={renderProductItem}
+          keyExtractor={(item, index) => index.toString()}
+          numColumns={2}
+          contentContainerStyle={styles.productList}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#000', '#689F38']} />
+          }
+        />
       )}
     </View>
   );

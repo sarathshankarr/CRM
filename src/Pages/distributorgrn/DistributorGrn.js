@@ -52,7 +52,7 @@ const DistributorGrn = () => {
       });
       if (response.data.status.success) {
         setOrders(response.data.response.ordersList);
-        console.log('Orders:', response.data.response.ordersList);
+        // console.log('Orders:', response.data.response.ordersList);
       } else {
         console.error('Failed to fetch orders:', response.data.status);
       }

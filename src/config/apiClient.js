@@ -1,17 +1,14 @@
-// apiClient.js
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { API, BASE_URL, CUSTOMER_URL } from './apiConfig';
-import { NavigationContext } from './navigationContext'; // Import the context
-import React, { useContext } from 'react'; // Import necessary hooks
+import { NavigationContext } from '../components/navigationContext/NavigationContext'; // Adjust the path as needed
+import { useContext } from 'react';
+import { CUSTOMER_URL } from './apiConfig';
 
-// Create an instance of axios
 let ApiClient = axios.create({
   baseURL: CUSTOMER_URL,
   timeout: 10000,
 });
 
-// Function to save token and update headers
 const saveToken = async (data) => {
   try {
     await AsyncStorage.setItem('userData', JSON.stringify(data));
@@ -47,11 +44,8 @@ ApiClient.interceptors.response.use(
         await AsyncStorage.removeItem('loggedInUser');
         await AsyncStorage.removeItem('selectedCompany');
 
-        const navigation = useContext(NavigationContext); // Use the navigation context
-        navigation.reset({
-          index: 0,
-          routes: [{ name: 'Login' }],
-        });
+        const navigation = useContext(NavigationContext);
+        navigation.resetToLogin();
       } catch (redirectError) {
         console.error('Redirect to login error:', redirectError);
       }
