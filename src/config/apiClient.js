@@ -9,14 +9,6 @@ let ApiClient = axios.create({
   timeout: 10000,
 });
 
-const saveToken = async (data) => {
-  try {
-    await AsyncStorage.setItem('userData', JSON.stringify(data));
-    ApiClient.defaults.headers.common['Authorization'] = `Bearer ${data.token.access_token}`;
-  } catch (error) {
-    console.error('Error saving token:', error);
-  }
-};
 
 ApiClient.interceptors.request.use(
   async (config) => {

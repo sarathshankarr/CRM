@@ -10,12 +10,10 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as Apicall from './../../utils/serviceApi/serviceAPIComponent';
 import { PRODUCT_DETAILS } from '../../components/ProductDetails';
 import ModalComponent from '../../components/ModelComponent';
 import { API } from '../../config/apiConfig';
 import axios from 'axios';
-import ApiClient from '../../config/apiClient';
 
 
 class ProductItem extends PureComponent {
