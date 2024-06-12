@@ -10,6 +10,7 @@ import {
   FlatList,
   Keyboard,
   ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
 import {API} from '../../config/apiConfig';
 import axios from 'axios';
@@ -23,6 +24,7 @@ const LocationInventory = () => {
   const [filteredData, setFilteredData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [initialSelectedCompany, setInitialSelectedCompany] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
 
   const selectedCompany = useSelector(state => state.selectedCompany);
   
@@ -48,8 +50,6 @@ const LocationInventory = () => {
   const companyId = selectedCompany
     ? selectedCompany.id
     : initialSelectedCompany?.id;
-
-
 
   useEffect(() => {
     getLocationInventory();
@@ -93,6 +93,12 @@ const LocationInventory = () => {
     } else {
       setFilteredData(inventoryData);
     }
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await getLocationInventory();
+    setRefreshing(false);
   };
 
   const renderItem = ({item}) => (
@@ -158,6 +164,9 @@ const LocationInventory = () => {
           renderItem={renderItem}
           keyExtractor={(item, index) => index.toString()}
           contentContainerStyle={styles.listContainer}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
         />
       )}
     </View>
@@ -207,7 +216,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f0f0f0',
   },
   headerText: {
-    flex: 0.9,
+    flex: 1,
     textAlign: 'center',
   },
   headerText1: {

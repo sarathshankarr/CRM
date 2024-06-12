@@ -117,7 +117,7 @@ const Order = () => {
           onPress={() => handleOrderPress(item)}>
           <View style={style.ordheader}>
             <View style={style.orderidd}>
-              <Text>OrderId : {item.orderId}</Text>
+              <Text>OrderId : {item.orderNum}</Text>
             </View>
             <View style={style.ordshpheader}>
               <Text>Order Date: {item.orderDate}</Text>
