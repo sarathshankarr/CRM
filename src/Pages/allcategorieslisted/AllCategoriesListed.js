@@ -85,10 +85,10 @@ const AllCategoriesListed = ({ navigation, route }) => {
         <View style={styles.productImageContainer}>
           <Image
             style={styles.productImage}
-            source={item.imageUrls && item.imageUrls.length > 0 ? { uri: item.imageUrls[0] } : require('../../../assets/Noimg.jpg')}
+            source={item.imageUrls && item.imageUrls.length > 0 ? { uri: item.imageUrls[0] } : require('../../../assets/NewNoImage.jpg')}
             onError={(error) => console.error('Error loading image:', error)}
           />
-          <Text style={[styles.productName, item.imageUrls && item.imageUrls.length > 0 && { backgroundColor: 'rgba(0, 0, 0, 0.2)' }]}>
+          <Text style={[styles.productName,  { backgroundColor: 'rgba(0, 0, 0, 0.2)' }]}>
             {item.styleName}
           </Text>
         </View>
