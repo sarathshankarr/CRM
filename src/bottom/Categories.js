@@ -103,8 +103,7 @@ const Categories = ({ navigation }) => {
   };
 
   const renderProductItem = ({ item }) => {
-    const { categoryDesc, category, imageUrls } = item;
-    const displayCategory = item.categoryDesc !== item.category ? item.category : item.categoryDesc;
+    const {category, imageUrls } = item;
 
     return (
       <TouchableOpacity
@@ -113,7 +112,7 @@ const Categories = ({ navigation }) => {
           navigation.navigate('AllCategoriesListed', {
             item,
             categoryId: item.categoryId,
-            categoryDesc: displayCategory, // Pass the category description
+            categoryDesc: category, // Pass the category description
           });
         }}>
         <View style={styles.productImageContainer}>
@@ -123,7 +122,7 @@ const Categories = ({ navigation }) => {
             <Image
               style={styles.productImage}
               resizeMode="contain"
-              source={require('../../assets/Noimg.jpg')}
+              source={require('../../assets/NewNoImage.jpg')}
             />
           )}
           <View
@@ -134,17 +133,21 @@ const Categories = ({ navigation }) => {
             <Text
               style={[
                 styles.productName,
-                item.imageUrls && item.imageUrls.length > 0 && {
+                 {
                   backgroundColor: 'rgba(0, 0, 0, 0.3)',
                 },
               ]}>
-              {displayCategory}
+              {category}
             </Text>
           </View>
         </View>
       </TouchableOpacity>
     );
   };
+
+  const filteredCategories = selectedDetails &&
+                            Array.isArray(selectedDetails) && 
+                            selectedDetails.filter((item) => item.category.toLowerCase().includes(searchQuery.toLowerCase()));
 
   return (
     <View style={styles.container}>
@@ -188,15 +191,11 @@ const Categories = ({ navigation }) => {
           size="large"
           color="#390050"
         />
+      ) :filteredCategories.length === 0 ? (
+        <Text style={styles.noCategoriesText}>Sorry, no results found! </Text>
       ) : (
         <FlatList
-          data={
-            selectedDetails &&
-            Array.isArray(selectedDetails) &&
-            selectedDetails.filter((item) =>
-              item.categoryDesc.toLowerCase().includes(searchQuery.toLowerCase())
-            )
-          }
+          data={filteredCategories}
           renderItem={renderProductItem}
           keyExtractor={(item, index) => index.toString()}
           numColumns={2}
@@ -285,6 +284,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#fff',
   },
+  noCategoriesText:{
+    top: 40,
+    textAlign:"center",
+    color: '#000000',
+    fontSize: 20,
+    fontWeight: 'bold',
+    padding: 5,
+  }
 });
 
 export default Categories;
