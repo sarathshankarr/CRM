@@ -144,6 +144,10 @@ const HomeCategories = ({ navigation }) => {
     );
   };
 
+  const filteredCategories = selectedDetails &&
+                            Array.isArray(selectedDetails) && 
+                            selectedDetails.filter((item) => item.category.toLowerCase().includes(searchQuery.toLowerCase()));
+
   return (
     <View style={styles.container}>
       <View style={styles.searchContainer}>
@@ -186,15 +190,11 @@ const HomeCategories = ({ navigation }) => {
           size="large"
           color="#390050"
         />
+      ) :filteredCategories.length === 0 ? (
+        <Text style={styles.noCategoriesText}>Sorry, no results found! </Text>
       ) : (
         <FlatList
-          data={
-            selectedDetails &&
-            Array.isArray(selectedDetails) &&
-            selectedDetails.filter((item) =>
-              item.categoryDesc.toLowerCase().includes(searchQuery.toLowerCase())
-            )
-          }
+          data={filteredCategories}
           renderItem={renderProductItem}
           keyExtractor={(item, index) => index.toString()}
           numColumns={2}
@@ -273,6 +273,14 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     padding: 5,
   },
+  noCategoriesText:{
+    top: 40,
+    textAlign:"center",
+    color: '#000000',
+    fontSize: 20,
+    fontWeight: 'bold',
+    padding: 5,
+  }
 });
 
 export default HomeCategories;

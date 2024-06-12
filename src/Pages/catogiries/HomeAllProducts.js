@@ -203,7 +203,9 @@ const HomeAllProducts = ({ navigation }) => {
           size="large"
           color="#390050"
         />
-      ) : (
+      ) : searchQuery && filteredProducts.length === 0 ? (
+        <Text style={styles.noCategoriesText}>Sorry, no results found! </Text>
+      ) :  (
         <FlatList
           ref={flatListRef}
           data={searchQuery ? filteredProducts : selectedDetails}
@@ -317,6 +319,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
   },
+  noCategoriesText:{
+    top: 40,
+    textAlign:"center",
+    color: '#000000',
+    fontSize: 20,
+    fontWeight: 'bold',
+    padding: 5,
+  }
 });
 
 export default HomeAllProducts;
