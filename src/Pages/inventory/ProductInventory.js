@@ -10,6 +10,7 @@ import {
   FlatList,
   Keyboard,
   ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
 import {API} from '../../config/apiConfig';
 import axios from 'axios';
@@ -23,6 +24,7 @@ const ProductInventory = () => {
   const [filteredData, setFilteredData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [initialSelectedCompany, setInitialSelectedCompany] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
 
   const selectedCompany = useSelector(state => state.selectedCompany);
   useEffect(() => {
@@ -47,7 +49,6 @@ const ProductInventory = () => {
   const companyId = selectedCompany
     ? selectedCompany.id
     : initialSelectedCompany?.id;
-
 
   useEffect(() => {
     getProductInventory();
@@ -91,6 +92,12 @@ const ProductInventory = () => {
     } else {
       setFilteredData(inventoryData);
     }
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await getProductInventory();
+    setRefreshing(false);
   };
 
   const renderItem = ({item}) => (
@@ -154,6 +161,9 @@ const ProductInventory = () => {
           renderItem={renderItem}
           keyExtractor={(item, index) => index.toString()}
           contentContainerStyle={styles.listContainer}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
         />
       )}
     </View>

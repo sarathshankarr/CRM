@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native'; // Import ActivityIndicator
+import { StyleSheet, Text, View, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native'; // Import RefreshControl
 import { API } from '../../config/apiConfig';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
@@ -11,6 +11,7 @@ const DistributorGrn = () => {
   const [initialSelectedCompany, setInitialSelectedCompany] = useState(null);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(false); // State to manage loading state
+  const [refreshing, setRefreshing] = useState(false); // State to manage refresh state
 
   const selectedCompany = useSelector(state => state.selectedCompany);
 
@@ -63,6 +64,11 @@ const DistributorGrn = () => {
     }
   };
 
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await getDistributorGrn();
+    setRefreshing(false);
+  };
 
   const gotoDistributorOrder = (orderId) => {
     navigation.navigate("DistributorOrder", { orderId });
@@ -94,6 +100,9 @@ const DistributorGrn = () => {
           data={orders}
           renderItem={renderOrderItem}
           keyExtractor={item => item.orderId.toString()}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
         />
       )}
     </View>
