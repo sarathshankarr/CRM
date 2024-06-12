@@ -33,13 +33,13 @@ class ProductItem extends PureComponent {
         <View style={styles.productImageContainer}>
           {item.imageUrls && item.imageUrls.length > 0 ? (
             <Image style={styles.productImage} source={{ uri: item.imageUrls[0] }} />
-          ) : (
-            <View style={[styles.productImage, { backgroundColor: '#D3D3D3' }]} />
+            ) : (
+            <Image style={styles.productImage} source={require('../../../assets/NewNoImage.jpg')} />
           )}
           <Text
             style={[
               styles.productName,
-              item.imageUrls && item.imageUrls.length > 0 && { backgroundColor: 'rgba(0, 0, 0, 0.2)' },
+               { backgroundColor: 'rgba(0, 0, 0, 0.2)' },
             ]}>
             {item.styleName}
           </Text>

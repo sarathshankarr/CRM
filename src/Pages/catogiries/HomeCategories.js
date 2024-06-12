@@ -102,8 +102,7 @@ const HomeCategories = ({ navigation }) => {
   };
 
   const renderProductItem = ({ item }) => {
-    const { categoryDesc, category, imageUrls } = item;
-    const displayCategory = item.categoryDesc !== item.category ? item.category : item.categoryDesc;
+    const {category, imageUrls } = item;
 
     return (
       <TouchableOpacity
@@ -112,7 +111,7 @@ const HomeCategories = ({ navigation }) => {
           navigation.navigate('AllCategoriesListed', {
             item,
             categoryId: item.categoryId,
-            categoryDesc: displayCategory, // Pass the category description
+            categoryDesc: category, // Pass the category description
           });
         }}>
         <View style={styles.productImageContainer}>
@@ -122,7 +121,7 @@ const HomeCategories = ({ navigation }) => {
             <Image
               style={styles.productImage}
               resizeMode="contain"
-              source={require('../../../assets/Noimg.jpg')}
+              source={require('../../../assets/NewNoImage.jpg')}
             />
           )}
           <View
@@ -133,11 +132,11 @@ const HomeCategories = ({ navigation }) => {
             <Text
               style={[
                 styles.productName,
-                item.imageUrls && item.imageUrls.length > 0 && {
+                {
                   backgroundColor: 'rgba(0, 0, 0, 0.3)',
                 },
               ]}>
-              {displayCategory}
+              {category}
             </Text>
           </View>
         </View>
