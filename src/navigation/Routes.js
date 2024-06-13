@@ -26,7 +26,6 @@ const Stack = createNativeStackNavigator();
 
 const Routes = () => {
   return (
-    <NavigationContainer>
       <Stack.Navigator>
         <Stack.Screen
           name="Splash"
@@ -155,7 +154,6 @@ const Routes = () => {
           options={{headerShown: false}}
         />
       </Stack.Navigator>
-    </NavigationContainer>
   );
 };
 

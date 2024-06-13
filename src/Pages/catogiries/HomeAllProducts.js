@@ -80,6 +80,15 @@ const HomeAllProducts = ({ navigation }) => {
   const [scrollPosition, setScrollPosition] = useState(0);
 
   useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      // Reset search when component is focused
+      setSearchQuery('');
+      setShowSearchInput(false); // Hide search input when component is focused
+    });
+    return unsubscribe;
+  }, [navigation]);
+
+  useEffect(() => {
     getAllProducts();
   }, []);
 

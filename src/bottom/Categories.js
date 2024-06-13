@@ -274,7 +274,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     color: '#fff',
-    fontSize: 20,
+    fontSize: 13,
     fontWeight: 'bold',
     padding: 5,
   },
