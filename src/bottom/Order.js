@@ -7,6 +7,8 @@ import {
   ActivityIndicator,
   StyleSheet,
   Modal,
+  TextInput,
+  Image,
 } from 'react-native';
 import axios from 'axios';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
@@ -23,6 +25,8 @@ const Order = () => {
   const [firstLoad, setFirstLoad] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [refreshingOrders, setRefreshingOrders] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showSearchInput, setShowSearchInput] = useState(false);
   const navigation = useNavigation();
   const selectedCompany = useSelector(state => state.selectedCompany);
 
@@ -107,6 +111,15 @@ const Order = () => {
     }
   };
 
+  const toggleSearchInput = () => {
+    setShowSearchInput(!showSearchInput);
+    if (showSearchInput) {
+      setSearchQuery('');
+    }
+  };
+
+  
+
   const renderItem = ({item}) => {
     if (!item) return null; // Add null check here
 
@@ -156,18 +169,49 @@ const Order = () => {
     );
   };
 
+
+  const filteredOrders = orders &&
+  Array.isArray(orders) &&
+  orders.filter((item) => 
+    item.customerName.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+
   return (
     <View style={{backgroundColor: '#fff', flex: 1}}>
-      <Text style={{marginHorizontal: 10, marginVertical: 5}}>Orders</Text>
+     
+      <View style={style.searchContainer}>
+          <TextInput
+            style={[style.searchInput, searchQuery.length > 0 && style.searchInputActive]}
+            autoFocus={true}
+            value={searchQuery}
+            onChangeText={text => setSearchQuery(text)}
+            placeholder="Search"
+            placeholderTextColor="#000"
+          />
+        
+        <TouchableOpacity style={style.searchButton} onPress={toggleSearchInput}>
+          <Image
+            style={style.image}
+            source={
+              showSearchInput
+                ? require('../../assets/close.png')
+                : require('../../assets/search.png')
+            }
+          />
+        </TouchableOpacity>
+      </View>
       {loading && orders.length === 0 ? (
         <ActivityIndicator
           size="large"
           color="#390050"
           style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}
         />
-      ) : (
+      ) : filteredOrders.length === 0 ? (
+        <Text style={style.noCategoriesText}>Sorry, no results found! </Text>
+      ) :(
         <FlatList
-          data={orders}
+          data={filteredOrders} //  filtered orders instead of all orders
           renderItem={renderItem}
           keyExtractor={(item, index) =>
             item && item.orderId ? item.orderId.toString() : index.toString()
@@ -279,6 +323,38 @@ const style = StyleSheet.create({
     padding: 10,
     borderRadius: 5,
   },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    marginTop: 5,
+    marginBottom:10,
+  },
+  searchInput: {
+    flex: 1,
+    height: 40,
+    borderColor: 'gray',
+    paddingHorizontal: 10,
+    borderRadius: 5,
+  },
+  searchInputActive: {
+    color: '#000',
+  },
+  searchButton: {
+    marginLeft: 'auto',
+  },
+  image: {
+    height: 30,
+    width: 30,
+  },
+  noCategoriesText:{
+    top: 40,
+    textAlign:"center",
+    color: '#000000',
+    fontSize: 20,
+    fontWeight: 'bold',
+    padding: 5,
+  }
 });
 
 export default Order;
