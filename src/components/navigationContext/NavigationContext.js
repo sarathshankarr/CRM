@@ -1,33 +1,19 @@
+// src/components/navigationContext/NavigationContext.js
 import React, { createContext, useContext, useRef } from 'react';
-import { CommonActions } from '@react-navigation/native';
+import { NavigationContainer, useNavigationContainerRef } from '@react-navigation/native';
 
-export const NavigationContext = createContext();
+const NavigationContext = createContext(null);
 
 export const NavigationProvider = ({ children }) => {
-  const navigationRef = useRef();
-
-  const resetToLogin = () => {
-    navigationRef.current?.dispatch(
-      CommonActions.reset({
-        index: 0,
-        routes: [{ name: 'Login' }],
-      })
-    );
-  };
+  const navigationRef = useNavigationContainerRef();
 
   return (
-    <NavigationContext.Provider value={{ resetToLogin, navigationRef }}>
-      {children}
+    <NavigationContext.Provider value={navigationRef}>
+      <NavigationContainer ref={navigationRef}>
+        {children}
+      </NavigationContainer>
     </NavigationContext.Provider>
   );
 };
 
-export const useNavigation = () => useContext(NavigationContext);
-
-export const useNavigationRef = () => {
-  const { navigationRef } = useContext(NavigationContext);
-  if (!navigationRef) {
-    throw new Error("useNavigationRef must be used within a NavigationProvider");
-  }
-  return navigationRef;
-};
+export const useNavigationContext = () => useContext(NavigationContext);
