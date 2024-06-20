@@ -14,6 +14,7 @@ import { PRODUCT_DETAILS } from '../../components/ProductDetails';
 import ModalComponent from '../../components/ModelComponent';
 import { API } from '../../config/apiConfig';
 import axios from 'axios';
+import { useSelector } from 'react-redux';
 
 
 class ProductItem extends PureComponent {
@@ -78,6 +79,34 @@ const HomeAllProducts = ({ navigation }) => {
   const [isFetching, setIsFetching] = useState(false);
   const flatListRef = useRef(null);
   const [scrollPosition, setScrollPosition] = useState(0);
+  const [initialSelectedCompany, setInitialSelectedCompany] = useState(null);
+
+  const selectedCompany = useSelector((state) => state.selectedCompany);
+
+  useEffect(() => {
+    const fetchInitialSelectedCompany = async () => {
+      try {
+        const initialCompanyData = await AsyncStorage.getItem('initialSelectedCompany');
+        if (initialCompanyData) {
+          const initialCompany = JSON.parse(initialCompanyData);
+          setInitialSelectedCompany(initialCompany);
+          console.log('Initial Selected Company:', initialCompany);
+        }
+      } catch (error) {
+        console.error('Error fetching initial selected company:', error);
+      }
+    };
+
+    fetchInitialSelectedCompany();
+  }, []);
+
+  const companyId = selectedCompany ? selectedCompany.id : initialSelectedCompany?.id;
+
+  useEffect(() => {
+    if (companyId) {
+      getAllProducts(companyId);
+    }
+  }, [companyId]);
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
@@ -88,9 +117,7 @@ const HomeAllProducts = ({ navigation }) => {
     return unsubscribe;
   }, [navigation]);
 
-  useEffect(() => {
-    getAllProducts();
-  }, []);
+
 
   useEffect(() => {
     setFilteredProducts(
@@ -100,7 +127,7 @@ const HomeAllProducts = ({ navigation }) => {
     );
   }, [searchQuery, selectedDetails]);
 
-  const getAllProducts = async () => {
+  const getAllProducts = async (categoryId) => {
     setIsLoading(true);
     const apiUrl = `${global?.userData?.productURL}${API.ALL_PRODUCTS_DATA}`;
     console.log("apiurll", apiUrl);
@@ -112,7 +139,8 @@ const HomeAllProducts = ({ navigation }) => {
       const requestData = {
         pageNo: String(pageNo),
         pageSize: "20",
-        categoryId: ""
+        categoryId: categoryId,
+        companyId:companyId
       };
   
       const response = await axios.post(apiUrl, requestData, {

@@ -59,6 +59,13 @@ const Cart = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedCustomerDetails, setSelectedCustomerDetails] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredCustomers = customers.filter(customer => {
+    const fullName = `${customer.firstName} ${customer.lastName}`.toLowerCase();
+    return fullName.includes(searchQuery.toLowerCase());
+  });
+
 
   useEffect(() => {
     const fetchInitialSelectedCompany = async () => {
@@ -78,6 +85,7 @@ const Cart = () => {
 
     fetchInitialSelectedCompany();
   }, []);
+  
 
   const companyId = selectedCompany
     ? selectedCompany.id
@@ -299,6 +307,9 @@ const Cart = () => {
 
   const handleDropdownClick = () => {
     setClicked(!clicked);
+    if (!clicked) {
+      setSearchQuery(''); // Clear search query when opening the dropdown
+    }
   };
 
   const handleCustomerSelection = (firstName, lastName, customerId) => {
@@ -578,9 +589,9 @@ const Cart = () => {
     }
   };
 
-  const copyValueToClipboard = (index) => {
+  const copyValueToClipboard = index => {
     const item = cartItems[index];
-    const { styleId, colorId, quantity } = item;
+    const {styleId, colorId, quantity} = item;
     const updatedItems = cartItems.map(cartItem => {
       if (cartItem.styleId === styleId && cartItem.colorId === colorId) {
         return {
@@ -592,7 +603,10 @@ const Cart = () => {
     });
 
     const copiedText = updatedItems
-      .filter(cartItem => cartItem.styleId === styleId && cartItem.colorId === colorId)
+      .filter(
+        cartItem =>
+          cartItem.styleId === styleId && cartItem.colorId === colorId,
+      )
       .map(updatedItem => `${updatedItem.sizeDesc}-${updatedItem.quantity}`)
       .join(', ');
 
@@ -615,25 +629,25 @@ const Cart = () => {
       return total; // Ignore invalid quantities
     }
   }, 0);
-  
+
   const uniqueSets = new Set(
     cartItems.map(item => `${item.styleId}-${item.colorId}-${item.sizeId}`),
   );
   const totalItems = uniqueSets.size;
   const totalPrice = cartItems
-  .reduce((total, item) => {
-    // Parse price and quantity to floats and integers respectively
-    const parsedPrice = parseFloat(item.price);
-    const parsedQuantity = parseInt(item.quantity);
+    .reduce((total, item) => {
+      // Parse price and quantity to floats and integers respectively
+      const parsedPrice = parseFloat(item.price);
+      const parsedQuantity = parseInt(item.quantity);
 
-    // Check if parsedPrice and parsedQuantity are valid numbers
-    if (!isNaN(parsedPrice) && !isNaN(parsedQuantity)) {
-      return total + parsedPrice * parsedQuantity;
-    } else {
-      return total; // Ignore invalid items
-    }
-  }, 0)
-  .toFixed(2);
+      // Check if parsedPrice and parsedQuantity are valid numbers
+      if (!isNaN(parsedPrice) && !isNaN(parsedQuantity)) {
+        return total + parsedPrice * parsedQuantity;
+      } else {
+        return total; // Ignore invalid items
+      }
+    }, 0)
+    .toFixed(2);
 
   const handleSaveLocationButtonPress = () => {
     // Check if any of the mandatory fields are empty
@@ -762,37 +776,9 @@ const Cart = () => {
                         style={{width: 20, height: 20}}
                       />
                     </TouchableOpacity>
+
                     {clicked && (
-                      <FlatList
-                        data={customers}
-                        renderItem={({item, index}) => (
-                          <TouchableOpacity
-                            key={index}
-                            style={{
-                              width: '100%',
-                              height: 50,
-                              justifyContent: 'center',
-                              borderBottomWidth: 0.5,
-                              borderColor: '#8e8e8e',
-                            }}
-                            onPress={() => {
-                              handleCustomerSelection(
-                                item.firstName,
-                                item.lastName,
-                                item.customerId,
-                              );
-                              console.log(item);
-                            }}>
-                            <Text
-                              style={{
-                                fontWeight: '600',
-                                marginHorizontal: 15,
-                              }}>
-                              {item.firstName} {item.lastName}
-                            </Text>
-                          </TouchableOpacity>
-                        )}
-                        keyExtractor={(item, index) => index.toString()}
+                      <View
                         style={{
                           elevation: 5,
                           height: 300,
@@ -800,9 +786,62 @@ const Cart = () => {
                           width: '90%',
                           backgroundColor: '#fff',
                           borderRadius: 10,
-                        }}
-                      />
+                        }}>
+                        <TextInput
+                          style={{
+                            marginTop: 10,
+                            borderRadius: 10,
+                            height: 40,
+                            borderColor: 'gray',
+                            borderWidth: 1,
+                            marginHorizontal: 10,
+                            paddingLeft: 10,
+                            marginBottom: 10,
+                          }}
+                          placeholder="Search Customer"
+                          value={searchQuery}
+                          onChangeText={text => setSearchQuery(text)}
+                        />
+
+                        {filteredCustomers.length === 0 ? (
+                          <Text style={style.noCategoriesText}>
+                            Sorry, no results found!
+                          </Text>
+                        ) : (
+                          <FlatList
+                            data={filteredCustomers}
+                            renderItem={({item, index}) => (
+                              <TouchableOpacity
+                                key={index}
+                                style={{
+                                  width: '100%',
+                                  height: 50,
+                                  justifyContent: 'center',
+                                  borderBottomWidth: 0.5,
+                                  borderColor: '#8e8e8e',
+                                }}
+                                onPress={() => {
+                                  handleCustomerSelection(
+                                    item.firstName,
+                                    item.lastName,
+                                    item.customerId,
+                                  );
+                                }}>
+                                <Text
+                                  style={{
+                                    fontWeight: '600',
+                                    marginHorizontal: 15,
+                                  }}>
+                                  {item.firstName} {item.lastName}
+                                </Text>
+                              </TouchableOpacity>
+                            )}
+                            keyExtractor={(item, index) => index.toString()}
+                          />
+                        )}
+                      </View>
                     )}
+
                     {isLoading && ( // Show ActivityIndicator if isLoading is true
                       <ActivityIndicator
                         style={{
@@ -1475,6 +1514,12 @@ const style = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     textAlign: 'center',
+  },
+  noCategoriesText: {
+    textAlign: 'center',
+    marginTop: 20,
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
 export default Cart;
