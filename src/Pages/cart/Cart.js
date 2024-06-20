@@ -1254,7 +1254,7 @@ const Cart = () => {
                       ? style.errorBorder
                       : null,
                   ]}
-                  placeholder="Retailer name"
+                  placeholder="Retailer name *"
                   placeholderTextColor="#000"
                   onChangeText={text =>
                     setInputValues({...inputValues, firstName: text})
@@ -1275,7 +1275,7 @@ const Cart = () => {
                       ? style.errorBorder
                       : null,
                   ]}
-                  placeholder="phone number"
+                  placeholder="phone number *"
                   placeholderTextColor="#000"
                   onChangeText={text =>
                     setInputValues({...inputValues, phoneNumber: text})
@@ -1297,11 +1297,11 @@ const Cart = () => {
                   style={[
                     style.input,
                     {color: '#000'},
-                    errorFields.includes('cityOrTown')
+                    errorFields.includes('cityOrTown *')
                       ? style.errorBorder
                       : null,
                   ]}
-                  placeholder="city or town"
+                  placeholder="city or town *"
                   placeholderTextColor="#000"
                   onChangeText={text =>
                     setInputValues({...inputValues, cityOrTown: text})
@@ -1317,7 +1317,7 @@ const Cart = () => {
                     errorFields.includes('state') ? style.errorBorder : null,
                   ]}
                   placeholderTextColor="#000"
-                  placeholder="state"
+                  placeholder="state *"
                   onChangeText={text =>
                     setInputValues({...inputValues, state: text})
                   }
@@ -1332,7 +1332,7 @@ const Cart = () => {
                     errorFields.includes('country') ? style.errorBorder : null,
                   ]}
                   placeholderTextColor="#000"
-                  placeholder="country"
+                  placeholder="country *"
                   onChangeText={text =>
                     setInputValues({...inputValues, country: text})
                   }
@@ -1375,7 +1375,7 @@ const Cart = () => {
                         ? style.errorBorder
                         : null,
                     ]}
-                    placeholder="Location Name"
+                    placeholder="Location Name *"
                     placeholderTextColor="#000"
                     onChangeText={text =>
                       setLocationInputValues({
@@ -1399,7 +1399,7 @@ const Cart = () => {
                         ? style.errorBorder
                         : null,
                     ]}
-                    placeholder="phone number"
+                    placeholder="phone number *"
                     placeholderTextColor="#000"
                     onChangeText={text =>
                       setLocationInputValues({
@@ -1421,7 +1421,7 @@ const Cart = () => {
                         ? style.errorBorder
                         : null,
                     ]}
-                    placeholder="Locality"
+                    placeholder="Locality *"
                     placeholderTextColor="#000"
                     onChangeText={text =>
                       setLocationInputValues({
@@ -1441,7 +1441,7 @@ const Cart = () => {
                         ? style.errorBorder
                         : null,
                     ]}
-                    placeholder="city or town"
+                    placeholder="city or town *"
                     placeholderTextColor="#000"
                     onChangeText={text =>
                       setLocationInputValues({
@@ -1464,7 +1464,7 @@ const Cart = () => {
                         : null,
                     ]}
                     placeholderTextColor="#000"
-                    placeholder="state"
+                    placeholder="state *"
                     onChangeText={text =>
                       setLocationInputValues({
                         ...locationInputValues,
@@ -1484,7 +1484,7 @@ const Cart = () => {
                         : null,
                     ]}
                     placeholderTextColor="#000"
-                    placeholder="Pincode"
+                    placeholder="Pincode *"
                     onChangeText={text =>
                       setLocationInputValues({
                         ...locationInputValues,
@@ -1504,7 +1504,7 @@ const Cart = () => {
                         : null,
                     ]}
                     placeholderTextColor="#000"
-                    placeholder="country"
+                    placeholder="country *"
                     onChangeText={text =>
                       setLocationInputValues({
                         ...locationInputValues,

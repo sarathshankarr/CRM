@@ -49,7 +49,7 @@ const Login = () => {
       if (error.response && error.response.status === 400) {
         Alert.alert('Invalid Code', 'Please enter a valid customer code.');
       } else {
-        Alert.alert('Error', 'An error occurred. Please try again later.');
+        Alert.alert('Alert', 'please Enter the code.');
       }
     }
   };
