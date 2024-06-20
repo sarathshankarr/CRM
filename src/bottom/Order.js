@@ -29,7 +29,14 @@ const Order = () => {
   const [showSearchInput, setShowSearchInput] = useState(false);
   const navigation = useNavigation();
   const selectedCompany = useSelector(state => state.selectedCompany);
-
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      // Reset search when component is focused
+      setSearchQuery('');
+      setShowSearchInput(false); // Hide search input when component is focused
+    });
+    return unsubscribe;
+  }, [navigation]);
   useEffect(() => {
     const fetchInitialSelectedCompany = async () => {
       try {

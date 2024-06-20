@@ -85,42 +85,70 @@ const ModalComponent = ({
   // console.log('inputValue:', JSON.stringify(inputValues));
 
   const handleSaveItem = () => {
-    // console.log("item",selectedItem)
-    const sizeDesc = selectedItemState?.selectedSize || 'Default Size';
-    const inputValue = inputValues[sizeDesc] || '';
-    const itemWithDetails = {
-      styleId: selectedItem.styleId,
-      styleDesc: selectedItem.styleDesc,
-      sizeDesc: sizeDesc,
-      price: selectedItem.mrp,
-      discount: selectedItem.discount,
-      inputValue: inputValues,
-      quantity: Object.values(inputValues).reduce(
-        (acc, cur) => acc + Number(cur),
-        0,
-      ),
-      imageUrls: selectedItem.imageUrls,
-      styleName: selectedItem.styleName,
-      colorName: selectedItem.colorName,
-      colorId: stylesData[0]?.colorId || '', // Add colorId here
-    };
-    const existingItemIndex = cartItems.findIndex(
-      item =>
-        item.styleId === selectedItem.styleId &&
-        item.sizeDesc === sizeDesc &&
-        item.colorName === selectedItem.colorName,
-    );
+    let itemsToUpdate = []; // Updated variable name to reflect intention
+    stylesData.forEach(style => {
+      if (!style.sizeList || style.sizeList.length === 0) return;
 
-    if (existingItemIndex !== -1) {
-      // If item exists in cart, update its quantity
-      dispatch(updateCartItem(existingItemIndex, 'inputValue', inputValues));
-    } else {
-      // Otherwise, add it to the cart
-      dispatch(addItemToCart(itemWithDetails));
-    }
+      style.sizeList.forEach(size => {
+        const sizeDesc = size.sizeDesc;
+        const inputValue = inputValues[sizeDesc];
+        if (inputValue !== undefined && inputValue.trim() !== '') {
+          const itemBaseDetails = {
+            availQty: style.availQty,
+            color: style.color,
+            colorId: style.colorId,
+            styleId: style.styleId,
+            styleDesc: style.styleDesc,
+            price: style.price,
+            discount: style.styleDiscountRequest
+              ? style.styleDiscountRequest.discountName
+              : '',
+            imageUrls: style.imageUrls,
+            styleName: style.styleName,
+            colorName: size.colorName,
+            sizeDesc: sizeDesc,
+            sizeId: size.sizeId,
+            quantity: inputValue,
+          };
+
+          console.log('itemsToUpdate', itemsToUpdate);
+          const existingItemIndex = cartItems.findIndex(
+            item =>
+              item.styleId === style.styleId &&
+              item.colorId === style.colorId &&
+              item.sizeId === size.sizeId,
+          );
+
+          if (existingItemIndex !== -1) {
+            // Item already exists in cart, update quantity
+            const updatedQuantity =
+              parseInt(cartItems[existingItemIndex].quantity) +
+              parseInt(inputValue);
+            const updatedItem = {
+              ...cartItems[existingItemIndex],
+              quantity: updatedQuantity.toString(),
+            };
+            dispatch(updateCartItem(existingItemIndex, updatedItem));
+          } else {
+            // Item does not exist in cart, add to itemsToUpdate
+            itemsToUpdate.push(itemBaseDetails);
+          }
+        }
+      });
+    });
+    console.log('itemsToUpdate before dispatch:', itemsToUpdate);
+    // Add new items to the cart
+    itemsToUpdate.forEach(item => dispatch(addItemToCart(item)));
+
+    // Clear inputs and close modal
+    clearAllInputs();
     closeModal();
-    setInputValues({});
   };
+  useEffect(() => {
+    if (modalVisible) {
+      setInputValues({}); // Clear input values when modal is opened
+    }
+  }, [modalVisible]);
 
   const handleQuantityChange = (text, styleIndex, sizeIndex) => {
     console.log('Text:', text);
@@ -151,6 +179,7 @@ const ModalComponent = ({
       })
       .then(response => {
         setStylesData(response?.data?.response?.stylesList || []);
+        console.log('response', response?.data?.response?.stylesList);
       })
       .catch(error => {
         console.error('Error:', error);
@@ -208,8 +237,25 @@ const ModalComponent = ({
 
           <View style={styles.sizehead}>
             <Text style={styles.sizetxt}>Size/Color</Text>
-            <Text style={styles.quantitytxt}>Quantity</Text>
+            <Text style={styles.quantityqty}>Quantity</Text>
             <Text style={styles.quantitytxt}>Price</Text>
+            <TouchableOpacity
+              style={{
+                borderRadius: 30,
+                paddingHorizontal: 4,
+                marginLeft: 'auto',
+                flex: 0.2,
+              }}
+              onPress={() =>
+                copyValueToClipboard(
+                  selectedItemState[stylesData[0]?.sizeList[0]?.sizeDesc],
+                )
+              }>
+              <Image
+                style={{height: 30, width: 30}}
+                source={require('../../assets/copy.png')}
+              />
+            </TouchableOpacity>
           </View>
           {loading ? (
             <ActivityIndicator color="#390050" style={{marginTop: 10}} /> // Show ActivityIndicator if loading
@@ -231,26 +277,6 @@ const ModalComponent = ({
                           {selectedItem ? selectedItem.colorName : ''}
                         </Text>
                       </View>
-                      <TouchableOpacity
-                        style={{
-                          borderWidth: 1,
-                          borderColor: '#fff',
-                          borderRadius: 30,
-                          paddingHorizontal: 4,
-                          marginLeft: 'auto',
-                        }}
-                        onPress={() =>
-                          copyValueToClipboard(
-                            selectedItemState[
-                              stylesData[0]?.sizeList[0]?.sizeDesc
-                            ],
-                          )
-                        }>
-                        <Image
-                          style={{height: 30, width: 30}}
-                          source={require('../../assets/copy.png')}
-                        />
-                      </TouchableOpacity>
                     </View>
 
                     {style.sizeList &&
@@ -492,7 +518,12 @@ const styles = StyleSheet.create({
   quantitytxt: {
     color: '#000',
     fontWeight: 'bold',
-    flex: 0.4,
+    flex: 0.2,
+  },
+  quantityqty: {
+    color: '#000',
+    fontWeight: 'bold',
+    flex: 0.5,
   },
 
   modalContent: {

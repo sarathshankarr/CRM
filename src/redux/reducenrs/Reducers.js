@@ -25,7 +25,6 @@ const initialState = {
   },
   notes: [],
   noteSaved: false,
-  cartItems: [],
   userRole: null,
   loggedInUser: null,
   selectedCompany: null,
@@ -33,37 +32,38 @@ const initialState = {
 };
 
 const reducers = (state = initialState, action) => {
-  switch (action.type) {
-    case ADD_TO_CART:
-      return {
-        ...state,
-        cartItems: [...state.cartItems, action.payload],
-      };
-    case REMOVE_FROM_CART:
-      return {
-        ...state,
-        cartItems: state.cartItems.filter(
-          (item, index) => index !== action.payload,
-        ),
-      };
+    switch (action.type) {
+      case ADD_TO_CART:
+        return {
+          ...state,
+          cartItems: [...state.cartItems, action.payload],
+        };
+  
+        case REMOVE_FROM_CART:
+          const { styleId, colorId } = state.cartItems[action.payload];
+          const updatedCartItems = state.cartItems.filter(
+            item => !(item.styleId === styleId && item.colorId === colorId)
+          );
+          return {
+            ...state,
+            cartItems: updatedCartItems,
+          };
+        
+
     case UPDATE_CART_ITEM:
       return {
         ...state,
-        cartItems: state.cartItems.map((item, index) => {
-          if (index === action.payload.index) {
-            return {
-              ...item,
-              [action.payload.field]: action.payload.quantity,
-            };
-          }
-          return item;
-        }),
+        cartItems: state.cartItems.map((item, index) =>
+          index === action.payload.index ? action.payload.updatedItem : item
+        ),
       };
+
     case ADD_SELECTED_IMAGE:
       return {
         ...state,
         selectedImages: [...state.selectedImages, action.payload],
       };
+
     case REMOVE_SELECTED_IMAGE:
       return {
         ...state,
@@ -71,11 +71,13 @@ const reducers = (state = initialState, action) => {
           image => image !== action.payload,
         ),
       };
+
     case ADD_TO_PENDING:
       return {
         ...state,
-        pendingItems: state.pendingItems.concat(action.payload),
+        pendingItems: [...state.pendingItems, action.payload],
       };
+
     case SET_NOTE_DETAILS:
       return {
         ...state,
@@ -93,31 +95,37 @@ const reducers = (state = initialState, action) => {
           description: '',
         },
       };
+
     case SET_NOTE_SAVED:
       return {
         ...state,
         noteSaved: action.payload,
       };
+
     case CLEAR_CART:
       return {
         ...state,
         cartItems: [],
       };
+
     case SET_USER_ROLE:
       return {
         ...state,
         userRole: action.payload,
       };
+
     case SET_LOGGED_IN_USER:
       return {
         ...state,
         loggedInUser: action.payload,
       };
+
     case SET_SELECTED_COMPANY:
       return {
         ...state,
         selectedCompany: action.payload,
       };
+
     case STORE_CATEGORY_IDS:
       return {
         ...state,

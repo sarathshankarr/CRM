@@ -193,12 +193,16 @@ const Cart = () => {
     };
 
     axios
-      .post(global?.userData?.productURL+API.ADD_CUSTOMER_DETAILS, requestData, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${global.userData.token.access_token}`,
+      .post(
+        global?.userData?.productURL + API.ADD_CUSTOMER_DETAILS,
+        requestData,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${global.userData.token.access_token}`,
+          },
         },
-      })
+      )
       .then(response => {
         const newCustomer = response.data.response.customerList[0];
         console.log('ADD_CUSTOMER_DETAILS', newCustomer);
@@ -320,8 +324,6 @@ const Cart = () => {
     setShipFromToClicked(false);
   };
 
-  const totalItems = cartItems.length;
-
   // console.log('cart', cartItems);
   // console.log('selecteditem', selectedItem);
 
@@ -338,7 +340,6 @@ const Cart = () => {
     } else if (userRole === 'Distributor' || userRole === 'Retailer') {
       // No alert for Distributor or Retailer
     }
-    
 
     if (!selectedLocation) {
       Alert.alert('Alert', 'Please select a Billing to location.');
@@ -413,7 +414,7 @@ const Cart = () => {
     console.log('billingAddressId:', billingAddressId);
     console.log('shippingAddressId:', shippingAddressId);
     console.log('customerId', customerId);
-console.log("cartItems",cartItems)
+    console.log('cartItems', cartItems);
     const requestData = {
       totalAmount: totalPrice.toString(),
       totalDiscount: '0',
@@ -432,20 +433,19 @@ console.log("cartItems",cartItems)
       agentId: '0',
       subAgentId: '0',
       orderLineItems: cartItems.map(item => ({
-      
-        qty: totalQty.toString(),
+        qty: item.quantity.toString(),
         styleId: item.styleId,
         colorId: item.colorId,
         gscodeMapId: 42,
         sizeDesc: item.sizeDesc,
         gsCode: '8907536002462',
-        availQty: totalQty.toString(),
-        price: totalPrice.toString(),
-        gross: '9660',
+        availQty: item.quantity.toString(),
+        price: item.price.toString(),
+        gross: (parseFloat(item.price) * parseInt(item.quantity)).toString(),
         discountPercentage: '0',
         discountAmount: '0',
         gst: 5,
-        total: totalPrice.toString(),
+        total: (parseFloat(item.price) * parseInt(item.quantity)).toString(),
         itemStatus: 'OPEN',
         pcqty: '0',
         pack_qty: 0,
@@ -483,21 +483,40 @@ console.log("cartItems",cartItems)
       companyId: companyId,
     };
     axios
-      .post(global?.userData?.productURL+API.ADD_ORDER_DATA, requestData, {
+      .post(global?.userData?.productURL + API.ADD_ORDER_DATA, requestData, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${global.userData.token.access_token}`,
         },
       })
       .then(response => {
+        // Handle success response
         dispatch({type: 'CLEAR_CART'});
         navigation.navigate('Home');
       })
       .catch(error => {
         console.error('Error placing order:', error);
+        if (error.response) {
+          console.error('Server responded with:', error.response.data);
+          console.error('Error status:', error.response.status);
+          console.error('Error headers:', error.response.headers);
+          // Log the specific error message if available
+          if (
+            error.response.data.errors &&
+            error.response.data.errors.length > 0
+          ) {
+            console.error(
+              'Error message:',
+              error.response.data.errors[0].message,
+            );
+          }
+        } else if (error.request) {
+          console.error('No response received:', error.request);
+        } else {
+          console.error('Request setup error:', error.message);
+        }
       })
       .finally(() => {
-        // Reset loading state after order placement completes
         setIsSubmitting(false);
       });
   };
@@ -549,57 +568,72 @@ console.log("cartItems",cartItems)
     dispatch(removeFromCart(itemIndex));
   };
 
-  const handleQuantityChange = (index, field, text) => {
-    const currentItem = cartItems[index];
-    const updatedInputValue = {...currentItem.inputValue};
-    updatedInputValue[field] = text.trim() !== '' ? text.trim() : undefined;
-    dispatch(updateCartItem(index, 'inputValue', updatedInputValue));
-    setInputValuess(updatedInputValue); // Update inputValue state
+  const handleQuantityChange = (index, text) => {
+    const updatedItems = [...cartItems];
+    const parsedQuantity = parseInt(text, 10);
+
+    if (!isNaN(parsedQuantity) || text === '') {
+      updatedItems[index].quantity = text === '' ? '' : parsedQuantity;
+      dispatch(updateCartItem(index, updatedItems[index]));
+    }
   };
 
-  const copyValueToClipboard = index => {
-    // console.log('Copying value to clipboard...');
-    const copiedText =
-      cartItems[index]?.inputValue[
-        Object.keys(cartItems[index]?.inputValue)[0]
-      ] || '';
-    // console.log('Copied text:', copiedText);
+  const copyValueToClipboard = (index) => {
+    const item = cartItems[index];
+    const { styleId, colorId, quantity } = item;
+    const updatedItems = cartItems.map(cartItem => {
+      if (cartItem.styleId === styleId && cartItem.colorId === colorId) {
+        return {
+          ...cartItem,
+          quantity,
+        };
+      }
+      return cartItem;
+    });
+
+    const copiedText = updatedItems
+      .filter(cartItem => cartItem.styleId === styleId && cartItem.colorId === colorId)
+      .map(updatedItem => `${updatedItem.sizeDesc}-${updatedItem.quantity}`)
+      .join(', ');
+
     Clipboard.setString(copiedText);
+    console.log(`Copied values: ${copiedText} to clipboard`);
 
-    const updatedInputValue = {};
-    for (const size in cartItems[index]?.inputValue) {
-      updatedInputValue[size] = copiedText;
-    }
-
-    const updatedCartItem = {
-      ...cartItems[index],
-      inputValue: updatedInputValue,
-    };
-    // console.log('Updated cart item:', updatedCartItem);
-
-    dispatch(updateCartItem(index, 'inputValue', updatedCartItem.inputValue));
-    setInputValuess(updatedCartItem.inputValue); // Update inputValue state
+    updatedItems.forEach((updatedItem, updatedIndex) => {
+      if (updatedItem.styleId === styleId && updatedItem.colorId === colorId) {
+        dispatch(updateCartItem(updatedIndex, updatedItem));
+      }
+    });
   };
 
   const totalQty = cartItems.reduce((total, item) => {
-    const quantities = Object.values(item.inputValue).filter(
-      qty => qty !== undefined,
-    );
-    const sum = quantities.reduce((acc, curr) => acc + parseInt(curr), 0);
-    return total + sum;
+    // Ensure item.quantity is defined and not NaN before adding to total
+    const quantity = parseInt(item.quantity);
+    if (!isNaN(quantity)) {
+      return total + quantity;
+    } else {
+      return total; // Ignore invalid quantities
+    }
   }, 0);
+  
+  const uniqueSets = new Set(
+    cartItems.map(item => `${item.styleId}-${item.colorId}-${item.sizeId}`),
+  );
+  const totalItems = uniqueSets.size;
+  const totalPrice = cartItems
+  .reduce((total, item) => {
+    // Parse price and quantity to floats and integers respectively
+    const parsedPrice = parseFloat(item.price);
+    const parsedQuantity = parseInt(item.quantity);
 
-  const totalPrice = cartItems.reduce((total, item) => {
-    const itemPrice = parseInt(item.price) || 0;
-    const quantities = Object.values(item.inputValue).filter(
-      qty => qty !== undefined,
-    );
-    const totalQuantity = quantities.reduce(
-      (acc, curr) => acc + parseInt(curr),
-      0,
-    );
-    return total + itemPrice * totalQuantity;
-  }, 0);
+    // Check if parsedPrice and parsedQuantity are valid numbers
+    if (!isNaN(parsedPrice) && !isNaN(parsedQuantity)) {
+      return total + parsedPrice * parsedQuantity;
+    } else {
+      return total; // Ignore invalid items
+    }
+  }, 0)
+  .toFixed(2);
 
   const handleSaveLocationButtonPress = () => {
     // Check if any of the mandatory fields are empty
@@ -651,12 +685,16 @@ console.log("cartItems",cartItems)
     };
 
     axios
-      .post(global?.userData?.productURL+API.ADD_CUSTOMER_LOCATION, requestLocationData, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${global.userData.token.access_token}`,
+      .post(
+        global?.userData?.productURL + API.ADD_CUSTOMER_LOCATION,
+        requestLocationData,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${global.userData.token.access_token}`,
+          },
         },
-      })
+      )
       .then(response => {
         console.log(
           'ADD_CUSTOMER_LOCATION',
@@ -934,123 +972,97 @@ console.log("cartItems",cartItems)
           <View style={style.header}>
             <Text style={style.txt}>Total Items: {cartItems.length}</Text>
           </View>
-          {cartItems.map((item, index) => (
-            <View key={index} style={{marginBottom: 20}}>
-              <View style={style.imgContainer}>
-                <TouchableOpacity style={style.itemContainer}>
-                  <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
-                    {item.imageUrls.length > 0 && (
-                      <Image
-                        source={{uri: item.imageUrls[0]}}
-                        style={{
-                          width: 100,
-                          height: 100,
-                          resizeMode: 'cover',
-                          margin: 5,
-                        }}
-                      />
-                    )}
-                  </View>
-                  <Text style={{fontSize: 15, fontWeight: 'bold', flex: 0.8}}>
-                    {item.styleDesc}
-                  </Text>
-                </TouchableOpacity>
-                <View style={style.buttonsContainer}>
-                  <TouchableOpacity onPress={() => openModal(item)}>
-                    <Image
-                      style={style.buttonIcon}
-                      source={require('../../../assets/edit.png')}
-                    />
-                  </TouchableOpacity>
-                  <TouchableOpacity onPress={() => handleRemoveItem(index)}>
-                    <Image
-                      style={style.buttonIcon}
-                      source={require('../../../assets/del.png')}
-                    />
-                  </TouchableOpacity>
-                </View>
-              </View>
-              {/* <Text>colorId - {item.colorId}</Text> */}
-              <View style={style.sizehead}>
-                <View style={{flex: 0.7}}>
-                  <Text style={{marginLeft: 10}}>COLOR/SIZE</Text>
-                </View>
-                <View style={{flex: 0.5}}>
-                  <Text>QUANTITY</Text>
-                </View>
-                <View style={{flex: 0.4}}>
-                  <Text>PRICE</Text>
-                </View>
-                <TouchableOpacity onPress={() => copyValueToClipboard(index)}>
-                  <Image
-                    style={{height: 25, width: 25, marginRight: 10}}
-                    source={require('../../../assets/copy.png')}
-                  />
-                </TouchableOpacity>
-              </View>
-              <View style={{marginHorizontal: 10, marginVertical: 5}}>
-                {/* <Text style={{color: '#000', fontWeight: 'bold'}}>
-                  {item.styleName}
-                </Text> */}
-                <Text>ColorName - {item.colorName}</Text>
-              </View>
-              {Object.entries(item.inputValue).map(([size, quantity], idx) => (
-                <View key={idx}>
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      paddingHorizontal: 10,
-                      justifyContent: 'space-between',
-                      paddingVertical: 6,
-                    }}>
-                    <View style={{flex: 0.4}}>
-                      <Text>Size - {size}</Text>
+          {cartItems.length === 0 ? (
+            <Text>No items in cart</Text>
+          ) : (
+            <View>
+              {cartItems.map((item, index) => (
+                <View
+                  key={`${item.styleId}-${item.colorId}-${item.sizeId}-${index}`}
+                  style={{marginBottom: 20}}>
+                  {(index === 0 ||
+                    item.styleId !== cartItems[index - 1].styleId ||
+                    item.colorId !== cartItems[index - 1].colorId) && (
+                    <View style={style.itemContainer}>
+                      <View style={style.imgContainer}>
+                        {item.imageUrls && item.imageUrls.length > 0 && (
+                          <Image
+                            source={{uri: item.imageUrls[0]}}
+                            style={{
+                              width: 100,
+                              height: 100,
+                              resizeMode: 'cover',
+                              margin: 5,
+                            }}
+                          />
+                        )}
+                        <View style={{flex: 1}}>
+                          <Text style={{fontSize: 15, fontWeight: 'bold'}}>
+                            {item.styleDesc}
+                          </Text>
+                          <Text>ColorName - {item.colorName}</Text>
+                        </View>
+                        <View style={style.buttonsContainer}>
+                          <TouchableOpacity onPress={() => openModal(item)}>
+                            <Image
+                              style={style.buttonIcon}
+                              source={require('../../../assets/edit.png')}
+                            />
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            onPress={() => handleRemoveItem(index)}>
+                            <Image
+                              style={style.buttonIcon}
+                              source={require('../../../assets/del.png')}
+                            />
+                          </TouchableOpacity>
+                        </View>
+                      </View>
+                      <View style={style.sizehead}>
+                        <View style={{flex: 0.7}}>
+                          <Text style={{marginLeft: 10}}>COLOR/SIZE</Text>
+                        </View>
+                        <View style={{flex: 0.5}}>
+                          <Text>QUANTITY</Text>
+                        </View>
+                        <View style={{flex: 0.4}}>
+                          <Text>PRICE</Text>
+                        </View>
+                        <TouchableOpacity
+                          onPress={() => copyValueToClipboard(index)}>
+                          <Image
+                            style={{height: 25, width: 25, marginRight: 10}}
+                            source={require('../../../assets/copy.png')}
+                          />
+                        </TouchableOpacity>
+                      </View>
                     </View>
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        flex: 1,
-                        justifyContent: 'center',
-                      }}>
+                  )}
+                  <View style={style.itemDetails}>
+                    <View style={{flex: 0.4}}>
+                      <Text>Size - {item.sizeDesc}</Text>
+                    </View>
+                    <View style={style.quantityInputContainer}>
                       <TextInput
                         value={
-                          quantity !== undefined ? quantity.toString() : ''
+                          item.quantity !== undefined
+                            ? item.quantity.toString()
+                            : ''
                         }
-                        onChangeText={text =>
-                          handleQuantityChange(index, size, text)
-                        }
-                        style={{
-                          borderBottomWidth: 1,
-                          borderColor: 'gray',
-                          paddingHorizontal: 8,
-                          paddingVertical: 5,
-                          borderRadius: 5,
-                          marginRight: 10,
-                          flex: 0.3,
-                          textAlign: 'center',
-                          color: '#000',
-                        }}
+                        onChangeText={text => handleQuantityChange(index, text)}
+                        style={style.quantityInput}
+                        keyboardType="numeric" // Optional: Restricts input to numeric keyboard
                       />
                     </View>
                     <View style={{flex: 0.5}}>
                       <Text>{item.price}</Text>
-                      {/* {console.log('Price for item:', item.price)} */}
                     </View>
                   </View>
-                  <View
-                    style={{
-                      borderBottomWidth: 1,
-                      borderColor: 'gray',
-                      marginTop: 4,
-                    }}
-                  />
+                  <View style={style.separator} />
                 </View>
               ))}
             </View>
-          ))}
-
+          )}
           <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
             <TouchableOpacity
               onPress={showDatePicker}
@@ -1335,8 +1347,7 @@ const style = StyleSheet.create({
     marginVertical: 10,
   },
   itemContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    marginBottom: 20,
   },
   image: {
     width: 100,
@@ -1375,6 +1386,51 @@ const style = StyleSheet.create({
   dateIcon: {
     height: 25,
     width: 25,
+  },
+  temDetails: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    justifyContent: 'space-between',
+    paddingVertical: 6,
+  },
+  itemDetails: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    justifyContent: 'space-between',
+    paddingVertical: 6,
+  },
+  quantityInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    justifyContent: 'center',
+  },
+  quantityInput: {
+    borderBottomWidth: 1,
+    borderColor: 'gray',
+    paddingHorizontal: 8,
+    paddingVertical: 5,
+    borderRadius: 5,
+    marginRight: 10,
+    flex: 0.3,
+    textAlign: 'center',
+    color: '#000',
+  },
+  separator: {
+    borderBottomWidth: 1,
+    borderColor: 'gray',
+    marginTop: 4,
+  },
+  bottomContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    marginVertical: 10,
+    borderTopWidth: 1,
+    borderTopColor: 'lightgray',
+    paddingTop: 10,
   },
   modalContainer: {
     flex: 1,

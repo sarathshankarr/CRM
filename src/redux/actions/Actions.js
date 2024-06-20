@@ -1,21 +1,20 @@
 import {ADD_SELECTED_IMAGE, ADD_TO_CART, ADD_TO_PENDING, DELETE_NOTE, REMOVE_FROM_CART, REMOVE_SELECTED_IMAGE, SET_NOTE_DETAILS, UPDATE_CART_ITEM,SET_NOTE_TITLE,SET_NOTE_DESCRIPTION, SET_NOTE_SAVED, CLEAR_CART, SET_USER_ROLE, SET_LOGGED_IN_USER, SET_SELECTED_COMPANY, STORE_CATEGORY_IDS} from '../ActionTypes';
 
-export const addItemToCart = data => ({
+export const addItemToCart = (data) => ({
   type: ADD_TO_CART,
   payload: data,
 });
 
-export const removeFromCart = index => {
-  return {
-    type: REMOVE_FROM_CART,
-    payload: index
-  };
-};
-export const updateCartItem = (index, field, quantity) => ({
-  type: UPDATE_CART_ITEM,
-  payload: { index, field, quantity },
+
+export const removeFromCart = (index) => ({
+  type: REMOVE_FROM_CART,
+  payload: index,
 });
 
+export const updateCartItem = (index, updatedItem) => ({
+  type: UPDATE_CART_ITEM,
+  payload: { index, updatedItem },
+});
 export const addSelectedImage = (imageUri) => ({
   type: ADD_SELECTED_IMAGE,
   payload: imageUri,
@@ -27,7 +26,6 @@ export const removeSelectedImage = (imageUri) => ({
 });
 export const addToPending = (cartItems) => {
   
-  // console.log('Adding to pending:', cartItems);
   return {
     type: ADD_TO_PENDING,
     payload: cartItems,
@@ -40,7 +38,6 @@ export const setNoteDetails = ({ title, description }) => {
   };
 };
 export const deleteNoteAction = () => {
-  // console.log("Delete note action dispatched!");
   return {
     type: DELETE_NOTE,
   };
@@ -79,3 +76,5 @@ export const storeCategoryIds = (categoryIds) => ({
   type: STORE_CATEGORY_IDS,
   payload: categoryIds,
 });
+
+
