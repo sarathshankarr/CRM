@@ -96,7 +96,7 @@ const DistributorOrder = () => {
     let totalQty = 0;
     let totalGst = 0;
     let totalCost = 0;
-  
+
     if (order && order.orderLineItems) {
       order.orderLineItems.forEach(item => {
         const shippedQty = parseInt(item.shipQty);
@@ -105,20 +105,19 @@ const DistributorOrder = () => {
         const qty = isChecked ? shippedQty : receivedQty + inputQty;
         const unitPrice = parseFloat(item.unitPrice);
         const gst = parseFloat(item.gst);
-  
+
         totalQty += qty;
         totalGst += ((unitPrice * gst) / 100) * qty;
         totalCost += unitPrice * qty + ((unitPrice * gst) / 100) * qty; // Add GST to the total cost calculation
       });
     }
-  
+
     setTotals({
       totalQty: Math.floor(totalQty),
       totalGst: Math.floor(totalGst),
       totalCost: Math.floor(totalCost),
     });
   };
-  
 
   const handleCheckBoxToggle = () => {
     setIsChecked(prevChecked => {
@@ -129,7 +128,6 @@ const DistributorOrder = () => {
       return !prevChecked;
     });
   };
-
 
   const handleQtyChange = (text, itemId) => {
     const qty = parseInt(text);
@@ -197,9 +195,9 @@ const DistributorOrder = () => {
           colorId: item.colorId,
           gscodeMapId: item.gscodeMapId,
           styleId: item.styleId,
-          styleName:item.styleName,
+          styleName: item.styleName,
           size: item.size,
-          sizeId:item.sizeId,
+          sizeId: item.sizeId,
           gsCode: item.gsCode,
           availQty: item.shipQty,
           unitPrice: item.unitPrice,
@@ -323,10 +321,17 @@ const DistributorOrder = () => {
         <Text style={[styles.orderDetailsText, {flex: 2}]}>Name</Text>
         <Text style={[styles.orderDetailsText, {flex: 1.5}]}>Color</Text>
         <Text style={[styles.orderDetailsText, {flex: 1}]}>Size</Text>
-        <Text style={[styles.orderDetailsText, {flex: 1}]}>Shipped Qty</Text>
-        <Text style={[styles.orderDetailsText, {flex: 1}]}>Received Qty</Text>
+        <Text style={[styles.orderDetailsText, {flex: 1}]}>Ship Qty</Text>
+        <Text style={[styles.orderDetailsText, {flex: 1}]}>Rec Qty</Text>
         <View style={{flex: 1, alignItems: 'center'}}>
-          <Text style={styles.orderDetailsText}>Qty</Text>
+          <Text
+            style={{
+              textAlign: 'center',
+              fontWeight: 'bold',
+              marginBottom: 5,
+            }}>
+            Qty
+          </Text>
           <CheckBox onClick={handleCheckBoxToggle} isChecked={isChecked} />
         </View>
         <Text style={[styles.orderDetailsText, {flex: 1}]}>Price</Text>
@@ -372,6 +377,7 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'center',
     fontWeight: 'bold',
+    marginBottom: 15,
   },
   orderItem: {
     flexDirection: 'row',
