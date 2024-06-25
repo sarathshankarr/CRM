@@ -42,6 +42,7 @@ const PackingOrders = () => {
       })
       .then(response => {
         setPackingOrders(response.data);
+        console.log(response.data)
         setLoading(false);
       })
       .catch(error => {
@@ -178,7 +179,7 @@ const PackingOrders = () => {
     <View style={{borderBottomWidth: 1, borderBottomColor: '#ccc'}}>
       <View style={styles.orderContainer}>
         <Text style={styles.text}>{item.p_id}</Text>
-        <Text style={styles.text1}>{item.orderQty}</Text>
+        <Text style={styles.text1}>{item.totQty}</Text>
         <Text style={styles.text2}>{item.totAmnt}</Text>
         <Text style={styles.text3}>{item.packNo}</Text>
         <Text style={styles.text4}>{item.packUserName}</Text>

@@ -10,6 +10,7 @@ import {
   Keyboard,
   StyleSheet,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import {useDispatch, useSelector} from 'react-redux';
@@ -72,12 +73,13 @@ const ModalComponent = ({
       if (style.sizeList) {
         style.sizeList.forEach(size => {
           const sizeDesc = size.sizeDesc;
-          updatedItem[sizeDesc] = ''; // Clear the quantity
+          updatedItem[sizeDesc] = ''; // Clear the quantity to an empty string
         });
       }
     });
 
-    // console.log('After clearing:', updatedItem); // Log after clearing
+    // Log after clearing
+    console.log('After clearing:', updatedItem);
     setSelectedItem(updatedItem);
     setInputValues({}); // Clear inputValues as well
   };
@@ -85,14 +87,22 @@ const ModalComponent = ({
   // console.log('inputValue:', JSON.stringify(inputValues));
 
   const handleSaveItem = () => {
-    let itemsToUpdate = []; // Updated variable name to reflect intention
+    console.log('Current inputValues state:', inputValues);
+
+    let itemsToUpdate = [];
+    let hasZeroQuantity = false; // Flag to track if zero quantity is found
+
     stylesData.forEach(style => {
       if (!style.sizeList || style.sizeList.length === 0) return;
 
       style.sizeList.forEach(size => {
         const sizeDesc = size.sizeDesc;
-        const inputValue = inputValues[sizeDesc];
-        if (inputValue !== undefined && inputValue.trim() !== '') {
+        const inputValue = inputValues[sizeDesc] || '0'; // Ensure a default value of '0'
+
+        console.log(`Processing ${sizeDesc} with quantity ${inputValue}`);
+
+        // Check if inputValue is greater than 0 and is not undefined
+        if (parseInt(inputValue, 10) > 0) {
           const itemBaseDetails = {
             availQty: style.availQty,
             color: style.color,
@@ -111,7 +121,8 @@ const ModalComponent = ({
             quantity: inputValue,
           };
 
-          console.log('itemsToUpdate', itemsToUpdate);
+          console.log('Item base details:', itemBaseDetails);
+
           const existingItemIndex = cartItems.findIndex(
             item =>
               item.styleId === style.styleId &&
@@ -120,7 +131,7 @@ const ModalComponent = ({
           );
 
           if (existingItemIndex !== -1) {
-            // Item already exists in cart, update quantity
+            console.log("existingItemIndex",existingItemIndex)
             const updatedQuantity =
               parseInt(cartItems[existingItemIndex].quantity) +
               parseInt(inputValue);
@@ -128,43 +139,60 @@ const ModalComponent = ({
               ...cartItems[existingItemIndex],
               quantity: updatedQuantity.toString(),
             };
+            console.log(
+              `Updating existing item at index ${existingItemIndex} with quantity ${updatedItem.quantity}`,
+            );
             dispatch(updateCartItem(existingItemIndex, updatedItem));
           } else {
-            // Item does not exist in cart, add to itemsToUpdate
             itemsToUpdate.push(itemBaseDetails);
           }
+        } else if (parseInt(inputValue, 10) === 0) {
+          // Alert if quantity is 0
+          console.log(`Quantity for ${sizeDesc} is 0.`);
         }
       });
     });
-    console.log('itemsToUpdate before dispatch:', itemsToUpdate);
-    // Add new items to the cart
-    itemsToUpdate.forEach(item => dispatch(addItemToCart(item)));
 
-    // Clear inputs and close modal
+    console.log('Items to update:', itemsToUpdate);
+
+    // Add items to cart only if itemsToUpdate is not empty
+    if (itemsToUpdate.length > 0) {
+      itemsToUpdate.forEach(item => dispatch(addItemToCart(item)));
+    }
+
     clearAllInputs();
     closeModal();
   };
+
   useEffect(() => {
-    if (modalVisible) {
-      setInputValues({}); // Clear input values when modal is opened
+    if (modalVisible && stylesData.length > 0) {
+      const initialInputValues = {};
+      stylesData.forEach(style => {
+        if (style.sizeList) {
+          style.sizeList.forEach(size => {
+            initialInputValues[size.sizeDesc] = ''; // Default value as empty string
+          });
+        }
+      });
+      setInputValues(initialInputValues);
     }
-  }, [modalVisible]);
+  }, [modalVisible, stylesData]);
 
   const handleQuantityChange = (text, styleIndex, sizeIndex) => {
     console.log('Text:', text);
     console.log('Style Index:', styleIndex);
     console.log('Size Index:', sizeIndex);
 
-    if (stylesData.length > styleIndex && stylesData[styleIndex].sizeList) {
-      const updatedItem = {...selectedItemState};
-      const sizeList = stylesData[styleIndex].sizeList;
-      if (sizeList.length > sizeIndex) {
-        const sizeDesc = sizeList[sizeIndex].sizeDesc;
-        updatedItem.selectedSize = sizeDesc; // Update selectedSize
-        updatedItem[sizeDesc] = text;
-        setSelectedItem(updatedItem);
-        console.log('Selected size:', sizeDesc); // Log selected size
-      }
+    const sizeList = stylesData[styleIndex]?.sizeList || [];
+    const sizeDesc = sizeList[sizeIndex]?.sizeDesc;
+
+    if (sizeDesc) {
+      const updatedItem = {...selectedItemState, [sizeDesc]: text};
+      setSelectedItem(updatedItem);
+      console.log('Selected size:', sizeDesc);
+
+      const updatedInputValues = {...inputValues, [sizeDesc]: text};
+      setInputValues(updatedInputValues);
     }
   };
 
@@ -179,8 +207,7 @@ const ModalComponent = ({
       })
       .then(response => {
         setStylesData(response?.data?.response?.stylesList || []);
-        console.log('response', response?.data?.response?.stylesList);
-      })
+        console.log('Styles List:', response.data?.response?.stylesList);             })
       .catch(error => {
         console.error('Error:', error);
       })
@@ -190,27 +217,61 @@ const ModalComponent = ({
   };
 
   const copyValueToClipboard = () => {
-    const copiedText = inputValues[stylesData[0]?.sizeList[0]?.sizeDesc] || ''; // Get the value from the first TextInput
-    Clipboard.setString(copiedText); // Copy text to clipboard
-    const updatedItem = {...selectedItemState};
-    const updatedInputValues = {...inputValues};
+    if (stylesData.length > 0 && stylesData[0]?.sizeList?.length > 0) {
+      const firstSizeDesc = stylesData[0].sizeList[0]?.sizeDesc;
+      if (
+        !inputValues[firstSizeDesc] ||
+        inputValues[firstSizeDesc].trim() === ''
+      ) {
+        Alert.alert('Please enter the quantity before copying.');
+        return;
+      }
 
-    stylesData.forEach(style => {
-      if (style.sizeList) {
+      const copiedText = inputValues[firstSizeDesc];
+      Clipboard.setString(copiedText);
+      const updatedItem = {...selectedItemState};
+      const updatedInputValues = {...inputValues};
+
+      stylesData.forEach(style => {
         style.sizeList.forEach(size => {
           const sizeDesc = size.sizeDesc;
-          updatedItem[sizeDesc] = copiedText; // Set the same text to all other TextInputs
-          updatedInputValues[sizeDesc] = copiedText; // Update input values as well
+          updatedItem[sizeDesc] = copiedText;
+          updatedInputValues[sizeDesc] = copiedText;
         });
-      }
-    });
+      });
 
-    setSelectedItem(updatedItem); // Update the state
-    setInputValues(updatedInputValues); // Update input values
+      setSelectedItem(updatedItem);
+      setInputValues(updatedInputValues);
+    }
   };
 
   // console.log('selectedItem:', selectedItem);
   // console.log('inputValue:', inputValues);
+  const handleIncrementQuantity = (styleIndex, sizeIndex) => {
+    const updatedInputValues = {...inputValues};
+    const sizeList = stylesData[styleIndex]?.sizeList || [];
+    const sizeDesc = sizeList[sizeIndex]?.sizeDesc;
+    const currentQuantity = parseInt(updatedInputValues[sizeDesc] || '0', 10);
+
+    if (sizeDesc) {
+      updatedInputValues[sizeDesc] = (currentQuantity + 1).toString();
+      setInputValues(updatedInputValues);
+      console.log('Updated Input Values after increment:', updatedInputValues);
+    }
+  };
+
+  const handleDecrementQuantity = (styleIndex, sizeIndex) => {
+    const updatedInputValues = {...inputValues};
+    const sizeList = stylesData[styleIndex]?.sizeList || [];
+    const sizeDesc = sizeList[sizeIndex]?.sizeDesc;
+    const currentQuantity = parseInt(updatedInputValues[sizeDesc] || '0', 10);
+
+    if (sizeDesc && currentQuantity > 0) {
+      updatedInputValues[sizeDesc] = (currentQuantity - 1).toString();
+      setInputValues(updatedInputValues);
+      console.log('Updated Input Values after decrement:', updatedInputValues);
+    }
+  };
 
   return (
     <Modal
@@ -246,11 +307,7 @@ const ModalComponent = ({
                 marginLeft: 'auto',
                 flex: 0.2,
               }}
-              onPress={() =>
-                copyValueToClipboard(
-                  selectedItemState[stylesData[0]?.sizeList[0]?.sizeDesc],
-                )
-              }>
+              onPress={copyValueToClipboard}>
               <Image
                 style={{height: 30, width: 30}}
                 source={require('../../assets/copy.png')}
@@ -284,7 +341,7 @@ const ModalComponent = ({
                         <View
                           key={sizeIndex}
                           style={{flexDirection: 'row', marginRight: 10}}>
-                          <View style={{flex: 1}}>
+                          <View style={{flex: 0.7}}>
                             <Text style={{marginTop: 15, marginHorizontal: 5}}>
                               {style.styleDesc}
                             </Text>
@@ -297,23 +354,33 @@ const ModalComponent = ({
                             style={{
                               flexDirection: 'row',
                               alignItems: 'center',
-                              justifyContent: 'space-between',
+                              justifyContent: 'center',
                               flex: 1.7,
                             }}>
+                            <TouchableOpacity
+                              onPress={() =>
+                                handleDecrementQuantity(index, sizeIndex)
+                              }>
+                              <Image
+                                style={{height: 25, width: 25, marginRight: 10}}
+                                source={require('../../assets/sub.jpg')}
+                              />
+                            </TouchableOpacity>
+
                             <TextInput
                               style={{
+                                borderWidth: 1,
+                                borderColor: '#ccc',
+                                borderRadius: 5,
                                 flex: 0.4,
-                                borderBottomWidth: 1,
-                                borderColor: 'gray',
-                                textAlign: 'center',
-                                color: '#000',
                               }}
                               keyboardType="numeric"
                               value={
-                                inputValues[size.sizeDesc] !== undefined
-                                  ? inputValues[size.sizeDesc]
+                                inputValues[size.sizeDesc] !== undefined &&
+                                inputValues[size.sizeDesc].trim() !== ''
+                                  ? inputValues[size.sizeDesc].toString()
                                   : ''
-                              }
+                              } // Default value as empty string
                               onChangeText={text => {
                                 const updatedInputValues = {...inputValues};
                                 updatedInputValues[size.sizeDesc] = text;
@@ -321,7 +388,18 @@ const ModalComponent = ({
                                 handleQuantityChange(text, index, sizeIndex); // Pass index and sizeIndex
                               }}
                             />
-                            <View style={{flex: 0.4}}>
+
+                            <TouchableOpacity
+                              onPress={() =>
+                                handleIncrementQuantity(index, sizeIndex)
+                              }>
+                              <Image
+                                style={{height: 20, width: 20, marginLeft: 10}}
+                                source={require('../../assets/add.png')}
+                              />
+                            </TouchableOpacity>
+
+                            <View style={{flex: 0.4, marginLeft: 40}}>
                               <Text>{style.price}</Text>
                             </View>
                           </View>
@@ -510,7 +588,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   sizetxt: {
-    flex: 0.6,
+    flex: 0.8,
     color: '#000',
     fontWeight: 'bold',
     marginLeft: 5,
@@ -519,6 +597,7 @@ const styles = StyleSheet.create({
     color: '#000',
     fontWeight: 'bold',
     flex: 0.2,
+    marginLeft: 20,
   },
   quantityqty: {
     color: '#000',

@@ -8,6 +8,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  Keyboard,
   TextInput,
   TouchableOpacity,
   View,
@@ -60,6 +61,144 @@ const Cart = () => {
   const [selectedCustomerDetails, setSelectedCustomerDetails] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [keyboardSpace, setKeyboardSpace] = useState(0);
+  const [modalItems, setModalItems] = useState([]);
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      'keyboardDidShow',
+      event => {
+        setKeyboardSpace(event.endCoordinates.height);
+      },
+    );
+
+    const keyboardDidHideListener = Keyboard.addListener(
+      'keyboardDidHide',
+      () => {
+        setKeyboardSpace(0);
+      },
+    );
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, []);
+
+  const openEditModal = item => {
+    const filteredItems = cartItems.filter(
+      i => i.styleId === item.styleId && i.colorId === item.colorId,
+    );
+    const itemsForModal = filteredItems.map(item => ({...item}));
+    setModalItems(itemsForModal);
+    setSelectedItem(item);
+    setModalVisible(true);
+  };
+  const handleIncrementQuantity = index => {
+    console.log('Incrementing quantity for index:', index);
+    setModalItems(prevItems => {
+      const updatedItems = [...prevItems];
+      updatedItems[index].quantity =
+        parseInt(updatedItems[index].quantity || 0, 10) + 1;
+      console.log('Updated modalItems:', updatedItems);
+      return updatedItems;
+    });
+  };
+
+  // Function to handle decrementing quantity
+  const handleDecrementQuantity = index => {
+    console.log('Decrementing quantity for index:', index);
+    setModalItems(prevItems => {
+      const updatedItems = [...prevItems];
+      if (updatedItems[index].quantity > 1) {
+        updatedItems[index].quantity -= 1;
+      }
+      console.log('Updated modalItems:', updatedItems);
+      return updatedItems;
+    });
+  };
+
+  const handleQuantityChangeModel = (index, text) => {
+    console.log('Changing quantity for index:', index, 'to', text);
+    setModalItems(prevItems => {
+      const updatedItems = [...prevItems];
+      const parsedQuantity = parseInt(text, 10);
+      if (!isNaN(parsedQuantity) || text === '') {
+        updatedItems[index].quantity = text === '' ? '' : parsedQuantity;
+      }
+      console.log('Updated modalItems:', updatedItems);
+      return updatedItems;
+    });
+  };
+  const handleSaveItem = () => {
+    console.log('Saving changes:', modalItems);
+    modalItems.forEach((modalItem, index) => {
+      const originalIndex = cartItems.findIndex(
+        item =>
+          item.styleId === modalItem.styleId &&
+          item.colorId === modalItem.colorId &&
+          item.sizeId === modalItem.sizeId,
+      );
+      if (originalIndex !== -1) {
+        dispatch(updateCartItem(originalIndex, modalItem));
+      }
+    });
+    closeModal();
+  };
+
+  // Function to close the modal
+  const closeModal = () => {
+    setModalVisible(false);
+    setSelectedItem(null);
+    setModalItems([]);
+  };
+
+  const handleRemoveItem = index => {
+    console.log('Removing item at index:', index);
+    dispatch(removeFromCart(index));
+  };
+
+  const copyValueToClipboardModel = () => {
+    // Check if modalItems array is empty or quantity is 0
+    if (modalItems.length === 0 || modalItems[0].quantity === 0) {
+      Alert.alert('Please enter a valid quantity before copying.');
+      return; // Exit function early if quantity is not entered or is 0
+    }
+  
+    // Proceed with copying
+    const copiedText = modalItems[0].quantity.toString(); // Get the value from the first TextInput
+    Clipboard.setString(copiedText); // Copy text to clipboard
+  
+    // Update modalItems with copiedText as quantity for all items
+    const updatedItems = modalItems.map(item => ({
+      ...item,
+      quantity: copiedText,
+    }));
+  
+    setModalItems(updatedItems); // Update state with updatedItems
+  };
+  
+
+  const handleRemoveSize = index => {
+    // Get the item to remove from modalItems
+    const itemToRemove = modalItems[index];
+
+    // Remove item from modalItems
+    setModalItems(prevItems => prevItems.filter((_, i) => i !== index));
+
+    // Find the index of the item in cartItems
+    const originalIndex = cartItems.findIndex(
+      item =>
+        item.styleId === itemToRemove.styleId &&
+        item.colorId === itemToRemove.colorId &&
+        item.sizeId === itemToRemove.sizeId,
+    );
+
+    // If found, remove the item from cartItems in Redux
+    if (originalIndex !== -1) {
+      dispatch(removeFromCart(originalIndex));
+    }
+  };
 
   const filteredCustomers = customers.filter(customer => {
     const fullName = `${customer.firstName} ${customer.lastName}`.toLowerCase();
@@ -575,11 +714,6 @@ const Cart = () => {
     }
   }, [selectedItem]);
 
-  const closeModal = () => {
-    setModalVisible(false);
-    setSelectedItem(null);
-  };
-
   const handleInputValueChange = (size, value) => {
     setInputValuess(prevState => ({
       ...prevState,
@@ -606,10 +740,6 @@ const Cart = () => {
     setShipDate(date.toISOString().split('T')[0]);
   };
 
-  const handleRemoveItem = itemIndex => {
-    dispatch(removeFromCart(itemIndex));
-  };
-
   const handleQuantityChange = (index, text) => {
     const updatedItems = [...cartItems];
     const parsedQuantity = parseInt(text, 10);
@@ -619,10 +749,31 @@ const Cart = () => {
       dispatch(updateCartItem(index, updatedItems[index]));
     }
   };
-
+  
+  const handleIncrementQuantityCart = index => {
+    const updatedItems = [...cartItems];
+    updatedItems[index].quantity = parseInt(updatedItems[index].quantity, 10) + 1;
+    dispatch(updateCartItem(index, updatedItems[index]));
+  };
+  
+  // Function to handle decrementing quantity in cartItems
+  const handleDecrementQuantityCart = index => {
+    const updatedItems = [...cartItems];
+    if (updatedItems[index].quantity > 1) {
+      updatedItems[index].quantity -= 1;
+      dispatch(updateCartItem(index, updatedItems[index]));
+    }
+  };
   const copyValueToClipboard = index => {
     const item = cartItems[index];
-    const {styleId, colorId, quantity} = item;
+    const { styleId, colorId, quantity } = item;
+  
+    // Check if quantity is 0 or falsy
+    if (!quantity) {
+      Alert.alert('Please enter a valid quantity.');
+      return;
+    }
+  
     const updatedItems = cartItems.map(cartItem => {
       if (cartItem.styleId === styleId && cartItem.colorId === colorId) {
         return {
@@ -632,7 +783,7 @@ const Cart = () => {
       }
       return cartItem;
     });
-
+  
     const copiedText = updatedItems
       .filter(
         cartItem =>
@@ -640,17 +791,17 @@ const Cart = () => {
       )
       .map(updatedItem => `${updatedItem.sizeDesc}-${updatedItem.quantity}`)
       .join(', ');
-
+  
     Clipboard.setString(copiedText);
     console.log(`Copied values: ${copiedText} to clipboard`);
-
+  
     updatedItems.forEach((updatedItem, updatedIndex) => {
       if (updatedItem.styleId === styleId && updatedItem.colorId === colorId) {
         dispatch(updateCartItem(updatedIndex, updatedItem));
       }
     });
   };
-
+  
   const totalQty = cartItems.reduce((total, item) => {
     // Ensure item.quantity is defined and not NaN before adding to total
     const quantity = parseInt(item.quantity);
@@ -1089,29 +1240,22 @@ const Cart = () => {
                           <Text>ColorName - {item.colorName}</Text>
                         </View>
                         <View style={style.buttonsContainer}>
-                          <TouchableOpacity onPress={() => openModal(item)}>
+                          <TouchableOpacity onPress={() => openEditModal(item)}>
                             <Image
                               style={style.buttonIcon}
                               source={require('../../../assets/edit.png')}
                             />
                           </TouchableOpacity>
-                          <TouchableOpacity
-                            onPress={() => handleRemoveItem(index)}>
-                            <Image
-                              style={style.buttonIcon}
-                              source={require('../../../assets/del.png')}
-                            />
-                          </TouchableOpacity>
                         </View>
                       </View>
                       <View style={style.sizehead}>
-                        <View style={{flex: 0.7}}>
+                        <View style={{flex: 0.6}}>
                           <Text style={{marginLeft: 10}}>COLOR/SIZE</Text>
                         </View>
-                        <View style={{flex: 0.5}}>
+                        <View style={{flex: 0.5,marginLeft:20}}>
                           <Text>QUANTITY</Text>
                         </View>
-                        <View style={{flex: 0.4}}>
+                        <View style={{flex: 0.4,marginLeft:20}}>
                           <Text>PRICE</Text>
                         </View>
                         <TouchableOpacity
@@ -1128,21 +1272,50 @@ const Cart = () => {
                     <View style={{flex: 0.4}}>
                       <Text>Size - {item.sizeDesc}</Text>
                     </View>
+                    <TouchableOpacity
+                          onPress={() => handleDecrementQuantityCart(index)}>
+                          <Image
+                            style={{
+                              height: 25,
+                              width: 25,
+                              marginHorizontal: 10,
+                            }}
+                            source={require('../../../assets/sub.jpg')}
+                          />
+                        </TouchableOpacity>
                     <View style={style.quantityInputContainer}>
+                      
                       <TextInput
+                      style={style.quantityInput}
                         value={
                           item.quantity !== undefined
                             ? item.quantity.toString()
                             : ''
                         }
                         onChangeText={text => handleQuantityChange(index, text)}
-                        style={style.quantityInput}
                         keyboardType="numeric" // Optional: Restricts input to numeric keyboard
                       />
                     </View>
-                    <View style={{flex: 0.5}}>
+                    <TouchableOpacity
+                          onPress={() => handleIncrementQuantityCart(index)}>
+                          <Image
+                            style={{
+                              height: 20,
+                              width: 20,
+                              marginHorizontal: 10,
+                            }}
+                            source={require('../../../assets/add.png')}
+                          />
+                        </TouchableOpacity>
+                    <View style={{flex: 0.3,marginLeft:20}}>
                       <Text>{item.price}</Text>
                     </View>
+                    <TouchableOpacity onPress={() => handleRemoveItem(index)}>
+                      <Image
+                        style={style.buttonIcon}
+                        source={require('../../../assets/del.png')}
+                      />
+                    </TouchableOpacity>
                   </View>
                   <View style={style.separator} />
                 </View>
@@ -1227,14 +1400,172 @@ const Cart = () => {
               {isSubmitting ? 'Placing Order...' : 'PLACE ORDER'}
             </Text>
           </TouchableOpacity>
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={modalVisible}
+            onRequestClose={closeModal}>
+            <KeyboardAvoidingView
+              style={{flex: 1}}
+              behavior={Platform.OS === 'ios' ? 'padding' : null}
+              keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}>
+              <ScrollView
+                contentContainerStyle={[
+                  style.modalContainer,
+                  {marginBottom: keyboardSpace},
+                ]}
+                keyboardShouldPersistTaps="handled">
+                <View style={style.modalContent}>
+                  <View style={style.addqtyhead}>
+                    <TouchableOpacity onPress={closeModal}>
+                      <Image
+                        style={{height: 30, width: 30, tintColor: 'white'}}
+                        source={require('../../../assets/back_arrow.png')}
+                      />
+                    </TouchableOpacity>
+                    <Text style={style.addqtytxt}>Add Quantity</Text>
+                  </View>
+                  <View style={style.sizehead}>
+                    <View style={{flex: 0.8}}>
+                      <Text
+                        style={{
+                          marginLeft: 10,
+                          color: '#000',
+                          fontWeight: 'bold',
+                        }}>
+                        Size/Color
+                      </Text>
+                    </View>
+                    <View style={{flex: 0.5}}>
+                      <Text style={{color: '#000', fontWeight: 'bold'}}>
+                        Quantity
+                      </Text>
+                    </View>
+                    <View style={{flex: 0.2, marginLeft: 25}}>
+                      <Text style={{color: '#000', fontWeight: 'bold'}}>
+                        Price
+                      </Text>
+                    </View>
+                    <TouchableOpacity
+                      style={{
+                        borderRadius: 30,
+                        marginLeft: 'auto',
+                        flex: 0.2,
+                      }}
+                      onPress={() => copyValueToClipboardModel()} // Assuming you want to copy item.sizeDesc
+                    >
+                      <Image
+                        style={{height: 30, width: 30}}
+                        source={require('../../../assets/copy.png')}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                  {selectedItem && (
+                    <View>
+                      <View style={style.modalTextContainer}>
+                        <Text style={style.modalText}>
+                          Color Name: {selectedItem.colorName}
+                        </Text>
+                      </View>
+                      {/* Display sizes and quantities */}
+                      <View>
+                        {modalItems.map((item, index) => (
+                          <View key={index} style={style.rowContainer}>
+                            <View style={style.labelContainer}>
+                              <Text>Size - {item.sizeDesc}</Text>
+                            </View>
+                            <TouchableOpacity
+                              onPress={() => handleDecrementQuantity(index)}>
+                              <Image
+                                style={{
+                                  height: 25,
+                                  width: 25,
+                                  marginHorizontal: 10,
+                                }}
+                                source={require('../../../assets/sub.jpg')}
+                              />
+                            </TouchableOpacity>
+                            <View style={style.inputContainer}>
+                              <TextInput
+                                style={style.quantityInputformodel}
+                                keyboardType="numeric"
+                                placeholder="Quantity"
+                                value={item.quantity.toString()}
+                                onChangeText={text =>
+                                  handleQuantityChangeModel(index, text)
+                                }
+                              />
+                            </View>
+                            <TouchableOpacity
+                              onPress={() => handleIncrementQuantity(index)}>
+                              <Image
+                                style={{
+                                  height: 20,
+                                  width: 20,
+                                  marginHorizontal: 10,
+                                }}
+                                source={require('../../../assets/add.png')}
+                              />
+                            </TouchableOpacity>
+                            <View style={style.priceContainer}>
+                              <Text>{item.price}</Text>
+                            </View>
+                            {/* <TouchableOpacity
+                          onPress={() => handleRemoveSize(index)}>
+                          <Image
+                            style={styles.buttonIcon}
+                            source={require('../../../assets/del.png')}
+                          />
+                        </TouchableOpacity> */}
+                          </View>
+                        ))}
+                      </View>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'flex-end',
+                          marginRight: 20,
+                          marginTop: 20,
+                          marginBottom: 30,
+                        }}>
+                        <TouchableOpacity
+                          onPress={closeModal} // Discard changes and close modal
+                          style={{
+                            borderWidth: 1,
+                            borderColor: '#000',
+                            backgroundColor: '#390050',
+                            marginLeft: 10,
+                            paddingVertical: 10,
+                            paddingHorizontal: 35,
+                            borderRadius: 5,
+                          }}>
+                          <Text style={{color: 'white', fontWeight: 'bold'}}>
+                            CANCEL
+                          </Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          onPress={handleSaveItem} // Save changes and close modal
+                          style={{
+                            borderWidth: 1,
+                            borderColor: '#000',
+                            backgroundColor: '#390050',
+                            marginLeft: 10,
+                            paddingVertical: 10,
+                            paddingHorizontal: 35,
+                            borderRadius: 5,
+                          }}>
+                          <Text style={{color: 'white', fontWeight: 'bold'}}>
+                            SAVE
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  )}
+                </View>
+              </ScrollView>
+            </KeyboardAvoidingView>
+          </Modal>
 
-          <ModalComponent
-            modalVisible={modalVisible}
-            closeModal={closeModal}
-            selectedItem={selectedItem}
-            inputValuess={inputValuess}
-            onInputValueChange={handleInputValueChange} // Pass the function to handle input value changes
-          />
           <Modal
             animationType="fade"
             transparent={true}
@@ -1242,8 +1573,8 @@ const Cart = () => {
             onRequestClose={() => {
               toggleModal();
             }}>
-            <View style={style.modalContainer}>
-              <View style={style.modalContent}>
+            <View style={style.modalContainerr}>
+              <View style={style.modalContentt}>
                 <Text style={style.modalTitle}>Customer Details</Text>
 
                 <TextInput
@@ -1363,8 +1694,8 @@ const Cart = () => {
               onRequestClose={() => {
                 toggleLocationModal();
               }}>
-              <View style={style.modalContainer}>
-                <View style={style.modalContent}>
+              <View style={style.modalContainerr}>
+                <View style={style.modalContentt}>
                   <Text style={style.modalTitle}>Location Details</Text>
 
                   <TextInput
@@ -1600,27 +1931,18 @@ const style = StyleSheet.create({
   },
   itemDetails: {
     flexDirection: 'row',
+    marginHorizontal: 10,
+    marginBottom: 10,
     alignItems: 'center',
-    paddingHorizontal: 10,
-    justifyContent: 'space-between',
-    paddingVertical: 6,
   },
   quantityInputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-    justifyContent: 'center',
+    flex: 0.3,
   },
   quantityInput: {
-    borderBottomWidth: 1,
-    borderColor: 'gray',
-    paddingHorizontal: 8,
-    paddingVertical: 5,
+    borderWidth: 1,
+    borderColor: '#ccc',
     borderRadius: 5,
-    marginRight: 10,
-    flex: 0.3,
-    textAlign: 'center',
-    color: '#000',
+    flex: 0.5,
   },
   separator: {
     borderBottomWidth: 1,
@@ -1636,13 +1958,13 @@ const style = StyleSheet.create({
     borderTopColor: 'lightgray',
     paddingTop: 10,
   },
-  modalContainer: {
+  modalContainerr: {
     flex: 1,
     alignItems: 'center',
     marginTop: 50,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
-  modalContent: {
+  modalContentt: {
     backgroundColor: '#fff',
     padding: 20,
     borderRadius: 10,
@@ -1691,6 +2013,96 @@ const style = StyleSheet.create({
     marginTop: 20,
     fontSize: 16,
     fontWeight: '600',
+  },
+  modalContainer: {
+    flexGrow: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    maxHeight: '70%', // Adjust as needed
+  },
+  modalText: {
+    fontSize: 16,
+    marginBottom: 10,
+    marginLeft: 10,
+  },
+  addqtytxt: {
+    color: 'white',
+    fontWeight: 'bold',
+    marginLeft: 10,
+  },
+  sizehead: {
+    padding: 1,
+    backgroundColor: '#E7E7E7',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 10,
+  },
+  sizetxt: {
+    flex: 0.6,
+    color: '#000',
+    fontWeight: 'bold',
+    marginLeft: 5,
+  },
+  quantitytxt: {
+    color: '#000',
+    fontWeight: 'bold',
+    flex: 0.2,
+  },
+  quantityqty: {
+    color: '#000',
+    fontWeight: 'bold',
+    flex: 0.5,
+  },
+  rowContainer: {
+    flexDirection: 'row',
+    marginHorizontal: 10,
+    marginBottom: 10,
+    alignItems: 'center',
+  },
+  labelContainer: {
+    flex: 0.4,
+  },
+  label: {
+    color: '#000',
+    fontWeight: 'bold',
+  },
+  copyButton: {
+    position: 'absolute',
+    right: 0,
+  },
+  copyImage: {
+    height: 20,
+    width: 18,
+    marginHorizontal: 5,
+  },
+  inputContainer: {
+    flex: 0.3,
+  },
+  priceContainer: {
+    flex: 0.2,
+    alignItems: 'flex-end',
+    marginRight: 10,
+  },
+  underline: {
+    borderBottomWidth: 1,
+    borderBottomColor: 'gray',
+  },
+  addqtyhead: {
+    backgroundColor: '#390050',
+    padding: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  quantityInputformodel: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    flex: 0.5,
   },
 });
 export default Cart;

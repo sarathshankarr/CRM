@@ -8,7 +8,7 @@ import {
   Alert,
   ActivityIndicator,
   TouchableOpacity,
-} from 'react-native'; // Import ActivityIndicator
+} from 'react-native';
 import axios from 'axios';
 import {useSelector} from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -29,17 +29,16 @@ const DistributorOrder = () => {
     totalCost: 0,
   });
   const [inputValues, setInputValues] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [addedOrderData, setAddedOrderData] = useState(null);
+  const [isButtonDisabled, setIsButtonDisabled] = useState(false); // New state for button disabled
 
   const selectedCompany = useSelector(state => state.selectedCompany);
-  const [loading, setLoading] = useState(true); // Add loading state
-  const [addedOrderData, setAddedOrderData] = useState(null);
 
   useEffect(() => {
     const fetchInitialSelectedCompany = async () => {
       try {
-        const initialCompanyData = await AsyncStorage.getItem(
-          'initialSelectedCompany',
-        );
+        const initialCompanyData = await AsyncStorage.getItem('initialSelectedCompany');
         if (initialCompanyData) {
           const initialCompany = JSON.parse(initialCompanyData);
           setInitialSelectedCompany(initialCompany);
@@ -53,9 +52,7 @@ const DistributorOrder = () => {
     fetchInitialSelectedCompany();
   }, []);
 
-  const companyId = selectedCompany
-    ? selectedCompany.id
-    : initialSelectedCompany?.id;
+  const companyId = selectedCompany ? selectedCompany.id : initialSelectedCompany?.id;
 
   useEffect(() => {
     if (companyId && orderId) {
@@ -64,7 +61,7 @@ const DistributorOrder = () => {
   }, [companyId, orderId]);
 
   const getDistributorOrder = async () => {
-    setLoading(true); // Set loading to true when starting to fetch data
+    setLoading(true);
     const apiUrl = `${global?.userData?.productURL}${API.GET_DISTRIBUTOR_ORDER}/${orderId}`;
     try {
       const response = await axios.get(apiUrl, {
@@ -75,14 +72,14 @@ const DistributorOrder = () => {
       });
       if (response.data.status.success) {
         setOrder(response.data.response.ordersList[0]);
-        console.log('Orderrrr:', response.data.response.ordersList[0]);
+        console.log('Order:', response.data.response.ordersList[0]);
       } else {
         console.error('Failed to fetch order:', response.data.status);
       }
     } catch (error) {
       console.error('Error:', error);
     } finally {
-      setLoading(false); // Set loading to false when data fetching is completed
+      setLoading(false);
     }
   };
 
@@ -108,7 +105,7 @@ const DistributorOrder = () => {
 
         totalQty += qty;
         totalGst += ((unitPrice * gst) / 100) * qty;
-        totalCost += unitPrice * qty + ((unitPrice * gst) / 100) * qty; // Add GST to the total cost calculation
+        totalCost += unitPrice * qty + ((unitPrice * gst) / 100) * qty;
       });
     }
 
@@ -122,7 +119,6 @@ const DistributorOrder = () => {
   const handleCheckBoxToggle = () => {
     setIsChecked(prevChecked => {
       if (!prevChecked) {
-        // Clear input values if checkbox is being unchecked
         setInputValues({});
       }
       return !prevChecked;
@@ -131,9 +127,7 @@ const DistributorOrder = () => {
 
   const handleQtyChange = (text, itemId) => {
     const qty = parseInt(text);
-    const orderLineItem = order.orderLineItems.find(
-      item => item.orderLineitemId === itemId,
-    );
+    const orderLineItem = order.orderLineItems.find(item => item.orderLineitemId === itemId);
     const remainingQty = orderLineItem.shipQty - orderLineItem.grnQty;
 
     if (qty > remainingQty) {
@@ -147,32 +141,30 @@ const DistributorOrder = () => {
   };
 
   if (loading) {
-    // Render ActivityIndicator while loading
     return (
       <View style={styles.container}>
-        <ActivityIndicator
-          size="large"
-          color="#0000ff"
-          style={styles.activityIndicator}
-        />
+        <ActivityIndicator size="large" color="#0000ff" style={styles.activityIndicator} />
       </View>
     );
   }
 
   const addGrnOrder = async () => {
+    if (isButtonDisabled) return; // Prevent further execution if button is disabled
+
+    setIsButtonDisabled(true); // Disable button after click
+
     const requestData = {
-      totalAmount: totals.totalCost, // Use dynamic totalCost from state
+      totalAmount: totals.totalCost,
       totalDiscount: 0,
-      totalGst: totals.totalGst, // Use dynamic totalGst from state
-      totalQty: totals.totalQty, // Use dynamic totalQty from state
+      totalGst: totals.totalGst,
+      totalQty: totals.totalQty,
       orderStatus: 'PENDING',
-      orderId: order.orderId, // Use orderId from state
-      shippingAddressId: order.shippingAddressId, // Use shippingAddressId from state
-      customerLocation: order.customerLocation, // Use customerLocation from state
-      customerId: order.customerId, // Use customerId from state
-      tQty: order.tQty, // Use tQty from state
+      orderId: order.orderId,
+      shippingAddressId: order.shippingAddressId,
+      customerLocation: order.customerLocation,
+      customerId: order.customerId,
+      tQty: order.tQty,
       orderLineItems: order.orderLineItems.map(item => {
-        // Map through orderLineItems and construct each item object
         const shippedQty = parseInt(item.shipQty);
         const receivedQty = parseInt(item.grnQty);
         const inputQty = parseInt(inputValues[item.orderLineitemId] || 0);
@@ -186,8 +178,7 @@ const DistributorOrder = () => {
           : parseInt(inputValues[item.orderLineitemId] || 0);
         const grnQty = isChecked
           ? item.shipQty
-          : parseInt(item.grnQty || 0) +
-            parseInt(inputValues[item.orderLineitemId] || 0);
+          : parseInt(item.grnQty || 0) + parseInt(inputValues[item.orderLineitemId] || 0);
         return {
           qty: item.qty,
           orderLineitemId: item.orderLineitemId,
@@ -231,22 +222,21 @@ const DistributorOrder = () => {
       })
       .catch(error => {
         console.error('Error placing order:', error);
+      })
+      .finally(() => {
+        setIsButtonDisabled(false); // Re-enable button after the process completes
       });
   };
 
   const renderOrderLineItem = ({item}) => {
-    // console.log('Sizeasfafdfhsdfsdku:', item.size);
     const shippedQty = parseInt(item.shipQty);
     const receivedQty = parseInt(item.grnQty);
 
-    // Initially set inputQty to 0
     let inputQty = '0';
 
-    // If isChecked is true, update inputQty to shippedQty - receivedQty
     if (isChecked) {
       inputQty = (shippedQty - receivedQty).toString();
     } else {
-      // If isChecked is false, check if there's a custom input quantity
       if (inputValues[item.orderLineitemId] !== undefined) {
         inputQty = inputValues[item.orderLineitemId].toString();
       }
@@ -256,9 +246,8 @@ const DistributorOrder = () => {
     const unitPrice = parseFloat(item.unitPrice);
     const gst = parseFloat(item.gst);
 
-    // Calculate gross total dynamically based on full quantity and price
     const grnGross = qty * unitPrice + (qty * unitPrice * gst) / 100;
-    const grossWithoutDecimals = Math.floor(grnGross); // Remove decimals
+    const grossWithoutDecimals = Math.floor(grnGross);
     console.log('Size:', item.size);
 
     return (
@@ -285,13 +274,11 @@ const DistributorOrder = () => {
           value={inputQty}
           onChangeText={text => handleQtyChange(text, item.orderLineitemId)}
           keyboardType="numeric"
-          onBlur={() => setInputValues({...inputValues})} // Save the value on blur
+          onBlur={() => setInputValues({...inputValues})}
         />
         <Text style={[styles.orderText, {flex: 1}]}>{item.unitPrice}</Text>
         <Text style={[styles.orderText, {flex: 1}]}>{item.gst}</Text>
-        <Text style={[styles.orderText, {flex: 1}]}>
-          {grossWithoutDecimals}
-        </Text>
+        <Text style={[styles.orderText, {flex: 1}]}>{grossWithoutDecimals}</Text>
       </View>
     );
   };
@@ -305,7 +292,9 @@ const DistributorOrder = () => {
           </Text>
           <TouchableOpacity
             onPress={addGrnOrder}
-            style={{borderWidth: 1, paddingHorizontal: 10, borderRadius: 5}}>
+            style={{borderWidth: 1, paddingHorizontal: 10, borderRadius: 5}}
+            disabled={isButtonDisabled} // Disable button based on state
+          >
             <Text style={styles.headerText}>Add</Text>
           </TouchableOpacity>
         </View>
@@ -343,7 +332,6 @@ const DistributorOrder = () => {
         renderItem={renderOrderLineItem}
         keyExtractor={item => item.orderLineitemId.toString()}
       />
-
       <View style={styles.summary}>
         <Text style={styles.summaryText}>Total Qty: {totals.totalQty}</Text>
         <Text style={styles.summaryText}>Total GST: {totals.totalGst}</Text>
@@ -402,7 +390,6 @@ const styles = StyleSheet.create({
     marginVertical: 2,
     textAlign: 'right',
   },
-
   activityIndicator: {
     flex: 1,
     justifyContent: 'center',
