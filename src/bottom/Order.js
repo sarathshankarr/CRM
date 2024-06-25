@@ -170,12 +170,20 @@ const Order = () => {
   };
 
 
+  // const filteredOrders = orders &&
+  // Array.isArray(orders) &&
+  // orders.filter((item) => 
+  //   item.customerName.toLowerCase().includes(searchQuery.toLowerCase())
+  // );
+
   const filteredOrders = orders &&
   Array.isArray(orders) &&
-  orders.filter((item) => 
-    item.customerName.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
+  orders.filter((item) => {
+    const customerName = item.customerName ? item.customerName.toLowerCase() : '';
+    const orderNum = item.orderNum ? item.orderNum.toString().toLowerCase() : '';
+    const query = searchQuery.toLowerCase();
+    return customerName.includes(query) || orderNum.includes(query);
+  });
 
   return (
     <View style={{backgroundColor: '#fff', flex: 1}}>
