@@ -130,7 +130,7 @@ const Cart = () => {
       return updatedItems;
     });
   };
-  
+
   const handleSaveItem = () => {
     // Check if any item has quantity 0
     const hasZeroQuantity = modalItems.some(item => item.quantity === 0);
@@ -174,20 +174,19 @@ const Cart = () => {
       Alert.alert('Please enter a valid quantity before copying.');
       return; // Exit function early if quantity is not entered or is 0
     }
-  
+
     // Proceed with copying
     const copiedText = modalItems[0].quantity.toString(); // Get the value from the first TextInput
     Clipboard.setString(copiedText); // Copy text to clipboard
-  
+
     // Update modalItems with copiedText as quantity for all items
     const updatedItems = modalItems.map(item => ({
       ...item,
       quantity: copiedText,
     }));
-  
+
     setModalItems(updatedItems); // Update state with updatedItems
   };
-  
 
   const handleRemoveSize = index => {
     // Get the item to remove from modalItems
@@ -759,13 +758,14 @@ const Cart = () => {
       dispatch(updateCartItem(index, updatedItems[index]));
     }
   };
-  
+
   const handleIncrementQuantityCart = index => {
     const updatedItems = [...cartItems];
-    updatedItems[index].quantity = parseInt(updatedItems[index].quantity, 10) + 1;
+    updatedItems[index].quantity =
+      parseInt(updatedItems[index].quantity, 10) + 1;
     dispatch(updateCartItem(index, updatedItems[index]));
   };
-  
+
   // Function to handle decrementing quantity in cartItems
   const handleDecrementQuantityCart = index => {
     const updatedItems = [...cartItems];
@@ -776,14 +776,14 @@ const Cart = () => {
   };
   const copyValueToClipboard = index => {
     const item = cartItems[index];
-    const { styleId, colorId, quantity } = item;
-  
+    const {styleId, colorId, quantity} = item;
+
     // Check if quantity is 0 or falsy
     if (!quantity) {
       Alert.alert('Please enter a valid quantity.');
       return;
     }
-  
+
     const updatedItems = cartItems.map(cartItem => {
       if (cartItem.styleId === styleId && cartItem.colorId === colorId) {
         return {
@@ -793,7 +793,7 @@ const Cart = () => {
       }
       return cartItem;
     });
-  
+
     const copiedText = updatedItems
       .filter(
         cartItem =>
@@ -801,17 +801,17 @@ const Cart = () => {
       )
       .map(updatedItem => `${updatedItem.sizeDesc}-${updatedItem.quantity}`)
       .join(', ');
-  
+
     Clipboard.setString(copiedText);
     console.log(`Copied values: ${copiedText} to clipboard`);
-  
+
     updatedItems.forEach((updatedItem, updatedIndex) => {
       if (updatedItem.styleId === styleId && updatedItem.colorId === colorId) {
         dispatch(updateCartItem(updatedIndex, updatedItem));
       }
     });
   };
-  
+
   const totalQty = cartItems.reduce((total, item) => {
     // Ensure item.quantity is defined and not NaN before adding to total
     const quantity = parseInt(item.quantity);
@@ -1011,7 +1011,8 @@ const Cart = () => {
                           onChangeText={text => setSearchQuery(text)}
                         />
 
-                        {filteredCustomers.length === 0 ? (
+                        {filteredCustomers.length === 0 &&
+                        searchQuery.length > 0 ? (
                           <Text style={style.noCategoriesText}>
                             Sorry, no results found!
                           </Text>
@@ -1262,10 +1263,10 @@ const Cart = () => {
                         <View style={{flex: 0.6}}>
                           <Text style={{marginLeft: 10}}>COLOR/SIZE</Text>
                         </View>
-                        <View style={{flex: 0.5,marginLeft:20}}>
+                        <View style={{flex: 0.5, marginLeft: 20}}>
                           <Text>QUANTITY</Text>
                         </View>
-                        <View style={{flex: 0.4,marginLeft:20}}>
+                        <View style={{flex: 0.4, marginLeft: 20}}>
                           <Text>PRICE</Text>
                         </View>
                         <TouchableOpacity
@@ -1283,20 +1284,19 @@ const Cart = () => {
                       <Text>Size - {item.sizeDesc}</Text>
                     </View>
                     <TouchableOpacity
-                          onPress={() => handleDecrementQuantityCart(index)}>
-                          <Image
-                            style={{
-                              height: 25,
-                              width: 25,
-                              marginHorizontal: 10,
-                            }}
-                            source={require('../../../assets/sub.jpg')}
-                          />
-                        </TouchableOpacity>
+                      onPress={() => handleDecrementQuantityCart(index)}>
+                      <Image
+                        style={{
+                          height: 25,
+                          width: 25,
+                          marginHorizontal: 10,
+                        }}
+                        source={require('../../../assets/sub.jpg')}
+                      />
+                    </TouchableOpacity>
                     <View style={style.quantityInputContainer}>
-                      
                       <TextInput
-                      style={style.quantityInput}
+                        style={style.quantityInput}
                         value={
                           item.quantity !== undefined
                             ? item.quantity.toString()
@@ -1307,17 +1307,17 @@ const Cart = () => {
                       />
                     </View>
                     <TouchableOpacity
-                          onPress={() => handleIncrementQuantityCart(index)}>
-                          <Image
-                            style={{
-                              height: 20,
-                              width: 20,
-                              marginHorizontal: 10,
-                            }}
-                            source={require('../../../assets/add.png')}
-                          />
-                        </TouchableOpacity>
-                    <View style={{flex: 0.3,marginLeft:20}}>
+                      onPress={() => handleIncrementQuantityCart(index)}>
+                      <Image
+                        style={{
+                          height: 20,
+                          width: 20,
+                          marginHorizontal: 10,
+                        }}
+                        source={require('../../../assets/add.png')}
+                      />
+                    </TouchableOpacity>
+                    <View style={{flex: 0.3, marginLeft: 20}}>
                       <Text>{item.price}</Text>
                     </View>
                     <TouchableOpacity onPress={() => handleRemoveItem(index)}>
