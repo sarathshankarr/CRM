@@ -130,8 +130,16 @@ const Cart = () => {
       return updatedItems;
     });
   };
+  
   const handleSaveItem = () => {
-    console.log('Saving changes:', modalItems);
+    // Check if any item has quantity 0
+    const hasZeroQuantity = modalItems.some(item => item.quantity === 0);
+    if (hasZeroQuantity) {
+      Alert.alert('Alert', 'Please enter a quantity greater than zero.');
+      return;
+    }
+
+    // Update cartItems in Redux
     modalItems.forEach((modalItem, index) => {
       const originalIndex = cartItems.findIndex(
         item =>
@@ -143,6 +151,8 @@ const Cart = () => {
         dispatch(updateCartItem(originalIndex, modalItem));
       }
     });
+
+    // Close modal
     closeModal();
   };
 
