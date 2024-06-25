@@ -59,6 +59,12 @@ const Cart = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedCustomerDetails, setSelectedCustomerDetails] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredCustomers = customers.filter(customer => {
+    const fullName = `${customer.firstName} ${customer.lastName}`.toLowerCase();
+    return fullName.includes(searchQuery.toLowerCase());
+  });
 
   useEffect(() => {
     const fetchInitialSelectedCompany = async () => {
@@ -114,10 +120,23 @@ const Cart = () => {
     useState(null);
   const [isLocationModalVisible, setIsLocationModalVisible] = useState(false);
 
-  const [locationInputValues, setLocationInputValues] = useState({});
+  // const [locationInputValues, setLocationInputValues] = useState({});
 
   const toggleLocationModal = () => {
     setIsLocationModalVisible(!isLocationModalVisible);
+    if (isLocationModalVisible) {
+      // Reset locationInputValues and locationErrorFields when modal is closing
+      setLocationInputValues({
+        locationName: '',
+        phoneNumber: '',
+        locality: '',
+        cityOrTown: '',
+        state: '',
+        pincode: '',
+        country: '',
+      });
+      setLocationErrorFields([]);
+    }
   };
 
   const [inputValues, setInputValues] = useState({
@@ -129,17 +148,24 @@ const Cart = () => {
     country: '',
   });
 
+  const [errorFields, setErrorFields] = useState([]);
+
   const handleSaveButtonPress = () => {
-    if (
-      !inputValues.firstName ||
-      !inputValues.phoneNumber ||
-      !inputValues.cityOrTown ||
-      !inputValues.state ||
-      !inputValues.country
-    ) {
+    const mandatoryFields = [
+      'firstName',
+      'phoneNumber',
+      'cityOrTown',
+      'state',
+      'country',
+    ];
+    const missingFields = mandatoryFields.filter(field => !inputValues[field]);
+
+    if (missingFields.length > 0) {
+      setErrorFields(missingFields);
       Alert.alert('Alert', 'Please fill in all mandatory fields');
       return;
     }
+
     addCustomerDetails();
     toggleModal();
   };
@@ -165,7 +191,20 @@ const Cart = () => {
 
   const toggleModal = () => {
     setIsModalVisible(!isModalVisible);
+    // Reset error fields and input values when modal is closed
+    if (isModalVisible) {
+      setErrorFields([]);
+      setInputValues({
+        firstName: '',
+        phoneNumber: '',
+        cityOrTown: '',
+        state: '',
+        country: '',
+        // Add other input fields if needed
+      });
+    }
   };
+
   const addCustomerDetails = () => {
     const requestData = {
       firstName: inputValues.firstName,
@@ -193,12 +232,16 @@ const Cart = () => {
     };
 
     axios
-      .post(global?.userData?.productURL+API.ADD_CUSTOMER_DETAILS, requestData, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${global.userData.token.access_token}`,
+      .post(
+        global?.userData?.productURL + API.ADD_CUSTOMER_DETAILS,
+        requestData,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${global.userData.token.access_token}`,
+          },
         },
-      })
+      )
       .then(response => {
         const newCustomer = response.data.response.customerList[0];
         console.log('ADD_CUSTOMER_DETAILS', newCustomer);
@@ -295,6 +338,9 @@ const Cart = () => {
 
   const handleDropdownClick = () => {
     setClicked(!clicked);
+    if (!clicked) {
+      setSearchQuery(''); // Clear search query when opening the dropdown
+    }
   };
 
   const handleCustomerSelection = (firstName, lastName, customerId) => {
@@ -320,8 +366,6 @@ const Cart = () => {
     setShipFromToClicked(false);
   };
 
-  const totalItems = cartItems.length;
-
   // console.log('cart', cartItems);
   // console.log('selecteditem', selectedItem);
 
@@ -338,7 +382,6 @@ const Cart = () => {
     } else if (userRole === 'Distributor' || userRole === 'Retailer') {
       // No alert for Distributor or Retailer
     }
-    
 
     if (!selectedLocation) {
       Alert.alert('Alert', 'Please select a Billing to location.');
@@ -413,7 +456,7 @@ const Cart = () => {
     console.log('billingAddressId:', billingAddressId);
     console.log('shippingAddressId:', shippingAddressId);
     console.log('customerId', customerId);
-console.log("cartItems",cartItems)
+    console.log('cartItems', cartItems);
     const requestData = {
       totalAmount: totalPrice.toString(),
       totalDiscount: '0',
@@ -432,20 +475,19 @@ console.log("cartItems",cartItems)
       agentId: '0',
       subAgentId: '0',
       orderLineItems: cartItems.map(item => ({
-      
-        qty: totalQty.toString(),
+        qty: item.quantity.toString(),
         styleId: item.styleId,
         colorId: item.colorId,
         gscodeMapId: 42,
         sizeDesc: item.sizeDesc,
         gsCode: '8907536002462',
-        availQty: totalQty.toString(),
-        price: totalPrice.toString(),
-        gross: '9660',
+        availQty: item.quantity.toString(),
+        price: item.price.toString(),
+        gross: (parseFloat(item.price) * parseInt(item.quantity)).toString(),
         discountPercentage: '0',
         discountAmount: '0',
         gst: 5,
-        total: totalPrice.toString(),
+        total: (parseFloat(item.price) * parseInt(item.quantity)).toString(),
         itemStatus: 'OPEN',
         pcqty: '0',
         pack_qty: 0,
@@ -483,21 +525,40 @@ console.log("cartItems",cartItems)
       companyId: companyId,
     };
     axios
-      .post(global?.userData?.productURL+API.ADD_ORDER_DATA, requestData, {
+      .post(global?.userData?.productURL + API.ADD_ORDER_DATA, requestData, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${global.userData.token.access_token}`,
         },
       })
       .then(response => {
+        // Handle success response
         dispatch({type: 'CLEAR_CART'});
         navigation.navigate('Home');
       })
       .catch(error => {
         console.error('Error placing order:', error);
+        if (error.response) {
+          console.error('Server responded with:', error.response.data);
+          console.error('Error status:', error.response.status);
+          console.error('Error headers:', error.response.headers);
+          // Log the specific error message if available
+          if (
+            error.response.data.errors &&
+            error.response.data.errors.length > 0
+          ) {
+            console.error(
+              'Error message:',
+              error.response.data.errors[0].message,
+            );
+          }
+        } else if (error.request) {
+          console.error('No response received:', error.request);
+        } else {
+          console.error('Request setup error:', error.message);
+        }
       })
       .finally(() => {
-        // Reset loading state after order placement completes
         setIsSubmitting(false);
       });
   };
@@ -549,75 +610,109 @@ console.log("cartItems",cartItems)
     dispatch(removeFromCart(itemIndex));
   };
 
-  const handleQuantityChange = (index, field, text) => {
-    const currentItem = cartItems[index];
-    const updatedInputValue = {...currentItem.inputValue};
-    updatedInputValue[field] = text.trim() !== '' ? text.trim() : undefined;
-    dispatch(updateCartItem(index, 'inputValue', updatedInputValue));
-    setInputValuess(updatedInputValue); // Update inputValue state
+  const handleQuantityChange = (index, text) => {
+    const updatedItems = [...cartItems];
+    const parsedQuantity = parseInt(text, 10);
+
+    if (!isNaN(parsedQuantity) || text === '') {
+      updatedItems[index].quantity = text === '' ? '' : parsedQuantity;
+      dispatch(updateCartItem(index, updatedItems[index]));
+    }
   };
 
   const copyValueToClipboard = index => {
-    // console.log('Copying value to clipboard...');
-    const copiedText =
-      cartItems[index]?.inputValue[
-        Object.keys(cartItems[index]?.inputValue)[0]
-      ] || '';
-    // console.log('Copied text:', copiedText);
+    const item = cartItems[index];
+    const {styleId, colorId, quantity} = item;
+    const updatedItems = cartItems.map(cartItem => {
+      if (cartItem.styleId === styleId && cartItem.colorId === colorId) {
+        return {
+          ...cartItem,
+          quantity,
+        };
+      }
+      return cartItem;
+    });
+
+    const copiedText = updatedItems
+      .filter(
+        cartItem =>
+          cartItem.styleId === styleId && cartItem.colorId === colorId,
+      )
+      .map(updatedItem => `${updatedItem.sizeDesc}-${updatedItem.quantity}`)
+      .join(', ');
+
     Clipboard.setString(copiedText);
+    console.log(`Copied values: ${copiedText} to clipboard`);
 
-    const updatedInputValue = {};
-    for (const size in cartItems[index]?.inputValue) {
-      updatedInputValue[size] = copiedText;
-    }
-
-    const updatedCartItem = {
-      ...cartItems[index],
-      inputValue: updatedInputValue,
-    };
-    // console.log('Updated cart item:', updatedCartItem);
-
-    dispatch(updateCartItem(index, 'inputValue', updatedCartItem.inputValue));
-    setInputValuess(updatedCartItem.inputValue); // Update inputValue state
+    updatedItems.forEach((updatedItem, updatedIndex) => {
+      if (updatedItem.styleId === styleId && updatedItem.colorId === colorId) {
+        dispatch(updateCartItem(updatedIndex, updatedItem));
+      }
+    });
   };
 
   const totalQty = cartItems.reduce((total, item) => {
-    const quantities = Object.values(item.inputValue).filter(
-      qty => qty !== undefined,
-    );
-    const sum = quantities.reduce((acc, curr) => acc + parseInt(curr), 0);
-    return total + sum;
+    // Ensure item.quantity is defined and not NaN before adding to total
+    const quantity = parseInt(item.quantity);
+    if (!isNaN(quantity)) {
+      return total + quantity;
+    } else {
+      return total; // Ignore invalid quantities
+    }
   }, 0);
 
-  const totalPrice = cartItems.reduce((total, item) => {
-    const itemPrice = parseInt(item.price) || 0;
-    const quantities = Object.values(item.inputValue).filter(
-      qty => qty !== undefined,
-    );
-    const totalQuantity = quantities.reduce(
-      (acc, curr) => acc + parseInt(curr),
-      0,
-    );
-    return total + itemPrice * totalQuantity;
-  }, 0);
+  const uniqueSets = new Set(
+    cartItems.map(item => `${item.styleId}-${item.colorId}-${item.sizeId}`),
+  );
+  const totalItems = uniqueSets.size;
+  const totalPrice = cartItems
+    .reduce((total, item) => {
+      // Parse price and quantity to floats and integers respectively
+      const parsedPrice = parseFloat(item.price);
+      const parsedQuantity = parseInt(item.quantity);
+
+      // Check if parsedPrice and parsedQuantity are valid numbers
+      if (!isNaN(parsedPrice) && !isNaN(parsedQuantity)) {
+        return total + parsedPrice * parsedQuantity;
+      } else {
+        return total; // Ignore invalid items
+      }
+    }, 0)
+    .toFixed(2);
+
+  const [locationInputValues, setLocationInputValues] = useState({
+    locationName: '',
+    phoneNumber: '',
+    locality: '',
+    cityOrTown: '',
+    state: '',
+    pincode: '',
+    country: '',
+  });
+
+  const [locationErrorFields, setLocationErrorFields] = useState([]);
 
   const handleSaveLocationButtonPress = () => {
-    // Check if any of the mandatory fields are empty
-    if (
-      !locationInputValues.locationName ||
-      !locationInputValues.phoneNumber ||
-      !locationInputValues.locality ||
-      !locationInputValues.cityOrTown ||
-      !locationInputValues.state ||
-      !locationInputValues.pincode ||
-      !locationInputValues.country
-    ) {
-      Alert.alert('Alert', 'Please fill in all mandatory fields');
-      return;
+    const mandatoryFields = [
+      'locationName',
+      'phoneNumber',
+      'locality',
+      'cityOrTown',
+      'state',
+      'pincode',
+      'country',
+    ];
+    const missingFields = mandatoryFields.filter(
+      field => !locationInputValues[field],
+    );
+
+    if (missingFields.length > 0) {
+      setLocationErrorFields(missingFields);
+      return; // Do not proceed with saving
     }
-    addCustomerLocationDetails(); // Call the function to add location details
-    toggleLocationModal(); // Close the location modal
-    setLocationInputValues({}); // Reset input values after saving
+
+    addCustomerLocationDetails();
+    toggleLocationModal();
   };
 
   const addCustomerLocationDetails = () => {
@@ -651,12 +746,16 @@ console.log("cartItems",cartItems)
     };
 
     axios
-      .post(global?.userData?.productURL+API.ADD_CUSTOMER_LOCATION, requestLocationData, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${global.userData.token.access_token}`,
+      .post(
+        global?.userData?.productURL + API.ADD_CUSTOMER_LOCATION,
+        requestLocationData,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${global.userData.token.access_token}`,
+          },
         },
-      })
+      )
       .then(response => {
         console.log(
           'ADD_CUSTOMER_LOCATION',
@@ -724,37 +823,9 @@ console.log("cartItems",cartItems)
                         style={{width: 20, height: 20}}
                       />
                     </TouchableOpacity>
+
                     {clicked && (
-                      <FlatList
-                        data={customers}
-                        renderItem={({item, index}) => (
-                          <TouchableOpacity
-                            key={index}
-                            style={{
-                              width: '100%',
-                              height: 50,
-                              justifyContent: 'center',
-                              borderBottomWidth: 0.5,
-                              borderColor: '#8e8e8e',
-                            }}
-                            onPress={() => {
-                              handleCustomerSelection(
-                                item.firstName,
-                                item.lastName,
-                                item.customerId,
-                              );
-                              console.log(item);
-                            }}>
-                            <Text
-                              style={{
-                                fontWeight: '600',
-                                marginHorizontal: 15,
-                              }}>
-                              {item.firstName} {item.lastName}
-                            </Text>
-                          </TouchableOpacity>
-                        )}
-                        keyExtractor={(item, index) => index.toString()}
+                      <View
                         style={{
                           elevation: 5,
                           height: 300,
@@ -762,9 +833,62 @@ console.log("cartItems",cartItems)
                           width: '90%',
                           backgroundColor: '#fff',
                           borderRadius: 10,
-                        }}
-                      />
+                        }}>
+                        <TextInput
+                          style={{
+                            marginTop: 10,
+                            borderRadius: 10,
+                            height: 40,
+                            borderColor: 'gray',
+                            borderWidth: 1,
+                            marginHorizontal: 10,
+                            paddingLeft: 10,
+                            marginBottom: 10,
+                          }}
+                          placeholder="Search Customer"
+                          value={searchQuery}
+                          onChangeText={text => setSearchQuery(text)}
+                        />
+
+                        {filteredCustomers.length === 0 ? (
+                          <Text style={style.noCategoriesText}>
+                            Sorry, no results found!
+                          </Text>
+                        ) : (
+                          <FlatList
+                            data={filteredCustomers}
+                            renderItem={({item, index}) => (
+                              <TouchableOpacity
+                                key={index}
+                                style={{
+                                  width: '100%',
+                                  height: 50,
+                                  justifyContent: 'center',
+                                  borderBottomWidth: 0.5,
+                                  borderColor: '#8e8e8e',
+                                }}
+                                onPress={() => {
+                                  handleCustomerSelection(
+                                    item.firstName,
+                                    item.lastName,
+                                    item.customerId,
+                                  );
+                                }}>
+                                <Text
+                                  style={{
+                                    fontWeight: '600',
+                                    marginHorizontal: 15,
+                                  }}>
+                                  {item.firstName} {item.lastName}
+                                </Text>
+                              </TouchableOpacity>
+                            )}
+                            keyExtractor={(item, index) => index.toString()}
+                          />
+                        )}
+                      </View>
                     )}
+
                     {isLoading && ( // Show ActivityIndicator if isLoading is true
                       <ActivityIndicator
                         style={{
@@ -934,123 +1058,97 @@ console.log("cartItems",cartItems)
           <View style={style.header}>
             <Text style={style.txt}>Total Items: {cartItems.length}</Text>
           </View>
-          {cartItems.map((item, index) => (
-            <View key={index} style={{marginBottom: 20}}>
-              <View style={style.imgContainer}>
-                <TouchableOpacity style={style.itemContainer}>
-                  <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
-                    {item.imageUrls.length > 0 && (
-                      <Image
-                        source={{uri: item.imageUrls[0]}}
-                        style={{
-                          width: 100,
-                          height: 100,
-                          resizeMode: 'cover',
-                          margin: 5,
-                        }}
-                      />
-                    )}
-                  </View>
-                  <Text style={{fontSize: 15, fontWeight: 'bold', flex: 0.8}}>
-                    {item.styleDesc}
-                  </Text>
-                </TouchableOpacity>
-                <View style={style.buttonsContainer}>
-                  <TouchableOpacity onPress={() => openModal(item)}>
-                    <Image
-                      style={style.buttonIcon}
-                      source={require('../../../assets/edit.png')}
-                    />
-                  </TouchableOpacity>
-                  <TouchableOpacity onPress={() => handleRemoveItem(index)}>
-                    <Image
-                      style={style.buttonIcon}
-                      source={require('../../../assets/del.png')}
-                    />
-                  </TouchableOpacity>
-                </View>
-              </View>
-              {/* <Text>colorId - {item.colorId}</Text> */}
-              <View style={style.sizehead}>
-                <View style={{flex: 0.7}}>
-                  <Text style={{marginLeft: 10}}>COLOR/SIZE</Text>
-                </View>
-                <View style={{flex: 0.5}}>
-                  <Text>QUANTITY</Text>
-                </View>
-                <View style={{flex: 0.4}}>
-                  <Text>PRICE</Text>
-                </View>
-                <TouchableOpacity onPress={() => copyValueToClipboard(index)}>
-                  <Image
-                    style={{height: 25, width: 25, marginRight: 10}}
-                    source={require('../../../assets/copy.png')}
-                  />
-                </TouchableOpacity>
-              </View>
-              <View style={{marginHorizontal: 10, marginVertical: 5}}>
-                {/* <Text style={{color: '#000', fontWeight: 'bold'}}>
-                  {item.styleName}
-                </Text> */}
-                <Text>ColorName - {item.colorName}</Text>
-              </View>
-              {Object.entries(item.inputValue).map(([size, quantity], idx) => (
-                <View key={idx}>
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      paddingHorizontal: 10,
-                      justifyContent: 'space-between',
-                      paddingVertical: 6,
-                    }}>
-                    <View style={{flex: 0.4}}>
-                      <Text>Size - {size}</Text>
+          {cartItems.length === 0 ? (
+            <Text>No items in cart</Text>
+          ) : (
+            <View>
+              {cartItems.map((item, index) => (
+                <View
+                  key={`${item.styleId}-${item.colorId}-${item.sizeId}-${index}`}
+                  style={{marginBottom: 20}}>
+                  {(index === 0 ||
+                    item.styleId !== cartItems[index - 1].styleId ||
+                    item.colorId !== cartItems[index - 1].colorId) && (
+                    <View style={style.itemContainer}>
+                      <View style={style.imgContainer}>
+                        {item.imageUrls && item.imageUrls.length > 0 && (
+                          <Image
+                            source={{uri: item.imageUrls[0]}}
+                            style={{
+                              width: 100,
+                              height: 100,
+                              resizeMode: 'cover',
+                              margin: 5,
+                            }}
+                          />
+                        )}
+                        <View style={{flex: 1}}>
+                          <Text style={{fontSize: 15, fontWeight: 'bold'}}>
+                            {item.styleDesc}
+                          </Text>
+                          <Text>ColorName - {item.colorName}</Text>
+                        </View>
+                        <View style={style.buttonsContainer}>
+                          <TouchableOpacity onPress={() => openModal(item)}>
+                            <Image
+                              style={style.buttonIcon}
+                              source={require('../../../assets/edit.png')}
+                            />
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            onPress={() => handleRemoveItem(index)}>
+                            <Image
+                              style={style.buttonIcon}
+                              source={require('../../../assets/del.png')}
+                            />
+                          </TouchableOpacity>
+                        </View>
+                      </View>
+                      <View style={style.sizehead}>
+                        <View style={{flex: 0.7}}>
+                          <Text style={{marginLeft: 10}}>COLOR/SIZE</Text>
+                        </View>
+                        <View style={{flex: 0.5}}>
+                          <Text>QUANTITY</Text>
+                        </View>
+                        <View style={{flex: 0.4}}>
+                          <Text>PRICE</Text>
+                        </View>
+                        <TouchableOpacity
+                          onPress={() => copyValueToClipboard(index)}>
+                          <Image
+                            style={{height: 25, width: 25, marginRight: 10}}
+                            source={require('../../../assets/copy.png')}
+                          />
+                        </TouchableOpacity>
+                      </View>
                     </View>
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        flex: 1,
-                        justifyContent: 'center',
-                      }}>
+                  )}
+                  <View style={style.itemDetails}>
+                    <View style={{flex: 0.4}}>
+                      <Text>Size - {item.sizeDesc}</Text>
+                    </View>
+                    <View style={style.quantityInputContainer}>
                       <TextInput
                         value={
-                          quantity !== undefined ? quantity.toString() : ''
+                          item.quantity !== undefined
+                            ? item.quantity.toString()
+                            : ''
                         }
-                        onChangeText={text =>
-                          handleQuantityChange(index, size, text)
-                        }
-                        style={{
-                          borderBottomWidth: 1,
-                          borderColor: 'gray',
-                          paddingHorizontal: 8,
-                          paddingVertical: 5,
-                          borderRadius: 5,
-                          marginRight: 10,
-                          flex: 0.3,
-                          textAlign: 'center',
-                          color: '#000',
-                        }}
+                        onChangeText={text => handleQuantityChange(index, text)}
+                        style={style.quantityInput}
+                        keyboardType="numeric" // Optional: Restricts input to numeric keyboard
                       />
                     </View>
                     <View style={{flex: 0.5}}>
                       <Text>{item.price}</Text>
-                      {/* {console.log('Price for item:', item.price)} */}
                     </View>
                   </View>
-                  <View
-                    style={{
-                      borderBottomWidth: 1,
-                      borderColor: 'gray',
-                      marginTop: 4,
-                    }}
-                  />
+                  <View style={style.separator} />
                 </View>
               ))}
             </View>
-          ))}
-
+          )}
           <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
             <TouchableOpacity
               onPress={showDatePicker}
@@ -1147,23 +1245,46 @@ console.log("cartItems",cartItems)
             <View style={style.modalContainer}>
               <View style={style.modalContent}>
                 <Text style={style.modalTitle}>Customer Details</Text>
+
                 <TextInput
-                  style={[style.input, {color: '#000'}]}
-                  placeholder="Retailer name"
+                  style={[
+                    style.input,
+                    {color: '#000'},
+                    errorFields.includes('firstName')
+                      ? style.errorBorder
+                      : null,
+                  ]}
+                  placeholder="Retailer name *"
                   placeholderTextColor="#000"
                   onChangeText={text =>
                     setInputValues({...inputValues, firstName: text})
                   }
+                  value={inputValues.firstName}
                 />
+                {errorFields.includes('firstName') && (
+                  <Text style={style.errorText}>
+                    Please enter Retailer name
+                  </Text>
+                )}
 
                 <TextInput
-                  style={[style.input, {color: '#000'}]}
-                  placeholder="phone number"
+                  style={[
+                    style.input,
+                    {color: '#000'},
+                    errorFields.includes('phoneNumber')
+                      ? style.errorBorder
+                      : null,
+                  ]}
+                  placeholder="phone number *"
                   placeholderTextColor="#000"
                   onChangeText={text =>
                     setInputValues({...inputValues, phoneNumber: text})
                   }
                 />
+                {errorFields.includes('phoneNumber') && (
+                  <Text style={style.errorText}>Please enter phoneNumber</Text>
+                )}
+
                 <TextInput
                   style={[style.input, {color: '#000'}]}
                   placeholder="whatsapp number"
@@ -1173,29 +1294,52 @@ console.log("cartItems",cartItems)
                   }
                 />
                 <TextInput
-                  style={[style.input, {color: '#000'}]}
-                  placeholder="city or town"
+                  style={[
+                    style.input,
+                    {color: '#000'},
+                    errorFields.includes('cityOrTown *')
+                      ? style.errorBorder
+                      : null,
+                  ]}
+                  placeholder="city or town *"
                   placeholderTextColor="#000"
                   onChangeText={text =>
                     setInputValues({...inputValues, cityOrTown: text})
                   }
                 />
+                {errorFields.includes('cityOrTown') && (
+                  <Text style={style.errorText}>Please enter city Or Town</Text>
+                )}
                 <TextInput
-                  style={[style.input, {color: '#000'}]}
+                  style={[
+                    style.input,
+                    {color: '#000'},
+                    errorFields.includes('state') ? style.errorBorder : null,
+                  ]}
                   placeholderTextColor="#000"
-                  placeholder="state"
+                  placeholder="state *"
                   onChangeText={text =>
                     setInputValues({...inputValues, state: text})
                   }
                 />
+                {errorFields.includes('state') && (
+                  <Text style={style.errorText}>Please enter state</Text>
+                )}
                 <TextInput
-                  style={[style.input, {color: '#000'}]}
+                  style={[
+                    style.input,
+                    {color: '#000'},
+                    errorFields.includes('country') ? style.errorBorder : null,
+                  ]}
                   placeholderTextColor="#000"
-                  placeholder="country"
+                  placeholder="country *"
                   onChangeText={text =>
                     setInputValues({...inputValues, country: text})
                   }
                 />
+                {errorFields.includes('country') && (
+                  <Text style={style.errorText}>Please enter state</Text>
+                )}
                 <TouchableOpacity
                   style={style.saveButton}
                   onPress={handleSaveButtonPress}>
@@ -1222,9 +1366,16 @@ console.log("cartItems",cartItems)
               <View style={style.modalContainer}>
                 <View style={style.modalContent}>
                   <Text style={style.modalTitle}>Location Details</Text>
+
                   <TextInput
-                    style={[style.input, {color: '#000'}]}
-                    placeholder="Location Name"
+                    style={[
+                      style.input,
+                      {color: '#000'},
+                      locationErrorFields.includes('locationName')
+                        ? style.errorBorder
+                        : null,
+                    ]}
+                    placeholder="Location Name *"
                     placeholderTextColor="#000"
                     onChangeText={text =>
                       setLocationInputValues({
@@ -1232,10 +1383,23 @@ console.log("cartItems",cartItems)
                         locationName: text,
                       })
                     }
+                    value={locationInputValues.locationName}
                   />
+                  {locationErrorFields.includes('locationName') && (
+                    <Text style={style.errorText}>
+                      Please enter Location Name
+                    </Text>
+                  )}
+
                   <TextInput
-                    style={[style.input, {color: '#000'}]}
-                    placeholder="phone number"
+                    style={[
+                      style.input,
+                      {color: '#000'},
+                      locationErrorFields.includes('phoneNumber')
+                        ? style.errorBorder
+                        : null,
+                    ]}
+                    placeholder="phone number *"
                     placeholderTextColor="#000"
                     onChangeText={text =>
                       setLocationInputValues({
@@ -1244,9 +1408,20 @@ console.log("cartItems",cartItems)
                       })
                     }
                   />
+                  {locationErrorFields.includes('phoneNumber') && (
+                    <Text style={style.errorText}>
+                      Please enter phoneNumber
+                    </Text>
+                  )}
                   <TextInput
-                    style={[style.input, {color: '#000'}]}
-                    placeholder="Locality"
+                    style={[
+                      style.input,
+                      {color: '#000'},
+                      locationErrorFields.includes('locality')
+                        ? style.errorBorder
+                        : null,
+                    ]}
+                    placeholder="Locality *"
                     placeholderTextColor="#000"
                     onChangeText={text =>
                       setLocationInputValues({
@@ -1255,9 +1430,18 @@ console.log("cartItems",cartItems)
                       })
                     }
                   />
+                  {locationErrorFields.includes('Locality') && (
+                    <Text style={style.errorText}>Please enter Locality</Text>
+                  )}
                   <TextInput
-                    style={[style.input, {color: '#000'}]}
-                    placeholder="city or town"
+                    style={[
+                      style.input,
+                      {color: '#000'},
+                      locationErrorFields.includes('cityOrTown')
+                        ? style.errorBorder
+                        : null,
+                    ]}
+                    placeholder="city or town *"
                     placeholderTextColor="#000"
                     onChangeText={text =>
                       setLocationInputValues({
@@ -1266,10 +1450,21 @@ console.log("cartItems",cartItems)
                       })
                     }
                   />
+                  {locationErrorFields.includes('cityOrTown') && (
+                    <Text style={style.errorText}>
+                      Please enter city Or Town
+                    </Text>
+                  )}
                   <TextInput
-                    style={[style.input, {color: '#000'}]}
+                    style={[
+                      style.input,
+                      {color: '#000'},
+                      locationErrorFields.includes('state')
+                        ? style.errorBorder
+                        : null,
+                    ]}
                     placeholderTextColor="#000"
-                    placeholder="state"
+                    placeholder="state *"
                     onChangeText={text =>
                       setLocationInputValues({
                         ...locationInputValues,
@@ -1277,10 +1472,19 @@ console.log("cartItems",cartItems)
                       })
                     }
                   />
+                  {locationErrorFields.includes('state') && (
+                    <Text style={style.errorText}>Please enter state</Text>
+                  )}
                   <TextInput
-                    style={[style.input, {color: '#000'}]}
+                    style={[
+                      style.input,
+                      {color: '#000'},
+                      locationErrorFields.includes('pincode')
+                        ? style.errorBorder
+                        : null,
+                    ]}
                     placeholderTextColor="#000"
-                    placeholder="Pincode"
+                    placeholder="Pincode *"
                     onChangeText={text =>
                       setLocationInputValues({
                         ...locationInputValues,
@@ -1288,10 +1492,19 @@ console.log("cartItems",cartItems)
                       })
                     }
                   />
+                  {locationErrorFields.includes('pincode') && (
+                    <Text style={style.errorText}>Please enter pincode</Text>
+                  )}
                   <TextInput
-                    style={[style.input, {color: '#000'}]}
+                    style={[
+                      style.input,
+                      {color: '#000'},
+                      locationErrorFields.includes('country')
+                        ? style.errorBorder
+                        : null,
+                    ]}
                     placeholderTextColor="#000"
-                    placeholder="country"
+                    placeholder="country *"
                     onChangeText={text =>
                       setLocationInputValues({
                         ...locationInputValues,
@@ -1299,6 +1512,9 @@ console.log("cartItems",cartItems)
                       })
                     }
                   />
+                  {locationErrorFields.includes('country') && (
+                    <Text style={style.errorText}>Please enter country</Text>
+                  )}
                   <TouchableOpacity
                     onPress={handleSaveLocationButtonPress}
                     style={style.saveButton}>
@@ -1335,8 +1551,7 @@ const style = StyleSheet.create({
     marginVertical: 10,
   },
   itemContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    marginBottom: 20,
   },
   image: {
     width: 100,
@@ -1376,6 +1591,51 @@ const style = StyleSheet.create({
     height: 25,
     width: 25,
   },
+  temDetails: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    justifyContent: 'space-between',
+    paddingVertical: 6,
+  },
+  itemDetails: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    justifyContent: 'space-between',
+    paddingVertical: 6,
+  },
+  quantityInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    justifyContent: 'center',
+  },
+  quantityInput: {
+    borderBottomWidth: 1,
+    borderColor: 'gray',
+    paddingHorizontal: 8,
+    paddingVertical: 5,
+    borderRadius: 5,
+    marginRight: 10,
+    flex: 0.3,
+    textAlign: 'center',
+    color: '#000',
+  },
+  separator: {
+    borderBottomWidth: 1,
+    borderColor: 'gray',
+    marginTop: 4,
+  },
+  bottomContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    marginVertical: 10,
+    borderTopWidth: 1,
+    borderTopColor: 'lightgray',
+    paddingTop: 10,
+  },
   modalContainer: {
     flex: 1,
     alignItems: 'center',
@@ -1400,8 +1660,14 @@ const style = StyleSheet.create({
     borderColor: 'gray',
     borderRadius: 5,
     padding: 10,
-    marginBottom: 10,
+    marginBottom: 5,
     width: '100%',
+  },
+  errorBorder: {
+    borderColor: 'red',
+  },
+  errorText: {
+    color: 'red',
   },
   saveButton: {
     backgroundColor: '#390050',
@@ -1419,6 +1685,12 @@ const style = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     textAlign: 'center',
+  },
+  noCategoriesText: {
+    textAlign: 'center',
+    marginTop: 20,
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
 export default Cart;

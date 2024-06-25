@@ -159,7 +159,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-evenly',
     backgroundColor: '#ffffff',
     marginTop: 10,
-    marginHorizontal: 20,
+    marginHorizontal: 7,
     borderRadius: 30,
     borderColor: '#000',
     borderWidth: 1,
