@@ -40,23 +40,50 @@ const reducers = (state = initialState, action) => {
         };
   
         case REMOVE_FROM_CART:
-          const { styleId, colorId } = state.cartItems[action.payload];
-          const updatedCartItems = state.cartItems.filter(
-            item => !(item.styleId === styleId && item.colorId === colorId)
-          );
-          return {
-            ...state,
-            cartItems: updatedCartItems,
-          };
-        
+          // Check if action.payload is a number (index) or an object with styleId, colorId, and sizeId
+          if (typeof action.payload === 'number') {
+            // Remove full item based on index
+            return {
+              ...state,
+              cartItems: state.cartItems.filter((_, index) => index !== action.payload),
+            };
+          } else if (
+            action.payload.styleId !== undefined &&
+            action.payload.colorId !== undefined &&
+            action.payload.sizeId !== undefined
+          ) {
+            // Remove specific size within an item
+            const updatedCartItems = state.cartItems.map(item => {
+              if (
+                item.styleId === action.payload.styleId &&
+                item.colorId === action.payload.colorId &&
+                item.sizeId === action.payload.sizeId
+              ) {
+                // Modify item properties as needed before returning
+                // For now, let's just remove the size from the item
+                return {
+                  ...item,
+                  sizeId: null, // or remove other properties as needed
+                };
+              }
+              return item;
+            });
+            return {
+              ...state,
+              cartItems: updatedCartItems,
+            };
+          } else {
+            return state;
+          }
 
-    case UPDATE_CART_ITEM:
-      return {
-        ...state,
-        cartItems: state.cartItems.map((item, index) =>
-          index === action.payload.index ? action.payload.updatedItem : item
-        ),
-      };
+          case UPDATE_CART_ITEM:
+            return {
+              ...state,
+              cartItems: state.cartItems.map((item, index) =>
+                index === action.payload.index ? action.payload.updatedItem : item
+              ),
+            };
+          
 
     case ADD_SELECTED_IMAGE:
       return {

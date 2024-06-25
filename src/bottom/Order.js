@@ -69,7 +69,7 @@ const Order = () => {
   const getAllOrders = () => {
     setLoading(true); // Show loading indicator
     const apiUrl = `${global?.userData?.productURL}${API.GET_ALL_ORDER}/${0}/${companyId}`;
-    console.log('companyId', companyId);
+    // console.log('companyId', companyId);
     axios
       .get(apiUrl, {
         headers: {
@@ -259,11 +259,11 @@ const Order = () => {
                 </Text>
                 <Text>Total Amount : {selectedOrder.totalAmount}</Text>
               </View>
-              <View style={style.custtlheader}>
-                <Text style={{flex: 0.9}}>
+              <View style={{marginLeft:10}}>
+                <Text style={{}}>
                   Packing status : {selectedOrder.packedStts}
                 </Text>
-                <Text> Status : {selectedOrder.orderStatus} </Text>
+                <Text style={{marginTop:5}}>Status : {selectedOrder.orderStatus} </Text>
               </View>
               <TouchableOpacity
                 style={style.closeButton}

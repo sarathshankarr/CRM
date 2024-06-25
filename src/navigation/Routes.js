@@ -21,6 +21,7 @@ import PackingOrders from '../Pages/Packingorders/PackingOrders';
 import DistributorGrn from '../Pages/distributorgrn/DistributorGrn';
 import DistributorOrder from '../Pages/distributororder/DistributorOrder';
 import { NavigationProvider } from '../components/navigationContext/NavigationContext';
+import ModalScreen from '../components/ModalScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -153,6 +154,12 @@ const Routes = () => {
           component={NavigationProvider}
           options={{headerShown: false}}
         />
+        <Stack.Screen
+        name="ModalScreen"
+        component={ModalScreen}
+        options={{headerShown: false}}
+      />
+
       </Stack.Navigator>
   );
 };
