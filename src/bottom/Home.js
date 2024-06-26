@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   TouchableOpacity,
@@ -8,23 +8,25 @@ import {
   ScrollView,
   ActivityIndicator,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native';
-import {useSelector, useDispatch} from 'react-redux';
-import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
+import { useNavigation } from '@react-navigation/native';
+import { useSelector, useDispatch } from 'react-redux';
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import HomeCategories from '../Pages/catogiries/HomeCategories';
 import HomeAllProducts from '../Pages/catogiries/HomeAllProducts';
-import {setLoggedInUser} from '../redux/actions/Actions';
+import { setLoggedInUser } from '../redux/actions/Actions';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {SET_SELECTED_COMPANY} from '../redux/ActionTypes';
-import CommonHeader from '../components/CommonHeader';
+import { SET_SELECTED_COMPANY } from '../redux/ActionTypes';
 import CommenHeaderHomeScreen from '../components/CommenHeaderHomeScreen';
+import { API } from '../config/apiConfig';
+import axios from 'axios';
 
 const Tab = createMaterialTopTabNavigator();
 
-const CustomTabBar = ({state, descriptors, route}) => {
+const CustomTabBar = ({ state, descriptors, route }) => {
   const navigation = useNavigation();
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState(null);
+  const [companyLogo, setCompanyLogo] = useState(null);
   const loggedInUser = useSelector(state => state.loggedInUser);
   const dispatch = useDispatch();
 
@@ -34,14 +36,13 @@ const CustomTabBar = ({state, descriptors, route}) => {
         const storedUserData = await AsyncStorage.getItem('userData');
         if (storedUserData) {
           const userData = JSON.parse(storedUserData);
-          // console.log('Stored User Data:', userData); // Log stored user data
           dispatch(setLoggedInUser(userData));
-          // Set the initially selected company to the first company in the compList
           if (userData && userData.compList && userData.compList.length > 0) {
             const initialCompany = userData.compList[0];
-            setSelectedCompany(initialCompany); // Initialize selectedCompany with the first company
-            dispatch({type: SET_SELECTED_COMPANY, payload: initialCompany}); // Store initial selected company in Redux store
-            console.log('Initial Selected Company:', initialCompany); // Log initial selected company
+            setSelectedCompany(initialCompany);
+            setCompanyLogo(initialCompany.companyLogo);
+            dispatch({ type: SET_SELECTED_COMPANY, payload: initialCompany });
+            console.log('Initial Selected Company:', initialCompany);
           }
         }
       } catch (error) {
@@ -57,23 +58,52 @@ const CustomTabBar = ({state, descriptors, route}) => {
   };
 
   const handleCompanySelect = company => {
-    setSelectedCompany(company); // Update selected company
-    console.log('Selected Company:', company); // Log the selected company
+    setSelectedCompany(company);
+    setCompanyLogo(company.companyLogo);
+    console.log('Selected Company:', company);
     setDropdownVisible(false);
-    dispatch({type: SET_SELECTED_COMPANY, payload: company}); // Dispatch action to update selected company in Redux store
+    dispatch({ type: SET_SELECTED_COMPANY, payload: company });
   };
 
   const companyName = selectedCompany ? selectedCompany.companyName : '';
 
+  useEffect(() => {
+    if (selectedCompany && selectedCompany.id) {
+      getCompany(selectedCompany.id);
+    }
+  }, [selectedCompany]);
+
+  const getCompany = (companyId) => {
+    const apiUrl = `${global?.userData?.productURL}${API.GET_COMPANY}/${companyId}`;
+    axios
+      .get(apiUrl, {
+        headers: {
+          Authorization: `Bearer ${global.userData.token.access_token}`,
+        },
+      })
+      .then(response => {
+        const companyList = response.data.response.companyList;
+        if (companyList && companyList.length > 0) {
+          const company = companyList[0];
+          console.log('Company Details:', company);
+          setCompanyLogo(company.companyLogo);
+        } else {
+          console.log('No company data found');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+  };
+
   return (
-    <View style={{backgroundColor: '#fff'}}>
-      <View
-        style={{flexDirection: 'row', alignItems: 'center', marginLeft: 10}}>
+    <View style={{ backgroundColor: '#fff' }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 10 }}>
         <TouchableOpacity onPress={() => navigation.openDrawer()}>
           <Image
             resizeMode="contain"
             source={require('../../assets/menu.png')}
-            style={{height: 30, width: 30, marginHorizontal: 5}}
+            style={{ height: 30, width: 30, marginHorizontal: 5 }}
           />
         </TouchableOpacity>
         <TouchableOpacity
@@ -85,13 +115,20 @@ const CustomTabBar = ({state, descriptors, route}) => {
             flexDirection: 'row',
             justifyContent: 'space-between',
             alignItems: 'center',
-            paddingLeft: 15,
             paddingRight: 15,
-            marginLeft: 8,
+            marginLeft: 10,
           }}>
-          <Text style={{fontWeight: '600'}}>{companyName}</Text>
+          {companyLogo ? (
+            <Image
+              source={{ uri: `data:image/png;base64,${companyLogo}` }}
+              style={{ height: 35, width: 50}}
+            />
+          ) : (
+            <ActivityIndicator size="small" color="#000" />
+          )}
+          <Text style={{ fontWeight: '600',marginLeft:4 }}>{companyName}</Text>
           <Image
-            style={{height: 22, width: 22}}
+            style={{ height: 22, width: 22,marginLeft:5 }}
             source={require('../../assets/edit.png')}
           />
         </TouchableOpacity>
@@ -100,33 +137,31 @@ const CustomTabBar = ({state, descriptors, route}) => {
             <ScrollView>
               {loggedInUser && loggedInUser.compList
                 ? loggedInUser.compList.map((company, index) => (
-                    <TouchableOpacity
-                      key={index}
-                      onPress={() => handleCompanySelect(company)}
+                  <TouchableOpacity
+                    key={index}
+                    onPress={() => handleCompanySelect(company)}
+                    style={{
+                      width: '100%',
+                      height: 50,
+                      justifyContent: 'center',
+                      borderBottomWidth: 0.5,
+                      borderColor: '#8e8e8e',
+                    }}>
+                    <Text
                       style={{
-                        width: '100%',
-                        height: 50,
-                        justifyContent: 'center',
-                        borderBottomWidth: 0.5,
-                        borderColor: '#8e8e8e',
+                        fontWeight: '600',
+                        marginHorizontal: 15,
                       }}>
-                      <Text
-                        style={{
-                          fontWeight: '600',
-                          marginHorizontal: 15,
-                        }}>
-                        {company.companyName}
-                      </Text>
-                    </TouchableOpacity>
-                  ))
+                      {company.companyName}
+                    </Text>
+                  </TouchableOpacity>
+                ))
                 : null}
             </ScrollView>
           </View>
         )}
         <CommenHeaderHomeScreen
           navigation={navigation}
-          // title={route.name}
-          // showDrawerButton={showDrawerButton}
           showMessageIcon={true}
           showCartIcon={true}
           showLocationIcon={true}

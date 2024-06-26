@@ -22,6 +22,7 @@ export const API = {
   GET_DISTRIBUTOR_GRN:'erpportal/api/ordermgmt/findAllGrnOrders',
   GET_DISTRIBUTOR_ORDER: 'erpportal/api/ordermgmt/disOrdersById',
   ADD_GRN_ORDER: 'erpportal/api/ordermgmt/addgrnorder',
+  GET_COMPANY:'erpportal/api/company'
 };
 
 export const USER_ID = 'adminClientId';
