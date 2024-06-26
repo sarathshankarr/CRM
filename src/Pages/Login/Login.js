@@ -32,9 +32,11 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false); // State for toggling password visibility
   const [code, setCode] = useState('');
+  const [errorMsg, setErrorMsg]=useState([]);
 
   const getCustomerUrl = async () => {
     setLoading(true);
+    handleEmptyInputs();
     try {
       const response = await axios.get(CUSTOMER_URL + code);
       setLoading(false);
@@ -53,6 +55,25 @@ const Login = () => {
       }
     }
   };
+
+  const handleEmptyInputs=()=>{
+
+    setErrorMsg([]);
+
+    if (code.trim().length === 0) {
+      setErrorMsg(prevErrors => [...prevErrors, 'no_Code']);
+    }
+
+    if (username.trim().length === 0) {
+      setErrorMsg(prevErrors => [...prevErrors, 'no_Username']);
+    }
+
+    // Check for empty password
+    if (password.trim().length === 0) {
+      setErrorMsg(prevErrors => [...prevErrors, 'no_Password']);
+    }
+
+  }
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -210,6 +231,13 @@ const Login = () => {
             style={styles.inputImage}
           />
         </View>
+
+        {errorMsg?.includes('no_Code') && (
+            <Text style={styles.errorText}>
+                Code is required
+            </Text>
+        )}
+
         <View style={styles.inputContainer}>
           <TextInput
             style={styles.input}
@@ -223,6 +251,12 @@ const Login = () => {
             style={styles.inputImage}
           />
         </View>
+
+        {errorMsg?.includes('no_Username') && (
+            <Text style={styles.errorText}>
+                Username is required
+            </Text>
+        )}
 
         <View style={styles.inputContainer}>
           <TextInput
@@ -240,6 +274,11 @@ const Login = () => {
             />
           </TouchableOpacity>
         </View>
+        {errorMsg?.includes('no_Password') && (
+            <Text style={styles.errorText}>
+                Password is required
+            </Text>
+        )}
         <View style={styles.rowContainer}>
           {/* <TouchableOpacity onPress={handleForgotPassword}>
             <Text style={styles.text}>Forgot Password?</Text>
@@ -308,7 +347,7 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 25,
+    marginBottom:6,
     borderRadius: 5,
     paddingHorizontal: 10,
     backgroundColor: '#D9D9D947',
@@ -373,6 +412,10 @@ const styles = StyleSheet.create({
     marginTop: 20,
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  errorText: {
+    color: 'red',
+    marginBottom:13,
   },
 });
 
