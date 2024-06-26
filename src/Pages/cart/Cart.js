@@ -64,6 +64,14 @@ const Cart = () => {
   const [keyboardSpace, setKeyboardSpace] = useState(0);
   const [modalItems, setModalItems] = useState([]);
 
+  const textInputStyle = {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    flex: 0.4,
+    color: '#000', // Default text color
+  };
+
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
       'keyboardDidShow',
@@ -1006,6 +1014,7 @@ const Cart = () => {
                             paddingLeft: 10,
                             marginBottom: 10,
                           }}
+                          placeholderTextColor="#000"
                           placeholder="Search Customer"
                           value={searchQuery}
                           onChangeText={text => setSearchQuery(text)}
@@ -1296,7 +1305,8 @@ const Cart = () => {
                     </TouchableOpacity>
                     <View style={style.quantityInputContainer}>
                       <TextInput
-                        style={style.quantityInput}
+                        placeholderTextColor="#000"
+                        style={textInputStyle}
                         value={
                           item.quantity !== undefined
                             ? item.quantity.toString()
@@ -1497,8 +1507,8 @@ const Cart = () => {
                             </TouchableOpacity>
                             <View style={style.inputContainer}>
                               <TextInput
-                                style={style.quantityInputformodel}
-                                keyboardType="numeric"
+                                placeholderTextColor="#000"
+                                style={textInputStyle}                                keyboardType="numeric"
                                 placeholder="Quantity"
                                 value={item.quantity.toString()}
                                 onChangeText={text =>
@@ -1595,7 +1605,7 @@ const Cart = () => {
                       ? style.errorBorder
                       : null,
                   ]}
-                  placeholder="Retailer name *"
+                  placeholder="Retailer Name *"
                   placeholderTextColor="#000"
                   onChangeText={text =>
                     setInputValues({...inputValues, firstName: text})
@@ -1604,7 +1614,7 @@ const Cart = () => {
                 />
                 {errorFields.includes('firstName') && (
                   <Text style={style.errorText}>
-                    Please enter Retailer name
+                    Please Enter Retailer Name
                   </Text>
                 )}
 
@@ -1612,23 +1622,23 @@ const Cart = () => {
                   style={[
                     style.input,
                     {color: '#000'},
-                    errorFields.includes('phoneNumber')
+                    errorFields.includes('Phone Number')
                       ? style.errorBorder
                       : null,
                   ]}
-                  placeholder="phone number *"
+                  placeholder="Phone Number *"
                   placeholderTextColor="#000"
                   onChangeText={text =>
                     setInputValues({...inputValues, phoneNumber: text})
                   }
                 />
                 {errorFields.includes('phoneNumber') && (
-                  <Text style={style.errorText}>Please enter phoneNumber</Text>
+                  <Text style={style.errorText}>Please Enter Phone Number</Text>
                 )}
 
                 <TextInput
                   style={[style.input, {color: '#000'}]}
-                  placeholder="whatsapp number"
+                  placeholder="Whatsapp Number"
                   placeholderTextColor="#000"
                   onChangeText={text =>
                     setInputValues({...inputValues, whatsappId: text})
@@ -1638,18 +1648,18 @@ const Cart = () => {
                   style={[
                     style.input,
                     {color: '#000'},
-                    errorFields.includes('cityOrTown *')
+                    errorFields.includes('City Or Town *')
                       ? style.errorBorder
                       : null,
                   ]}
-                  placeholder="city or town *"
+                  placeholder="City or Town *"
                   placeholderTextColor="#000"
                   onChangeText={text =>
                     setInputValues({...inputValues, cityOrTown: text})
                   }
                 />
                 {errorFields.includes('cityOrTown') && (
-                  <Text style={style.errorText}>Please enter city Or Town</Text>
+                  <Text style={style.errorText}>Please Enter City Or Town</Text>
                 )}
                 <TextInput
                   style={[
@@ -1658,13 +1668,13 @@ const Cart = () => {
                     errorFields.includes('state') ? style.errorBorder : null,
                   ]}
                   placeholderTextColor="#000"
-                  placeholder="state *"
+                  placeholder="State *"
                   onChangeText={text =>
                     setInputValues({...inputValues, state: text})
                   }
                 />
                 {errorFields.includes('state') && (
-                  <Text style={style.errorText}>Please enter state</Text>
+                  <Text style={style.errorText}>Please Enter State</Text>
                 )}
                 <TextInput
                   style={[
@@ -1673,13 +1683,13 @@ const Cart = () => {
                     errorFields.includes('country') ? style.errorBorder : null,
                   ]}
                   placeholderTextColor="#000"
-                  placeholder="country *"
+                  placeholder="Country *"
                   onChangeText={text =>
                     setInputValues({...inputValues, country: text})
                   }
                 />
                 {errorFields.includes('country') && (
-                  <Text style={style.errorText}>Please enter state</Text>
+                  <Text style={style.errorText}>Please Enter Country</Text>
                 )}
                 <TouchableOpacity
                   style={style.saveButton}
@@ -1728,7 +1738,7 @@ const Cart = () => {
                   />
                   {locationErrorFields.includes('locationName') && (
                     <Text style={style.errorText}>
-                      Please enter Location Name
+                      Please Enter Location Name
                     </Text>
                   )}
 
@@ -1740,7 +1750,7 @@ const Cart = () => {
                         ? style.errorBorder
                         : null,
                     ]}
-                    placeholder="phone number *"
+                    placeholder="Phone Number *"
                     placeholderTextColor="#000"
                     onChangeText={text =>
                       setLocationInputValues({
@@ -1751,18 +1761,12 @@ const Cart = () => {
                   />
                   {locationErrorFields.includes('phoneNumber') && (
                     <Text style={style.errorText}>
-                      Please enter phoneNumber
+                      Please Enter Phone Number
                     </Text>
                   )}
                   <TextInput
-                    style={[
-                      style.input,
-                      {color: '#000'},
-                      locationErrorFields.includes('locality')
-                        ? style.errorBorder
-                        : null,
-                    ]}
-                    placeholder="Locality *"
+                    style={[style.input, {color: '#000'}]}
+                    placeholder="Locality"
                     placeholderTextColor="#000"
                     onChangeText={text =>
                       setLocationInputValues({
@@ -1771,9 +1775,6 @@ const Cart = () => {
                       })
                     }
                   />
-                  {locationErrorFields.includes('Locality') && (
-                    <Text style={style.errorText}>Please enter Locality</Text>
-                  )}
                   <TextInput
                     style={[
                       style.input,
@@ -1782,7 +1783,7 @@ const Cart = () => {
                         ? style.errorBorder
                         : null,
                     ]}
-                    placeholder="city or town *"
+                    placeholder="City or Town *"
                     placeholderTextColor="#000"
                     onChangeText={text =>
                       setLocationInputValues({
@@ -1793,7 +1794,7 @@ const Cart = () => {
                   />
                   {locationErrorFields.includes('cityOrTown') && (
                     <Text style={style.errorText}>
-                      Please enter city Or Town
+                      Please Enter City Or Town
                     </Text>
                   )}
                   <TextInput
@@ -1805,7 +1806,7 @@ const Cart = () => {
                         : null,
                     ]}
                     placeholderTextColor="#000"
-                    placeholder="state *"
+                    placeholder="State *"
                     onChangeText={text =>
                       setLocationInputValues({
                         ...locationInputValues,
@@ -1814,7 +1815,7 @@ const Cart = () => {
                     }
                   />
                   {locationErrorFields.includes('state') && (
-                    <Text style={style.errorText}>Please enter state</Text>
+                    <Text style={style.errorText}>Please Enter State</Text>
                   )}
                   <TextInput
                     style={[
@@ -1834,7 +1835,7 @@ const Cart = () => {
                     }
                   />
                   {locationErrorFields.includes('pincode') && (
-                    <Text style={style.errorText}>Please enter pincode</Text>
+                    <Text style={style.errorText}>Please Enter Pincode</Text>
                   )}
                   <TextInput
                     style={[
@@ -1845,7 +1846,7 @@ const Cart = () => {
                         : null,
                     ]}
                     placeholderTextColor="#000"
-                    placeholder="country *"
+                    placeholder="Country *"
                     onChangeText={text =>
                       setLocationInputValues({
                         ...locationInputValues,
@@ -1854,7 +1855,7 @@ const Cart = () => {
                     }
                   />
                   {locationErrorFields.includes('country') && (
-                    <Text style={style.errorText}>Please enter country</Text>
+                    <Text style={style.errorText}>Please Enter Country</Text>
                   )}
                   <TouchableOpacity
                     onPress={handleSaveLocationButtonPress}

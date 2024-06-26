@@ -26,6 +26,7 @@ const ModalComponent = ({
   selectedItem,
   inputValuess,
   onInputValueChange,
+  isDarkTheme,
 }) => {
   // console.log('Modal selectedItem:', selectedItem);
   const [selectedItemState, setSelectedItem] = useState(selectedItem);
@@ -36,6 +37,14 @@ const ModalComponent = ({
 
   const dispatch = useDispatch();
   const cartItems = useSelector(state => state.cartItems);
+
+  const textInputStyle = {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    flex: 0.4,
+    color: isDarkTheme ? '#fff' : '#000', // Change text color based on theme
+  };
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
@@ -131,7 +140,7 @@ const ModalComponent = ({
           );
 
           if (existingItemIndex !== -1) {
-            console.log("existingItemIndex",existingItemIndex)
+            console.log('existingItemIndex', existingItemIndex);
             const updatedQuantity =
               parseInt(cartItems[existingItemIndex].quantity) +
               parseInt(inputValue);
@@ -207,7 +216,8 @@ const ModalComponent = ({
       })
       .then(response => {
         setStylesData(response?.data?.response?.stylesList || []);
-        console.log('Styles List:', response.data?.response?.stylesList);             })
+        console.log('Styles List:', response.data?.response?.stylesList);
+      })
       .catch(error => {
         console.error('Error:', error);
       })
@@ -275,182 +285,179 @@ const ModalComponent = ({
 
   return (
     <Modal
-      animationType="slide"
-      transparent={true}
-      visible={modalVisible}
-      onRequestClose={closeModal}>
-      <ScrollView
-        contentContainerStyle={[
-          styles.modalContainer,
-          {marginBottom: keyboardSpace},
-        ]}
-        keyboardShouldPersistTaps="handled">
-        <View style={styles.modalContent}>
-          <View style={styles.addqtyhead}>
-            <TouchableOpacity onPress={closeModal}>
-              <Image
-                style={{height: 30, width: 30, tintColor: 'white'}}
-                source={require('../../assets/back_arrow.png')}
-              />
-            </TouchableOpacity>
-            <Text style={styles.addqtytxt}>Add Quantity</Text>
-          </View>
+    animationType="slide"
+    transparent={true}
+    visible={modalVisible}
+    onRequestClose={closeModal}>
+    <ScrollView
+      contentContainerStyle={[
+        styles.modalContainer,
+        { marginBottom: keyboardSpace },
+      ]}
+      keyboardShouldPersistTaps="handled">
+      <View style={styles.modalContent}>
+        <View style={styles.addqtyhead}>
+          <TouchableOpacity onPress={closeModal}>
+            <Image
+              style={{ height: 30, width: 30, tintColor: 'white' }}
+              source={require('../../assets/back_arrow.png')}
+            />
+          </TouchableOpacity>
+          <Text style={styles.addqtytxt}>Add Quantity</Text>
+        </View>
 
-          <View style={styles.sizehead}>
-            <Text style={styles.sizetxt}>Size/Color</Text>
-            <Text style={styles.quantityqty}>Quantity</Text>
-            <Text style={styles.quantitytxt}>Price</Text>
-            <TouchableOpacity
-              style={{
-                borderRadius: 30,
-                paddingHorizontal: 4,
-                marginLeft: 'auto',
-                flex: 0.2,
-              }}
-              onPress={copyValueToClipboard}>
-              <Image
-                style={{height: 30, width: 30}}
-                source={require('../../assets/copy.png')}
-              />
-            </TouchableOpacity>
-          </View>
-          {loading ? (
-            <ActivityIndicator color="#390050" style={{marginTop: 10}} /> // Show ActivityIndicator if loading
-          ) : (
-            <ScrollView style={{maxHeight: '70%'}}>
-              {stylesData &&
-                stylesData.map((style, index) => (
-                  <View key={index} style={{marginBottom: 10}}>
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        justifyContent: 'space-between',
-                        marginHorizontal: 5,
-                        marginTop: 5,
-                      }}>
-                      <View>
-                        <Text>
-                          ColorName -{' '}
-                          {selectedItem ? selectedItem.colorName : ''}
-                        </Text>
-                      </View>
+        <View style={styles.sizehead}>
+          <Text style={styles.sizetxt}>Size/Color</Text>
+          <Text style={styles.quantityqty}>Quantity</Text>
+          <Text style={styles.quantitytxt}>Price</Text>
+          <TouchableOpacity
+            style={{
+              borderRadius: 30,
+              paddingHorizontal: 4,
+              marginLeft: 'auto',
+              flex: 0.2,
+            }}
+            onPress={copyValueToClipboard}>
+            <Image
+              style={{ height: 30, width: 30 }}
+              source={require('../../assets/copy.png')}
+            />
+          </TouchableOpacity>
+        </View>
+        {loading ? (
+          <ActivityIndicator color="#390050" style={{ marginTop: 10 }} /> // Show ActivityIndicator if loading
+        ) : (
+          <ScrollView style={{ maxHeight: '70%' }}>
+            {stylesData &&
+              stylesData.map((style, index) => (
+                <View key={index} style={{ marginBottom: 10 }}>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      marginHorizontal: 5,
+                      marginTop: 5,
+                    }}>
+                    <View>
+                      <Text>
+                        ColorName -{' '}
+                        {selectedItem ? selectedItem.colorName : ''}
+                      </Text>
                     </View>
+                  </View>
 
-                    {style.sizeList &&
-                      style.sizeList.map((size, sizeIndex) => (
+                  {style.sizeList &&
+                    style.sizeList.map((size, sizeIndex) => (
+                      <View
+                        key={sizeIndex}
+                        style={{ flexDirection: 'row', marginRight: 10 }}>
+                        <View style={{ flex: 0.7 }}>
+                          <Text style={{ marginTop: 15, marginHorizontal: 5 }}>
+                            {style.styleDesc}
+                          </Text>
+                          <Text style={{ marginTop: 2, marginHorizontal: 5 }}>
+                            Size - {size.sizeDesc}
+                          </Text>
+                          {/* <Text>colorId{style.colorId}</Text> */}
+                        </View>
                         <View
-                          key={sizeIndex}
-                          style={{flexDirection: 'row', marginRight: 10}}>
-                          <View style={{flex: 0.7}}>
-                            <Text style={{marginTop: 15, marginHorizontal: 5}}>
-                              {style.styleDesc}
-                            </Text>
-                            <Text style={{marginTop: 2, marginHorizontal: 5}}>
-                              Size - {size.sizeDesc}
-                            </Text>
-                            {/* <Text>colorId{style.colorId}</Text> */}
-                          </View>
-                          <View
-                            style={{
-                              flexDirection: 'row',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              flex: 1.7,
-                            }}>
-                            <TouchableOpacity
-                              onPress={() =>
-                                handleDecrementQuantity(index, sizeIndex)
-                              }>
-                              <Image
-                                style={{height: 25, width: 25, marginRight: 10}}
-                                source={require('../../assets/sub.jpg')}
-                              />
-                            </TouchableOpacity>
-
-                            <TextInput
-                              style={{
-                                borderWidth: 1,
-                                borderColor: '#ccc',
-                                borderRadius: 5,
-                                flex: 0.4,
-                              }}
-                              keyboardType="numeric"
-                              value={
-                                inputValues[size.sizeDesc] !== undefined &&
-                                inputValues[size.sizeDesc].trim() !== ''
-                                  ? inputValues[size.sizeDesc].toString()
-                                  : ''
-                              } // Default value as empty string
-                              onChangeText={text => {
-                                const updatedInputValues = {...inputValues};
-                                updatedInputValues[size.sizeDesc] = text;
-                                setInputValues(updatedInputValues);
-                                handleQuantityChange(text, index, sizeIndex); // Pass index and sizeIndex
-                              }}
+                          style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            flex: 1.7,
+                          }}>
+                          <TouchableOpacity
+                            onPress={() =>
+                              handleDecrementQuantity(index, sizeIndex)
+                            }>
+                            <Image
+                              style={{ height: 25, width: 25, marginRight: 10 }}
+                              source={require('../../assets/sub.jpg')}
                             />
+                          </TouchableOpacity>
 
-                            <TouchableOpacity
-                              onPress={() =>
-                                handleIncrementQuantity(index, sizeIndex)
-                              }>
-                              <Image
-                                style={{height: 20, width: 20, marginLeft: 10}}
-                                source={require('../../assets/add.png')}
-                              />
-                            </TouchableOpacity>
+                          <TextInput
+                            placeholderTextColor="#000"
+                            style={textInputStyle}
+                            keyboardType="numeric"
+                            value={
+                              inputValues[size.sizeDesc] !== undefined &&
+                                inputValues[size.sizeDesc].trim() !== ''
+                                ? inputValues[size.sizeDesc].toString()
+                                : ''
+                            } // Default value as empty string
+                            onChangeText={text => {
+                              const updatedInputValues = { ...inputValues };
+                              updatedInputValues[size.sizeDesc] = text;
+                              setInputValues(updatedInputValues);
+                              handleQuantityChange(text, index, sizeIndex); // Pass index and sizeIndex
+                            }}
+                          />
 
-                            <View style={{flex: 0.4, marginLeft: 40}}>
-                              <Text>{style.price}</Text>
-                            </View>
+                          <TouchableOpacity
+                            onPress={() =>
+                              handleIncrementQuantity(index, sizeIndex)
+                            }>
+                            <Image
+                              style={{ height: 20, width: 20, marginLeft: 10 }}
+                              source={require('../../assets/add.png')}
+                            />
+                          </TouchableOpacity>
+
+                          <View style={{ flex: 0.4, marginLeft: 40 }}>
+                            <Text>{style.price}</Text>
                           </View>
                         </View>
-                      ))}
-                  </View>
-                ))}
-            </ScrollView>
-          )}
-          <View
+                      </View>
+                    ))}
+                </View>
+              ))}
+          </ScrollView>
+        )}
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'flex-end',
+            marginRight: 20,
+            marginTop: 20,
+            marginBottom: 30,
+          }}>
+          <TouchableOpacity
+            onPress={() => clearAllInputs()}
             style={{
-              flexDirection: 'row',
-              justifyContent: 'flex-end',
-              marginRight: 20,
-              marginTop: 20,
-              marginBottom: 30,
+              borderWidth: 1,
+              borderColor: '#000',
+              backgroundColor: 'gray',
+              marginLeft: 10,
+              paddingVertical: 10,
+              paddingHorizontal: 10,
+              borderRadius: 5,
             }}>
-            <TouchableOpacity
-              onPress={() => clearAllInputs()}
-              style={{
-                borderWidth: 1,
-                borderColor: '#000',
-                backgroundColor: 'gray',
-                marginLeft: 10,
-                paddingVertical: 10,
-                paddingHorizontal: 10,
-                borderRadius: 5,
-              }}>
-              <Text style={{color: 'white', fontWeight: 'bold'}}>
-                CLEAR ALL
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={handleSaveItem}
-              style={{
-                borderWidth: 1,
-                borderColor: '#000',
-                backgroundColor: '#390050',
-                marginLeft: 10,
-                paddingVertical: 10,
-                paddingHorizontal: 35,
-                borderRadius: 5,
-              }}>
-              <Text style={{color: 'white', fontWeight: 'bold'}}>SAVE</Text>
-            </TouchableOpacity>
-          </View>
+            <Text style={{ color: 'white', fontWeight: 'bold' }}>
+              CLEAR ALL
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={handleSaveItem}
+            style={{
+              borderWidth: 1,
+              borderColor: '#000',
+              backgroundColor: '#390050',
+              marginLeft: 10,
+              paddingVertical: 10,
+              paddingHorizontal: 35,
+              borderRadius: 5,
+            }}>
+            <Text style={{ color: 'white', fontWeight: 'bold' }}>SAVE</Text>
+          </TouchableOpacity>
         </View>
-      </ScrollView>
-    </Modal>
-  );
+      </View>
+    </ScrollView>
+  </Modal>
+);
 };
+
 
 const styles = StyleSheet.create({
   container: {
