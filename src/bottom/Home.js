@@ -66,6 +66,36 @@ const CustomTabBar = ({ state, descriptors, route }) => {
   };
 
   const companyName = selectedCompany ? selectedCompany.companyName : '';
+  const companysLogo = selectedCompany ? selectedCompany.companyLogo : '';
+
+  useEffect(() => {
+    if (selectedCompany && selectedCompany.id) {
+      getCompany(selectedCompany.id);
+    }
+  }, [selectedCompany]);
+
+  const getCompany = (companyId) => {
+    const apiUrl = `${global?.userData?.productURL}${API.GET_COMPANY}/${companyId}`;
+    axios
+      .get(apiUrl, {
+        headers: {
+          Authorization: `Bearer ${global.userData.token.access_token}`,
+        },
+      })
+      .then(response => {
+        const companyList = response.data.response.companyList;
+        if (companyList && companyList.length > 0) {
+          const company = companyList[0];
+          console.log('Company Details:', company);
+          setCompanyLogo(company.companyLogo);
+        } else {
+          console.log('No company data found');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+  };
 
   return (
     <View style={{ backgroundColor: '#fff' }}>
@@ -87,9 +117,17 @@ const CustomTabBar = ({ state, descriptors, route }) => {
             justifyContent: 'space-between',
             alignItems: 'center',
             paddingRight: 15,
-            marginLeft: 10,
+            marginLeft: 12,
           }}>
-          <Text style={{fontWeight: '600'}}>{companyName}</Text>
+          {companyLogo ? (
+            <Image
+              source={{ uri: `data:image/png;base64,${companyLogo}` }}
+              style={{ height: 35, width: 50}}
+            />
+          ) : (
+            <ActivityIndicator size="small" color="#000" />
+          )}
+          <Text style={{ fontWeight: '600',marginLeft:5 }}>{companyName}</Text>
           <Image
             style={{ height: 22, width: 22,marginLeft:5 }}
             source={require('../../assets/edit.png')}
@@ -150,6 +188,7 @@ const CustomTabBar = ({ state, descriptors, route }) => {
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   tabContainer: {
