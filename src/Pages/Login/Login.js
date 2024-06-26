@@ -350,6 +350,7 @@ const styles = StyleSheet.create({
     marginBottom:6,
     borderRadius: 5,
     paddingHorizontal: 10,
+    marginVertical:10,
     backgroundColor: '#D9D9D947',
   },
   formContainer: {

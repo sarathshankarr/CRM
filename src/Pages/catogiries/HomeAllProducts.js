@@ -139,7 +139,7 @@ const HomeAllProducts = ({ navigation }) => {
       const requestData = {
         pageNo: String(pageNo),
         pageSize: "20",
-        categoryId: categoryId,
+        categoryId: "",
         companyId:companyId
       };
   

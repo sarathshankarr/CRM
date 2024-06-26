@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Text, View, Image, StyleSheet, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { addItemToCart } from '../../redux/actions/Actions';
 import ModalComponent from '../../components/ModelComponent';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { API } from '../../config/apiConfig';
+
 
 const AllCategoriesListed = ({ navigation, route }) => {
   const { categoryId } = route.params;
@@ -14,12 +15,40 @@ const AllCategoriesListed = ({ navigation, route }) => {
   const [selectedDetails, setSelectedDetails] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [initialSelectedCompany, setInitialSelectedCompany] = useState(null);
 
+  const selectedCompany = useSelector((state) => state.selectedCompany);
+  
   useEffect(() => {
-    if (categoryId) {
-      getAllCategories();
+    const fetchInitialSelectedCompany = async () => {
+      try {
+        const initialCompanyData = await AsyncStorage.getItem('initialSelectedCompany');
+        if (initialCompanyData) {
+          const initialCompany = JSON.parse(initialCompanyData);
+          setInitialSelectedCompany(initialCompany);
+          console.log('Initial Selected Company:', initialCompany);
+        }
+      } catch (error) {
+        console.error('Error fetching initial selected company:', error);
+      }
+    };
+  
+    fetchInitialSelectedCompany();
+  }, []);
+  
+  const companyId = selectedCompany ? selectedCompany.id : initialSelectedCompany?.id;
+  
+  useEffect(() => {
+    if (companyId) {
+      getAllCategories(companyId);
     }
-  }, [categoryId]);
+  }, [companyId]);
+
+  // useEffect(() => {
+  //   if (categoryId) {
+  //     getAllCategories();
+  //   }
+  // }, [categoryId]);
 
   const toggleModal = () => {
     setModalVisible(!modalVisible);
@@ -46,7 +75,8 @@ const AllCategoriesListed = ({ navigation, route }) => {
       const requestData = {
         pageNo: "1",
         pageSize: "20",
-        categoryId: categoryId
+        categoryId: "",
+        companyId:companyId
       };
 
       const response = await axios.post(apiUrl, requestData, {
