@@ -1369,7 +1369,7 @@ const Cart = () => {
                   style={[
                     style.input,
                     {color: '#000'},
-                    errorFields.includes('Phone Number')
+                    errorFields.includes('phoneNumber')
                       ? style.errorBorder
                       : null,
                   ]}
@@ -1395,7 +1395,7 @@ const Cart = () => {
                   style={[
                     style.input,
                     {color: '#000'},
-                    errorFields.includes('City Or Town *')
+                    errorFields.includes('cityOrTown')
                       ? style.errorBorder
                       : null,
                   ]}
@@ -1493,6 +1493,7 @@ const Cart = () => {
                     style={[
                       style.input,
                       {color: '#000'},
+                      errorFields.includes('state') ? style.errorBorder : null,
                       locationErrorFields.includes('phoneNumber')
                         ? style.errorBorder
                         : null,
