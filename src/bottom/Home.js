@@ -64,6 +64,8 @@ const CustomTabBar = ({state, descriptors, route}) => {
   };
 
   const companyName = selectedCompany ? selectedCompany.companyName : '';
+  const companyLogo = selectedCompany ? selectedCompany.companyLogo : '';
+  console.log("companyLogo===>",  companyLogo)
 
   return (
     <View style={{backgroundColor: '#fff'}}>
@@ -89,6 +91,9 @@ const CustomTabBar = ({state, descriptors, route}) => {
             paddingRight: 15,
             marginLeft: 8,
           }}>
+           {/* <Image 
+           style={{height: 22, width: 22}}
+           source={{uri: companyLogo}} /> */}
           <Text style={{fontWeight: '600'}}>{companyName}</Text>
           <Image
             style={{height: 22, width: 22}}
