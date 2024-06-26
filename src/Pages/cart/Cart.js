@@ -93,77 +93,6 @@ const Cart = () => {
     };
   }, []);
 
-  const openEditModal = item => {
-    const filteredItems = cartItems.filter(
-      i => i.styleId === item.styleId && i.colorId === item.colorId,
-    );
-    const itemsForModal = filteredItems.map(item => ({...item}));
-    setModalItems(itemsForModal);
-    setSelectedItem(item);
-    setModalVisible(true);
-  };
-  const handleIncrementQuantity = index => {
-    console.log('Incrementing quantity for index:', index);
-    setModalItems(prevItems => {
-      const updatedItems = [...prevItems];
-      updatedItems[index].quantity =
-        parseInt(updatedItems[index].quantity || 0, 10) + 1;
-      console.log('Updated modalItems:', updatedItems);
-      return updatedItems;
-    });
-  };
-
-  // Function to handle decrementing quantity
-  const handleDecrementQuantity = index => {
-    console.log('Decrementing quantity for index:', index);
-    setModalItems(prevItems => {
-      const updatedItems = [...prevItems];
-      if (updatedItems[index].quantity > 1) {
-        updatedItems[index].quantity -= 1;
-      }
-      console.log('Updated modalItems:', updatedItems);
-      return updatedItems;
-    });
-  };
-
-  const handleQuantityChangeModel = (index, text) => {
-    console.log('Changing quantity for index:', index, 'to', text);
-    setModalItems(prevItems => {
-      const updatedItems = [...prevItems];
-      const parsedQuantity = parseInt(text, 10);
-      if (!isNaN(parsedQuantity) || text === '') {
-        updatedItems[index].quantity = text === '' ? '' : parsedQuantity;
-      }
-      console.log('Updated modalItems:', updatedItems);
-      return updatedItems;
-    });
-  };
-
-  const handleSaveItem = () => {
-    // Check if any item has quantity 0
-    const hasZeroQuantity = modalItems.some(item => item.quantity === 0);
-    if (hasZeroQuantity) {
-      Alert.alert('Alert', 'Please enter a quantity greater than zero.');
-      return;
-    }
-
-    // Update cartItems in Redux
-    modalItems.forEach((modalItem, index) => {
-      const originalIndex = cartItems.findIndex(
-        item =>
-          item.styleId === modalItem.styleId &&
-          item.colorId === modalItem.colorId &&
-          item.sizeId === modalItem.sizeId,
-      );
-      if (originalIndex !== -1) {
-        dispatch(updateCartItem(originalIndex, modalItem));
-      }
-    });
-
-    // Close modal
-    closeModal();
-  };
-
   // Function to close the modal
   const closeModal = () => {
     setModalVisible(false);
@@ -174,47 +103,6 @@ const Cart = () => {
   const handleRemoveItem = index => {
     console.log('Removing item at index:', index);
     dispatch(removeFromCart(index));
-  };
-
-  const copyValueToClipboardModel = () => {
-    // Check if modalItems array is empty or quantity is 0
-    if (modalItems.length === 0 || modalItems[0].quantity === 0) {
-      Alert.alert('Please enter a valid quantity before copying.');
-      return; // Exit function early if quantity is not entered or is 0
-    }
-
-    // Proceed with copying
-    const copiedText = modalItems[0].quantity.toString(); // Get the value from the first TextInput
-    Clipboard.setString(copiedText); // Copy text to clipboard
-
-    // Update modalItems with copiedText as quantity for all items
-    const updatedItems = modalItems.map(item => ({
-      ...item,
-      quantity: copiedText,
-    }));
-
-    setModalItems(updatedItems); // Update state with updatedItems
-  };
-
-  const handleRemoveSize = index => {
-    // Get the item to remove from modalItems
-    const itemToRemove = modalItems[index];
-
-    // Remove item from modalItems
-    setModalItems(prevItems => prevItems.filter((_, i) => i !== index));
-
-    // Find the index of the item in cartItems
-    const originalIndex = cartItems.findIndex(
-      item =>
-        item.styleId === itemToRemove.styleId &&
-        item.colorId === itemToRemove.colorId &&
-        item.sizeId === itemToRemove.sizeId,
-    );
-
-    // If found, remove the item from cartItems in Redux
-    if (originalIndex !== -1) {
-      dispatch(removeFromCart(originalIndex));
-    }
   };
 
   const filteredCustomers = customers.filter(customer => {
@@ -720,10 +608,28 @@ const Cart = () => {
   };
 
   const openModal = item => {
+    console.log(openModal);
     setSelectedItem(item);
-    setInputValuess(item.inputValue || {}); // Set to an empty object if item.inputValue is empty
+
+    // Create a map to store the initial quantities for each item
+    const updatedInputValues = {};
+
+    // Loop through cartItems to set initial quantity for each item
+    cartItems.forEach(cartItem => {
+      // Construct a unique key for each cart item
+      const key = `${cartItem.styleId}-${cartItem.colorId}-${cartItem.sizeId}`;
+
+      // Set the initial quantity to the current quantity in cartItems
+      updatedInputValues[key] = {
+        ...cartItem.inputValue,
+        quantity: cartItem.quantity.toString(), // Convert to string if necessary
+      };
+    });
+
+    setInputValuess(updatedInputValues);
     setModalVisible(true);
   };
+
   useEffect(() => {
     if (selectedItem) {
       setInputValuess(selectedItem.inputValue || {}); // Set to an empty object if selectedItem.inputValue is empty
@@ -1260,7 +1166,7 @@ const Cart = () => {
                           <Text>ColorName - {item.colorName}</Text>
                         </View>
                         <View style={style.buttonsContainer}>
-                          <TouchableOpacity onPress={() => openEditModal(item)}>
+                          <TouchableOpacity onPress={() => openModal(item)}>
                             <Image
                               style={style.buttonIcon}
                               source={require('../../../assets/edit.png')}
@@ -1420,172 +1326,13 @@ const Cart = () => {
               {isSubmitting ? 'Placing Order...' : 'PLACE ORDER'}
             </Text>
           </TouchableOpacity>
-          <Modal
-            animationType="slide"
-            transparent={true}
-            visible={modalVisible}
-            onRequestClose={closeModal}>
-            <KeyboardAvoidingView
-              style={{flex: 1}}
-              behavior={Platform.OS === 'ios' ? 'padding' : null}
-              keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}>
-              <ScrollView
-                contentContainerStyle={[
-                  style.modalContainer,
-                  {marginBottom: keyboardSpace},
-                ]}
-                keyboardShouldPersistTaps="handled">
-                <View style={style.modalContent}>
-                  <View style={style.addqtyhead}>
-                    <TouchableOpacity onPress={closeModal}>
-                      <Image
-                        style={{height: 30, width: 30, tintColor: 'white'}}
-                        source={require('../../../assets/back_arrow.png')}
-                      />
-                    </TouchableOpacity>
-                    <Text style={style.addqtytxt}>Add Quantity</Text>
-                  </View>
-                  <View style={style.sizehead}>
-                    <View style={{flex: 0.8}}>
-                      <Text
-                        style={{
-                          marginLeft: 10,
-                          color: '#000',
-                          fontWeight: 'bold',
-                        }}>
-                        Size/Color
-                      </Text>
-                    </View>
-                    <View style={{flex: 0.5}}>
-                      <Text style={{color: '#000', fontWeight: 'bold'}}>
-                        Quantity
-                      </Text>
-                    </View>
-                    <View style={{flex: 0.2, marginLeft: 25}}>
-                      <Text style={{color: '#000', fontWeight: 'bold'}}>
-                        Price
-                      </Text>
-                    </View>
-                    <TouchableOpacity
-                      style={{
-                        borderRadius: 30,
-                        marginLeft: 'auto',
-                        flex: 0.2,
-                      }}
-                      onPress={() => copyValueToClipboardModel()} // Assuming you want to copy item.sizeDesc
-                    >
-                      <Image
-                        style={{height: 30, width: 30}}
-                        source={require('../../../assets/copy.png')}
-                      />
-                    </TouchableOpacity>
-                  </View>
-                  {selectedItem && (
-                    <View>
-                      <View style={style.modalTextContainer}>
-                        <Text style={style.modalText}>
-                          Color Name: {selectedItem.colorName}
-                        </Text>
-                      </View>
-                      {/* Display sizes and quantities */}
-                      <View>
-                        {modalItems.map((item, index) => (
-                          <View key={index} style={style.rowContainer}>
-                            <View style={style.labelContainer}>
-                              <Text>Size - {item.sizeDesc}</Text>
-                            </View>
-                            <TouchableOpacity
-                              onPress={() => handleDecrementQuantity(index)}>
-                              <Image
-                                style={{
-                                  height: 25,
-                                  width: 25,
-                                  marginHorizontal: 10,
-                                }}
-                                source={require('../../../assets/sub.jpg')}
-                              />
-                            </TouchableOpacity>
-                            <View style={style.inputContainer}>
-                              <TextInput
-                                placeholderTextColor="#000"
-                                style={textInputStyle}                                keyboardType="numeric"
-                                placeholder="Quantity"
-                                value={item.quantity.toString()}
-                                onChangeText={text =>
-                                  handleQuantityChangeModel(index, text)
-                                }
-                              />
-                            </View>
-                            <TouchableOpacity
-                              onPress={() => handleIncrementQuantity(index)}>
-                              <Image
-                                style={{
-                                  height: 20,
-                                  width: 20,
-                                  marginHorizontal: 10,
-                                }}
-                                source={require('../../../assets/add.png')}
-                              />
-                            </TouchableOpacity>
-                            <View style={style.priceContainer}>
-                              <Text>{item.price}</Text>
-                            </View>
-                            {/* <TouchableOpacity
-                          onPress={() => handleRemoveSize(index)}>
-                          <Image
-                            style={styles.buttonIcon}
-                            source={require('../../../assets/del.png')}
-                          />
-                        </TouchableOpacity> */}
-                          </View>
-                        ))}
-                      </View>
-                      <View
-                        style={{
-                          flexDirection: 'row',
-                          justifyContent: 'flex-end',
-                          marginRight: 20,
-                          marginTop: 20,
-                          marginBottom: 30,
-                        }}>
-                        <TouchableOpacity
-                          onPress={closeModal} // Discard changes and close modal
-                          style={{
-                            borderWidth: 1,
-                            borderColor: '#000',
-                            backgroundColor: '#390050',
-                            marginLeft: 10,
-                            paddingVertical: 10,
-                            paddingHorizontal: 35,
-                            borderRadius: 5,
-                          }}>
-                          <Text style={{color: 'white', fontWeight: 'bold'}}>
-                            CANCEL
-                          </Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                          onPress={handleSaveItem} // Save changes and close modal
-                          style={{
-                            borderWidth: 1,
-                            borderColor: '#000',
-                            backgroundColor: '#390050',
-                            marginLeft: 10,
-                            paddingVertical: 10,
-                            paddingHorizontal: 35,
-                            borderRadius: 5,
-                          }}>
-                          <Text style={{color: 'white', fontWeight: 'bold'}}>
-                            SAVE
-                          </Text>
-                        </TouchableOpacity>
-                      </View>
-                    </View>
-                  )}
-                </View>
-              </ScrollView>
-            </KeyboardAvoidingView>
-          </Modal>
-
+          <ModalComponent
+            modalVisible={modalVisible}
+            closeModal={closeModal}
+            selectedItem={selectedItem}
+            inputValuess={inputValuess}
+            onInputValueChange={handleInputValueChange} // Pass the function to handle input value changes
+          />
           <Modal
             animationType="fade"
             transparent={true}
