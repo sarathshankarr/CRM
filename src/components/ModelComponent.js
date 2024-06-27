@@ -96,21 +96,15 @@ const ModalComponent = ({
   // console.log('inputValue:', JSON.stringify(inputValues));
 
   const handleSaveItem = () => {
-    console.log('Current inputValues state:', inputValues);
-
     let itemsToUpdate = [];
-    let hasZeroQuantity = false; // Flag to track if zero quantity is found
-
+  
     stylesData.forEach(style => {
       if (!style.sizeList || style.sizeList.length === 0) return;
-
+  
       style.sizeList.forEach(size => {
         const sizeDesc = size.sizeDesc;
         const inputValue = inputValues[sizeDesc] || '0'; // Ensure a default value of '0'
-
-        console.log(`Processing ${sizeDesc} with quantity ${inputValue}`);
-
-        // Check if inputValue is greater than 0 and is not undefined
+  
         if (parseInt(inputValue, 10) > 0) {
           const itemBaseDetails = {
             availQty: style.availQty,
@@ -129,21 +123,17 @@ const ModalComponent = ({
             sizeId: size.sizeId,
             quantity: inputValue,
           };
-
-          console.log('Item base details:', itemBaseDetails);
-
+  
           const existingItemIndex = cartItems.findIndex(
             item =>
               item.styleId === style.styleId &&
               item.colorId === style.colorId &&
               item.sizeId === size.sizeId,
           );
-
+  
           if (existingItemIndex !== -1) {
-            console.log('existingItemIndex', existingItemIndex);
-            const updatedQuantity =
-              parseInt(cartItems[existingItemIndex].quantity) +
-              parseInt(inputValue);
+            // Update existing item quantity
+            const updatedQuantity = parseInt(inputValue, 10);
             const updatedItem = {
               ...cartItems[existingItemIndex],
               quantity: updatedQuantity.toString(),
@@ -153,25 +143,22 @@ const ModalComponent = ({
             );
             dispatch(updateCartItem(existingItemIndex, updatedItem));
           } else {
+            // Add new item to update list
             itemsToUpdate.push(itemBaseDetails);
           }
-        } else if (parseInt(inputValue, 10) === 0) {
-          // Alert if quantity is 0
-          console.log(`Quantity for ${sizeDesc} is 0.`);
         }
       });
     });
-
-    console.log('Items to update:', itemsToUpdate);
-
+  
     // Add items to cart only if itemsToUpdate is not empty
     if (itemsToUpdate.length > 0) {
       itemsToUpdate.forEach(item => dispatch(addItemToCart(item)));
     }
-
+  
     clearAllInputs();
     closeModal();
   };
+  
 
   useEffect(() => {
     if (modalVisible && stylesData.length > 0) {
@@ -179,13 +166,26 @@ const ModalComponent = ({
       stylesData.forEach(style => {
         if (style.sizeList) {
           style.sizeList.forEach(size => {
-            initialInputValues[size.sizeDesc] = ''; // Default value as empty string
+            const sizeDesc = size.sizeDesc;
+            // Initialize inputValues with quantities from cartItems
+            const cartItem = cartItems.find(
+              item =>
+                item.styleId === style.styleId &&
+                item.colorId === style.colorId &&
+                item.sizeId === size.sizeId,
+            );
+            if (cartItem) {
+              initialInputValues[sizeDesc] = cartItem.quantity.toString();
+            } else {
+              initialInputValues[sizeDesc] = '';
+            }
           });
         }
       });
       setInputValues(initialInputValues);
     }
   }, [modalVisible, stylesData]);
+  
 
   const handleQuantityChange = (text, styleIndex, sizeIndex) => {
     console.log('Text:', text);

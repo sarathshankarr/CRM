@@ -65,6 +65,12 @@ const CustomTabBar = ({ state, descriptors, route }) => {
     dispatch({ type: SET_SELECTED_COMPANY, payload: company });
   };
 
+  const toggleDropdown = () => {
+    if (loggedInUser && loggedInUser.compList && loggedInUser.compList.length > 1) {
+      setDropdownVisible(!dropdownVisible);
+    }
+  };
+
   const companyName = selectedCompany ? selectedCompany.companyName : '';
   const companysLogo = selectedCompany ? selectedCompany.companyLogo : '';
 
@@ -74,7 +80,7 @@ const CustomTabBar = ({ state, descriptors, route }) => {
     }
   }, [selectedCompany]);
 
-  const getCompany = (companyId) => {
+  const getCompany = companyId => {
     const apiUrl = `${global?.userData?.productURL}${API.GET_COMPANY}/${companyId}`;
     axios
       .get(apiUrl, {
@@ -86,7 +92,7 @@ const CustomTabBar = ({ state, descriptors, route }) => {
         const companyList = response.data.response.companyList;
         if (companyList && companyList.length > 0) {
           const company = companyList[0];
-          console.log('Company Details:', company);
+          // console.log('Company Details:', company);
           setCompanyLogo(company.companyLogo);
         } else {
           console.log('No company data found');
@@ -108,7 +114,7 @@ const CustomTabBar = ({ state, descriptors, route }) => {
           />
         </TouchableOpacity>
         <TouchableOpacity
-          onPress={() => setDropdownVisible(!dropdownVisible)}
+          onPress={toggleDropdown}
           style={{
             flex: 1,
             width: '50%',
@@ -119,45 +125,41 @@ const CustomTabBar = ({ state, descriptors, route }) => {
             paddingRight: 15,
             marginLeft: 12,
           }}>
-          {companyLogo ? (
-            <Image
-              source={{ uri: `data:image/png;base64,${companyLogo}` }}
-              style={{ height: 35, width: 50}}
-            />
-          ) : (
-            <ActivityIndicator size="small" color="#000" />
-          )}
-          <Text style={{ fontWeight: '600',marginLeft:5 }}>{companyName}</Text>
           <Image
-            style={{ height: 22, width: 22,marginLeft:5 }}
-            source={require('../../assets/edit.png')}
+            source={{ uri: `data:image/png;base64,${companyLogo}` }}
+            style={{ height: 35, width: 50 }}
           />
+          <Text style={{ fontWeight: '600', marginLeft: 5 }}>{companyName}</Text>
+          {loggedInUser && loggedInUser.compList && loggedInUser.compList.length > 1 && (
+            <Image
+              style={{ height: 10, width: 15, marginLeft: 5 }}
+              source={require('../../assets/dropdown.png')}
+            />
+          )}
         </TouchableOpacity>
-        {dropdownVisible && (
+        {dropdownVisible && loggedInUser && loggedInUser.compList && loggedInUser.compList.length > 1 && (
           <View style={styles.dropdownContainer}>
             <ScrollView>
-              {loggedInUser && loggedInUser.compList
-                ? loggedInUser.compList.map((company, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    onPress={() => handleCompanySelect(company)}
+              {loggedInUser.compList.map((company, index) => (
+                <TouchableOpacity
+                  key={index}
+                  onPress={() => handleCompanySelect(company)}
+                  style={{
+                    width: '100%',
+                    height: 50,
+                    justifyContent: 'center',
+                    borderBottomWidth: 0.5,
+                    borderColor: '#8e8e8e',
+                  }}>
+                  <Text
                     style={{
-                      width: '100%',
-                      height: 50,
-                      justifyContent: 'center',
-                      borderBottomWidth: 0.5,
-                      borderColor: '#8e8e8e',
+                      fontWeight: '600',
+                      marginHorizontal: 15,
                     }}>
-                    <Text
-                      style={{
-                        fontWeight: '600',
-                        marginHorizontal: 15,
-                      }}>
-                      {company.companyName}
-                    </Text>
-                  </TouchableOpacity>
-                ))
-                : null}
+                    {company.companyName}
+                  </Text>
+                </TouchableOpacity>
+              ))}
             </ScrollView>
           </View>
         )}
@@ -188,7 +190,6 @@ const CustomTabBar = ({ state, descriptors, route }) => {
     </View>
   );
 };
-
 
 const styles = StyleSheet.create({
   tabContainer: {
