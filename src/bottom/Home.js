@@ -66,7 +66,7 @@ const CustomTabBar = ({ state, descriptors, route }) => {
   };
 
   const toggleDropdown = () => {
-    if (loggedInUser.compList.length > 1) {
+    if (loggedInUser && loggedInUser.compList && loggedInUser.compList.length > 1) {
       setDropdownVisible(!dropdownVisible);
     }
   };
@@ -125,46 +125,41 @@ const CustomTabBar = ({ state, descriptors, route }) => {
             paddingRight: 15,
             marginLeft: 12,
           }}>
-          
-            <Image
-              source={{ uri: `data:image/png;base64,${companyLogo}` }}
-              style={{ height: 35, width: 50 }}
-            />
-         
-            
+          <Image
+            source={{ uri: `data:image/png;base64,${companyLogo}` }}
+            style={{ height: 35, width: 50 }}
+          />
           <Text style={{ fontWeight: '600', marginLeft: 5 }}>{companyName}</Text>
-          {loggedInUser.compList.length > 1 && (
+          {loggedInUser && loggedInUser.compList && loggedInUser.compList.length > 1 && (
             <Image
               style={{ height: 10, width: 15, marginLeft: 5 }}
               source={require('../../assets/dropdown.png')}
             />
           )}
         </TouchableOpacity>
-        {dropdownVisible && loggedInUser.compList.length > 1 && (
+        {dropdownVisible && loggedInUser && loggedInUser.compList && loggedInUser.compList.length > 1 && (
           <View style={styles.dropdownContainer}>
             <ScrollView>
-              {loggedInUser && loggedInUser.compList
-                ? loggedInUser.compList.map((company, index) => (
-                    <TouchableOpacity
-                      key={index}
-                      onPress={() => handleCompanySelect(company)}
-                      style={{
-                        width: '100%',
-                        height: 50,
-                        justifyContent: 'center',
-                        borderBottomWidth: 0.5,
-                        borderColor: '#8e8e8e',
-                      }}>
-                      <Text
-                        style={{
-                          fontWeight: '600',
-                          marginHorizontal: 15,
-                        }}>
-                        {company.companyName}
-                      </Text>
-                    </TouchableOpacity>
-                  ))
-                : null}
+              {loggedInUser.compList.map((company, index) => (
+                <TouchableOpacity
+                  key={index}
+                  onPress={() => handleCompanySelect(company)}
+                  style={{
+                    width: '100%',
+                    height: 50,
+                    justifyContent: 'center',
+                    borderBottomWidth: 0.5,
+                    borderColor: '#8e8e8e',
+                  }}>
+                  <Text
+                    style={{
+                      fontWeight: '600',
+                      marginHorizontal: 15,
+                    }}>
+                    {company.companyName}
+                  </Text>
+                </TouchableOpacity>
+              ))}
             </ScrollView>
           </View>
         )}
