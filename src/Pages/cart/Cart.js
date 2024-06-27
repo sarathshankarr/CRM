@@ -736,6 +736,36 @@ const Cart = () => {
     }
   }, 0);
 
+  const calculateTotalQty = (styleId, colorId) => {
+    let totalQty = 0;
+    for (let item of cartItems) {
+      if (item.styleId === styleId && item.colorId === colorId) {
+        totalQty += Number(item.quantity);
+      }
+    }
+    return totalQty.toString();
+  };
+  
+  const calculateTotalItems = (styleId, colorId) => {
+    let totalItems = 0;
+    for (let item of cartItems) {
+      if (item.styleId === styleId && item.colorId === colorId) {
+        totalItems++;
+      }
+    }
+    return totalItems;
+  };
+  
+  const calculateTotalPrice = (styleId, colorId) => {
+    let totalPrice = 0;
+    for (let item of cartItems) {
+      if (item.styleId === styleId && item.colorId === colorId) {
+        totalPrice += item.price * item.quantity;
+      }
+    }
+    return totalPrice;
+  };
+
   const uniqueSets = new Set(
     cartItems.map(item => `${item.styleId}-${item.colorId}-${item.sizeId}`),
   );
@@ -1139,7 +1169,9 @@ const Cart = () => {
             <Text>No items in cart</Text>
           ) : (
             <View>
+              {console.log("cartItems.length===>", cartItems.length)}
               {cartItems.map((item, index) => (
+                <View key={`${item.styleId}-${item.colorId}-${item.sizeId}-${index}`}>
                 <View
                   key={`${item.styleId}-${item.colorId}-${item.sizeId}-${index}`}
                   style={{marginBottom: 20}}>
@@ -1176,13 +1208,16 @@ const Cart = () => {
                       </View>
                       <View style={style.sizehead}>
                         <View style={{flex: 0.6}}>
-                          <Text style={{marginLeft: 10}}>COLOR/SIZE</Text>
+                          <Text style={{marginLeft: 10}}>SIZE</Text>
                         </View>
-                        <View style={{flex: 0.5, marginLeft: 20}}>
+                        <View style={{flex: 0.5, marginLeft: 29}}>
                           <Text>QUANTITY</Text>
                         </View>
-                        <View style={{flex: 0.4, marginLeft: 20}}>
+                        <View style={{flex: 0.4, marginLeft: 60}}>
                           <Text>PRICE</Text>
+                        </View>
+                        <View style={{flex: 0.5, marginLeft: 20}}>
+                          <Text>GROSS PRICE</Text>
                         </View>
                         <TouchableOpacity
                           onPress={() => copyValueToClipboard(index)}>
@@ -1195,8 +1230,8 @@ const Cart = () => {
                     </View>
                   )}
                   <View style={style.itemDetails}>
-                    <View style={{flex: 0.4}}>
-                      <Text>Size - {item.sizeDesc}</Text>
+                    <View style={{flex: 0.3,marginLeft: 10}}>
+                      <Text>{item.sizeDesc}</Text>
                     </View>
                     <TouchableOpacity
                       onPress={() => handleDecrementQuantityCart(index)}>
@@ -1236,6 +1271,9 @@ const Cart = () => {
                     <View style={{flex: 0.3, marginLeft: 20}}>
                       <Text>{item.price}</Text>
                     </View>
+                    <View style={{flex: 0.3, marginLeft: 20}}>
+                      <Text>{(Number(item.price)*Number(item.quantity)).toString()}</Text>
+                    </View>
                     <TouchableOpacity onPress={() => handleRemoveItem(index)}>
                       <Image
                         style={style.buttonIcon}
@@ -1245,6 +1283,25 @@ const Cart = () => {
                   </View>
                   <View style={style.separator} />
                 </View>
+                {(index === cartItems.length - 1 || (item.styleId !== cartItems[index + 1]?.styleId || item.colorId !== cartItems[index + 1]?.colorId)) && (
+                <>
+                <View style={{flexDirection: 'row',alignItems: 'center', marginLeft:15}}>
+                  <View style={{flex: 1}}>
+                    <Text>Total Qty: {calculateTotalQty(item.styleId, item.colorId)}</Text>
+                  </View>
+                  <View style={{flex: 1}}>
+                    <Text>Total Set: {calculateTotalItems(item.styleId, item.colorId)}</Text>
+                  </View>
+                  <View style={{flex: 1}}>
+                    <Text>Total Amt: {calculateTotalPrice(item.styleId, item.colorId)}</Text>
+                  </View>
+                </View>
+                <View style={style.separatorr} />
+                <View/>
+                </>
+                
+                 )}
+              </View>
               ))}
             </View>
           )}
@@ -1293,16 +1350,16 @@ const Cart = () => {
             }}></View>
         </ScrollView>
 
-        <View style={{backgroundColor: '#fff'}}>
+        <View style={{}}>
           <View style={style.bottomContainer}>
             <View style={{flex: 1}}>
-              <Text>Total Qty: {totalQty}</Text>
+              <Text style={{fontWeight:'bold'}}>Total Qty: {totalQty}</Text>
             </View>
             <View style={{flex: 1}}>
-              <Text>Total Set: {totalItems}</Text>
+              <Text style={{fontWeight:'bold'}}>Total Set: {totalItems}</Text>
             </View>
             <View style={{flex: 1}}>
-              <Text>Total Amt: {totalPrice}</Text>
+              <Text style={{fontWeight:'bold'}}>Total Amt: {totalPrice}</Text>
             </View>
           </View>
 
@@ -1663,8 +1720,7 @@ const style = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderTopWidth: 1,
-    borderTopColor: 'lightgray',
-    backgroundColor: '#fff',
+    backgroundColor: 'lightgray',
   },
   dateIconContainer: {
     justifyContent: 'center',
@@ -1708,14 +1764,11 @@ const style = StyleSheet.create({
     borderColor: 'gray',
     marginTop: 4,
   },
-  bottomContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    marginVertical: 10,
-    borderTopWidth: 1,
-    borderTopColor: 'lightgray',
-    paddingTop: 10,
+  separatorr: {
+    borderBottomWidth: 1,
+    borderColor: 'gray',
+    marginTop: 4,
+    marginBottom:14,
   },
   modalContainerr: {
     flex: 1,

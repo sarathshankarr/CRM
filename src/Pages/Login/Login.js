@@ -218,7 +218,7 @@ const Login = () => {
       </View>
       <View style={styles.formContainer}>
         <Text style={styles.title}>Login to Your Account</Text>
-        <View style={styles.inputContainer}>
+        <View style={[styles.inputContainer, errorMsg?.includes('no_Code') && styles.inputContainerError]}>
           <TextInput
             style={styles.input}
             placeholder="Code"
@@ -227,7 +227,7 @@ const Login = () => {
             value={code}
           />
           <Image
-            source={require('../../../assets/email.png')}
+            source={require('../../../assets/code-lock.png')}
             style={styles.inputImage}
           />
         </View>
@@ -238,7 +238,7 @@ const Login = () => {
             </Text>
         )}
 
-        <View style={styles.inputContainer}>
+        <View style={[styles.inputContainer, errorMsg?.includes('no_Username') && styles.inputContainerError]}>
           <TextInput
             style={styles.input}
             placeholder="Username"
@@ -258,7 +258,7 @@ const Login = () => {
             </Text>
         )}
 
-        <View style={styles.inputContainer}>
+        <View style={[styles.inputContainer, errorMsg?.includes('no_Password') && styles.inputContainerError]}>
           <TextInput
             style={styles.input}
             placeholder="Password"
@@ -351,8 +351,14 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     paddingHorizontal: 10,
     marginVertical:10,
-    backgroundColor: '#D9D9D947',
+    // backgroundColor: '#D9D9D947',
+    borderWidth: 2,  
+    borderColor: '#D9D9D9',
   },
+  inputContainerError: {
+    borderColor: 'red',  
+  },
+
   formContainer: {
     width: '100%',
     marginTop: 30,
