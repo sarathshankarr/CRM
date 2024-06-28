@@ -209,6 +209,19 @@ const Cart = () => {
       Alert.alert('Alert', 'Please fill in all mandatory fields');
       return;
     }
+    
+    const hasExactlyTenDigits = /^\d{10}$/;
+    if(!hasExactlyTenDigits.test(Number(inputValues?.phoneNumber))){
+      Alert.alert('Alert', 'Please Provide a valid Phone Number');
+      return;
+    }
+
+    if(inputValues?.whatsappId.length>0){
+      if(!hasExactlyTenDigits.test(inputValues?.whatsappId)){
+        Alert.alert('Alert', 'Please Provide a valid Whatsapp Number');
+        return;
+      }
+    }
 
     addCustomerDetails();
     toggleModal();
@@ -1195,7 +1208,7 @@ const Cart = () => {
                           <Text style={{fontSize: 15, fontWeight: 'bold'}}>
                             {item.styleDesc}
                           </Text>
-                          <Text>ColorName - {item.colorName}</Text>
+                          <Text style={{fontSize: 15, fontWeight: 'bold'}}>ColorName - {item.colorName}</Text>
                         </View>
                         <View style={style.buttonsContainer}>
                           <TouchableOpacity onPress={() => openModal(item)}>
