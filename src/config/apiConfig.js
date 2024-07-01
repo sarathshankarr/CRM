@@ -22,7 +22,12 @@ export const API = {
   GET_DISTRIBUTOR_GRN:'erpportal/api/ordermgmt/findAllGrnOrders',
   GET_DISTRIBUTOR_ORDER: 'erpportal/api/ordermgmt/disOrdersById',
   ADD_GRN_ORDER: 'erpportal/api/ordermgmt/addgrnorder',
-  GET_COMPANY:'erpportal/api/company'
+  GET_COMPANY:'erpportal/api/company',
+  GET_ALL_TASK:'erpportal/api/master/getAllTasks',
+  GET_ALL_CALL:'erpportal/api/master/getAllCalls',
+  ADD_NEW_TASK:'erpportal/api/master/addTask',
+  GET_TASK_BY_ID:'erpportal/api/master/getTask',
+  ADD_NEW_CALL:'erpportal/api/master/addCall'
 };
 
 export const USER_ID = 'adminClientId';

@@ -20,147 +20,164 @@ import CommenHeaderHomeScreen from '../components/CommenHeaderHomeScreen';
 import PackingOrders from '../Pages/Packingorders/PackingOrders';
 import DistributorGrn from '../Pages/distributorgrn/DistributorGrn';
 import DistributorOrder from '../Pages/distributororder/DistributorOrder';
-import { NavigationProvider } from '../components/navigationContext/NavigationContext';
+import {NavigationProvider} from '../components/navigationContext/NavigationContext';
 import ModalScreen from '../components/ModalScreen';
+import Activities from '../Pages/activities/Activities';
+import NewTask from '../Pages/activities/NewTask';
+import NewCall from '../Pages/activities/NewCall';
 
 const Stack = createNativeStackNavigator();
 
 const Routes = () => {
   return (
-      <Stack.Navigator>
-        <Stack.Screen
-          name="Splash"
-          component={Splash}
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="Login"
-          component={Login}
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="Main"
-          component={Main}
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="Details"
-          component={Details}
-          options={({navigation}) => ({
-            header: () => (
-              <CommonHeader
-                navigation={navigation}
-                title="All Details"
-                showMessageIcon={true}
-                showCartIcon={true}
-                showLocationIcon={true}
-              />
-            ),
-            headerBackVisible: true,
-          })}
-        />
-        <Stack.Screen
-          name="Cart"
-          component={Cart}
-          options={({navigation}) => ({
-            header: () => (
-              <CommonHeader
-                navigation={navigation}
-                title="Order Preview"
-                showMessageIcon={true}
-              />
-            ),
-            headerBackVisible: true,
-          })}
-        />
-        <Stack.Screen
-          name="Profile"
-          component={Profile}
-          options={{headerShown: true}}
-        />
-         <Stack.Screen
-          name="AllCategoriesListed"
-          component={AllCategoriesListed}
-          options={({route, navigation}) => ({
-            header: () => (
-              <CommonHeader
-                navigation={navigation}
-                title={route.params.categoryDesc} // Set the header title dynamically
-                showMessageIcon={true}
-                showCartIcon={true}
-                showLocationIcon={true}
-              />
-            ),
-            headerBackVisible: true,
-          })}
-        />
-        <Stack.Screen
-          name="Add Note"
-          component={AddNote}
-          options={{headerShown: true}}
-        />
-        <Stack.Screen
-          name="LoaderComponent"
-          component={LoaderComponent}
-          options={{headerShown: true}}
-        />
-        <Stack.Screen
-          name="CustomDropDown"
-          component={CustomDropDown}
-          options={{headerShown: true}}
-        />
-        <Stack.Screen
-          name="ProductInventory"
-          component={ProductInventory}
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="LocationInventory"
-          component={LocationInventory}
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="SignUp"
-          component={SignUp}
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="ImageSlider"
-          component={ImageSlider}
-          options={{headerShown: false}}
-        />
-         <Stack.Screen
-          name="CommenHeaderHomeScreen"
-          component={CommenHeaderHomeScreen}
-          options={{headerShown: false}}
-        />
-         <Stack.Screen
-          name="PackingOrders"
-          component={PackingOrders}
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="Distributor GRN"
-          component={DistributorGrn}
-          options={{headerShown: true}}
-        />
-          <Stack.Screen
-          name="DistributorOrder"
-          component={DistributorOrder}
-          options={{headerShown: false}}
-        />
-         <Stack.Screen
-          name="NavigationProvider"
-          component={NavigationProvider}
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
+    <Stack.Navigator>
+      <Stack.Screen
+        name="Splash"
+        component={Splash}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="Login"
+        component={Login}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="Main"
+        component={Main}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="Details"
+        component={Details}
+        options={({navigation}) => ({
+          header: () => (
+            <CommonHeader
+              navigation={navigation}
+              title="All Details"
+              showMessageIcon={true}
+              showCartIcon={true}
+              showLocationIcon={true}
+            />
+          ),
+          headerBackVisible: true,
+        })}
+      />
+      <Stack.Screen
+        name="Cart"
+        component={Cart}
+        options={({navigation}) => ({
+          header: () => (
+            <CommonHeader
+              navigation={navigation}
+              title="Order Preview"
+              showMessageIcon={true}
+            />
+          ),
+          headerBackVisible: true,
+        })}
+      />
+      <Stack.Screen
+        name="Profile"
+        component={Profile}
+        options={{headerShown: true}}
+      />
+      <Stack.Screen
+        name="AllCategoriesListed"
+        component={AllCategoriesListed}
+        options={({route, navigation}) => ({
+          header: () => (
+            <CommonHeader
+              navigation={navigation}
+              title={route.params.categoryDesc} // Set the header title dynamically
+              showMessageIcon={true}
+              showCartIcon={true}
+              showLocationIcon={true}
+            />
+          ),
+          headerBackVisible: true,
+        })}
+      />
+      <Stack.Screen
+        name="Add Note"
+        component={AddNote}
+        options={{headerShown: true}}
+      />
+      <Stack.Screen
+        name="LoaderComponent"
+        component={LoaderComponent}
+        options={{headerShown: true}}
+      />
+      <Stack.Screen
+        name="CustomDropDown"
+        component={CustomDropDown}
+        options={{headerShown: true}}
+      />
+      <Stack.Screen
+        name="ProductInventory"
+        component={ProductInventory}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="LocationInventory"
+        component={LocationInventory}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="SignUp"
+        component={SignUp}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="ImageSlider"
+        component={ImageSlider}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="CommenHeaderHomeScreen"
+        component={CommenHeaderHomeScreen}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="PackingOrders"
+        component={PackingOrders}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="Distributor GRN"
+        component={DistributorGrn}
+        options={{headerShown: true}}
+      />
+      <Stack.Screen
+        name="DistributorOrder"
+        component={DistributorOrder}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="NavigationProvider"
+        component={NavigationProvider}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
         name="ModalScreen"
         component={ModalScreen}
         options={{headerShown: false}}
       />
-
-      </Stack.Navigator>
+      <Stack.Screen
+        name="Activities"
+        component={Activities}
+        options={{headerShown: false}}
+      />
+       <Stack.Screen
+        name="NewTask"
+        component={NewTask}
+        options={{headerShown: false}}
+      />
+       <Stack.Screen
+        name="NewCall"
+        component={NewCall}
+        options={{headerShown: false}}
+      />
+    </Stack.Navigator>
   );
 };
 

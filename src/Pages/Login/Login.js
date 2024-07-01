@@ -138,13 +138,13 @@ const Login = () => {
 
   const getUsers = async (userData, productURL) => {
     console.log('getUsers userData:', userData);
-    const apiUrl = `${productURL}${API.ADD_USERS}/${userData.userId}`; // Update API URL to include dynamic userId
+    const apiUrl = `${productURL}${API.ADD_USERS}/${userData.userId}`; // Update API URL to include dynamic 
     console.log("apurl",apiUrl)
     try {
       const response = await axios.get(apiUrl, {
         headers: {Authorization: `Bearer ${userData.access_token}`},
       });
-      const loggedInUser = response.data.response.users[0]; // Since response is expected to have only one user with given userId
+      const loggedInUser = response.data.response.users[0]; // Since response is expected to have only one user with given 
       if (loggedInUser) {
         // console.log('Logged in user:', loggedInUser);
         dispatch(setLoggedInUser(loggedInUser));

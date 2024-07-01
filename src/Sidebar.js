@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Image,
   StyleSheet,
@@ -7,18 +7,19 @@ import {
   View,
   Modal,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ImagePicker from 'react-native-image-crop-picker';
 
-const Sidebar = ({navigation, route}) => {
+const Sidebar = ({ navigation, route }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [image, setImage] = useState(require('../assets/profile.png'));
   const [userData, setUserData] = useState(null);
   const [dropdownVisible, setDropdownVisible] = useState(false);
+  const [dropdownVisiblee, setDropdownVisiblee] = useState(false); // Add state for second dropdown if needed
 
   useEffect(() => {
-    const {params} = route ?? {};
+    const { params } = route ?? {};
     if (params && params.userData) {
       setUserData(params.userData);
     } else {
@@ -45,6 +46,10 @@ const Sidebar = ({navigation, route}) => {
     setDropdownVisible(!dropdownVisible);
   };
 
+  const toggleDropdownSecond = () => {
+    setDropdownVisiblee(!dropdownVisiblee);
+  };
+
   const goToHome = () => {
     navigation.navigate('Home');
   };
@@ -56,9 +61,11 @@ const Sidebar = ({navigation, route}) => {
   const goToOrder = () => {
     navigation.navigate('Order');
   };
+
   const goToProductInventory = () => {
     navigation.navigate('ProductInventory');
   };
+
   const goToLocationInventory = () => {
     navigation.navigate('LocationInventory');
   };
@@ -70,6 +77,11 @@ const Sidebar = ({navigation, route}) => {
   const goToEditProfile = () => {
     navigation.navigate('Profile');
   };
+  const goToActivities= () => {
+    navigation.navigate('Activities');
+  };
+  
+
 
   const takePhotoFromCamera = () => {
     ImagePicker.openCamera({
@@ -79,7 +91,7 @@ const Sidebar = ({navigation, route}) => {
       compressImageQuality: 0.7,
     })
       .then(image => {
-        setImage({uri: image.path});
+        setImage({ uri: image.path });
         setModalVisible(false);
       })
       .catch(error => {
@@ -96,7 +108,7 @@ const Sidebar = ({navigation, route}) => {
       compressImageQuality: 0.7,
     })
       .then(image => {
-        setImage({uri: image.path});
+        setImage({ uri: image.path });
         setModalVisible(false);
       })
       .catch(error => {
@@ -194,7 +206,27 @@ const Sidebar = ({navigation, route}) => {
         />
         <Text style={styles.ordertxt}>Distributor GRN</Text>
       </TouchableOpacity>
-
+      <TouchableOpacity style={styles.inventoryhead} onPress={toggleDropdownSecond}>
+        <Image
+          style={styles.orderimg}
+          source={require('../assets/inventory.png')}
+        />
+        <Text style={styles.ordertxt}>Campaign Management</Text>
+        <View style={{ marginLeft: 'auto' }}>
+          <Image
+            source={require('../assets/dropdown.png')}
+            style={{ width: 20, height: 20 }}
+          />
+        </View>
+      </TouchableOpacity>
+      {dropdownVisiblee && (
+        <View style={styles.dropdown}>
+          <TouchableOpacity onPress={goToActivities}>
+            <Text style={styles.dropdownItem}>Activities</Text>
+          </TouchableOpacity>
+          {/* Add more dropdown items here */}
+        </View>
+      )}
       <Modal
         animationType="slide"
         transparent={true}

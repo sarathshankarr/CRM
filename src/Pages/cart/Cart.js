@@ -1210,10 +1210,10 @@ const Cart = () => {
                         <View style={{flex: 0.6}}>
                           <Text style={{marginLeft: 10}}>SIZE</Text>
                         </View>
-                        <View style={{flex: 0.5, marginLeft: 29}}>
+                        <View style={{flex: 0.6, marginLeft: 29}}>
                           <Text>QUANTITY</Text>
                         </View>
-                        <View style={{flex: 0.4, marginLeft: 60}}>
+                        <View style={{flex: 0.4, marginLeft: 30}}>
                           <Text>PRICE</Text>
                         </View>
                         <View style={{flex: 0.5, marginLeft: 20}}>
@@ -1353,13 +1353,13 @@ const Cart = () => {
         <View style={{}}>
           <View style={style.bottomContainer}>
             <View style={{flex: 1}}>
-              <Text style={{fontWeight:'bold'}}>Total Qty: {totalQty}</Text>
+              <Text style={{fontWeight:'bold',marginLeft:10}}>Total Qty: {totalQty}</Text>
             </View>
             <View style={{flex: 1}}>
-              <Text style={{fontWeight:'bold'}}>Total Set: {totalItems}</Text>
+              <Text style={{fontWeight:'bold',marginLeft:10}}>Total Set: {totalItems}</Text>
             </View>
-            <View style={{flex: 1}}>
-              <Text style={{fontWeight:'bold'}}>Total Amt: {totalPrice}</Text>
+            <View style={{flex: 2}}>
+              <Text style={{fontWeight:'bold',marginLeft:15}}>Total Amt: {totalPrice}</Text>
             </View>
           </View>
 
@@ -1717,7 +1717,6 @@ const style = StyleSheet.create({
   bottomContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 20,
     paddingVertical: 10,
     borderTopWidth: 1,
     backgroundColor: 'lightgray',

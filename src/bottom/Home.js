@@ -19,6 +19,7 @@ import { SET_SELECTED_COMPANY } from '../redux/ActionTypes';
 import CommenHeaderHomeScreen from '../components/CommenHeaderHomeScreen';
 import { API } from '../config/apiConfig';
 import axios from 'axios';
+import Activities from '../Pages/activities/Activities';
 
 const Tab = createMaterialTopTabNavigator();
 
