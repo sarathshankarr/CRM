@@ -198,7 +198,7 @@ const Order = () => {
       <View style={style.searchContainer}>
           <TextInput
             style={[style.searchInput, searchQuery.length > 0 && style.searchInputActive]}
-            autoFocus={true}
+            autoFocus={false}
             value={searchQuery}
             onChangeText={text => setSearchQuery(text)}
             placeholder="Search"

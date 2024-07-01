@@ -119,13 +119,16 @@ const Sidebar = ({ navigation, route }) => {
 
   const handleLogout = async () => {
     try {
-      await AsyncStorage.removeItem('userData'); // Remove the user data from AsyncStorage
+      await AsyncStorage.removeItem('userdata'); // Remove the user data from AsyncStorage
       await AsyncStorage.removeItem('userRole'); // Remove the user role from AsyncStorage
       await AsyncStorage.removeItem('userRoleId'); // Remove the user role ID from AsyncStorage
       await AsyncStorage.removeItem('loggedInUser'); // Remove the logged-in user data from AsyncStorage
       await AsyncStorage.removeItem('selectedCompany'); // Remove the logged-in user data from AsyncStorage
       navigation.closeDrawer(); // Close the drawer
-      navigation.navigate('Login');
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Login' }], 
+    });
     } catch (error) {
       console.error('Error clearing user data:', error);
     }

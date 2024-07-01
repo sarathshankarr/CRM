@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   Alert,
   Image,
@@ -23,6 +23,7 @@ import {
   USER_PASSWORD,
 } from '../../config/apiConfig';
 import {setLoggedInUser, setUserRole} from '../../redux/actions/Actions';
+import CheckBox from 'react-native-check-box';
 
 const Login = () => {
   const navigation = useNavigation();
@@ -33,6 +34,28 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false); // State for toggling password visibility
   const [code, setCode] = useState('');
   const [errorMsg, setErrorMsg]=useState([]);
+  const [isChecked, setIsChecked]=useState(false);
+
+  useEffect(() => {
+    const loadStoredCredentials = async () => {
+      try {
+        const storedUsername = await AsyncStorage.getItem('username');
+        const storedPassword = await AsyncStorage.getItem('password');
+        const storedCode = await AsyncStorage.getItem('code');
+
+        if (storedUsername && storedPassword && storedCode) {
+          setUsername(storedUsername);
+          setPassword(storedPassword);
+          setCode(storedCode);
+          setIsChecked(true); 
+        }
+      } catch (error) {
+        console.error('Error loading stored credentials:', error);
+      }
+    };
+
+    loadStoredCredentials();
+  }, []);
 
   const getCustomerUrl = async () => {
     setLoading(true);
@@ -131,6 +154,15 @@ const Login = () => {
       await AsyncStorage.setItem('loggedIn', 'true');
       global.userData = data; // Ensure global userData is updated
       console.log("globaluserData",global.userData)
+      if (isChecked) {
+        await AsyncStorage.setItem('username', username);
+        await AsyncStorage.setItem('password', password);
+        await AsyncStorage.setItem('code', code);
+      }else {
+        await AsyncStorage.removeItem('username');
+        await AsyncStorage.removeItem('password');
+        await AsyncStorage.removeItem('code');
+      }
     } catch (error) {
       console.error('Error saving token:', error);
     }
@@ -207,6 +239,9 @@ const Login = () => {
   const handleForgotPassword = () => {
     Alert.alert('Forgot password clicked');
   };
+  const handleCheckBoxToggle = () => {
+    setIsChecked(!isChecked);
+  };
 
   return (
     <View style={styles.container}>
@@ -279,6 +314,10 @@ const Login = () => {
                 Password is required
             </Text>
         )}
+        <View style={{flexDirection:'row', alignItems:'center'}}>
+        <CheckBox  onClick={handleCheckBoxToggle}  isChecked={isChecked} />
+        <Text style={{padding:5}}>Remember Me</Text>
+        </View>
         <View style={styles.rowContainer}>
           {/* <TouchableOpacity onPress={handleForgotPassword}>
             <Text style={styles.text}>Forgot Password?</Text>

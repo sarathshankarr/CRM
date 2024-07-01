@@ -70,7 +70,6 @@ const HomeCategories = ({ navigation }) => {
   const fetchCategories = async (companyId) => {
     setLoading(true);
     const apiUrl = `${global?.userData?.productURL}${API.ALL_CATEGORIES_DATA}`;
-
     try {
       const response = await axios.get(apiUrl, {
         headers: {

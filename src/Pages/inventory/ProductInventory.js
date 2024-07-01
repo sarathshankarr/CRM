@@ -106,7 +106,6 @@ const ProductInventory = () => {
         <Text style={{flex:2}}>{item.styleName}</Text>
         <Text style={styles.itemText}>{item.sizeCode}</Text>
         <Text style={styles.itemText}>{item.availQty}</Text>
-        <Text style={styles.itemText}>{item.holdQty}</Text>
       </View>
       <View
         style={{borderBottomWidth: 1, borderBottomColor: 'lightgray'}}></View>
@@ -144,10 +143,9 @@ const ProductInventory = () => {
       </View>
 
       <View style={styles.header}>
-        <Text style={{flex:2,textAlign:"center"}}>Style Name</Text>
+        <Text style={{flex:2,textAlign:"start"}}>Style Name</Text>
         <Text style={styles.headerText}>Size</Text>
         <Text style={styles.headerText}>Avail Qty</Text>
-        <Text style={styles.headerText}>Hold Qty</Text>
       </View>
       {loading ? (
         <ActivityIndicator
