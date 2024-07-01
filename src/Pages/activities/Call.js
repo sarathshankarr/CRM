@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View, Image, ActivityIndicator, FlatList } from 'react-native';
 import axios from 'axios';
 import { API } from '../../config/apiConfig';
@@ -14,18 +14,18 @@ const Call = () => {
   const handleSearch = (text) => {
     setSearchQuery(text);
     const filtered = calls.filter(call => {
-      const customerName = call.customer ? call.customer.toLowerCase() : ''; // Check if customer name is not null
+      const customerName = call.customer ? call.customer.toLowerCase() : '';
       return customerName.includes(text.toLowerCase());
     });
     setFilteredCalls(filtered);
   };
 
   const handleAdd = () => {
-    navigation.navigate('NewCall');
+    navigation.navigate('NewCall',{ call: {} });
   };
 
   const getAllCalls = () => {
-    setLoading(true); // Show loading indicator
+    setLoading(true);
     const apiUrl = `${global?.userData?.productURL}${API.GET_ALL_CALL}`;
     axios
       .get(apiUrl, {
@@ -34,27 +34,52 @@ const Call = () => {
         },
       })
       .then(response => {
-        setCalls(response.data); // Save API response data to state
-        setFilteredCalls(response.data); // Initialize filtered calls with all calls
+        setCalls(response.data);
+        setFilteredCalls(response.data);
       })
       .catch(error => {
         console.error('Error:', error);
       })
       .finally(() => {
-        setLoading(false); // Hide loading indicator
+        setLoading(false);
       });
   };
 
-  useEffect(() => {
-    getAllCalls();
-  }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      getAllCalls(); // Fetch tasks when the screen is focused
+    }, [])
+  );
+  const fetchCallById = (callId) => {
+    setLoading(true);
+    const apiUrl = `${global?.userData?.productURL}${API.GET_CALL_BY_ID}/${callId}`;
+    axios
+      .get(apiUrl, {
+        headers: {
+          Authorization: `Bearer ${global.userData.token.access_token}`,
+        },
+      })
+      .then(response => {
+        navigation.navigate('NewCall', { call: response.data, callId: callId });
+      })
+      .catch(error => {
+        console.error('Error fetching call by ID:', error);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
 
   const renderItem = ({ item }) => (
-    <View style={styles.callItem}>
-      <Text style={{ flex: 2 }}>{item.customer}</Text>
+    <TouchableOpacity
+      style={styles.callItem}
+      onPress={() => fetchCallById(item.id)}
+    >
+      <Text style={{ flex: 2,marginLeft:20 }}>{item.customer}</Text>
       <Text style={{ flex: 2 }}>{item.relatedTo}</Text>
       <Text style={{ flex: 1 }}>{item.status}</Text>
-    </View>
+    </TouchableOpacity>
   );
 
   return (
@@ -67,9 +92,8 @@ const Call = () => {
             placeholder="Search"
             placeholderTextColor="#000"
             value={searchQuery}
-            onChangeText={handleSearch} // Update filteredCalls dynamically on text change
+            onChangeText={handleSearch}
           />
-          {/* Removed onPress={toggleSearchInput} from TouchableOpacity */}
           <TouchableOpacity style={styles.searchButton}>
             <Image
               style={styles.searchIcon}
@@ -83,11 +107,13 @@ const Call = () => {
       </View>
       <View style={styles.header}>
         <Text style={styles.headerText}>Customer</Text>
-        <Text style={styles.headerText}>Related To</Text>
-        <Text style={styles.headerText}>Status</Text>
+        <Text style={styles.headerText1}>Related To</Text>
+        <Text style={styles.headerText2}>Status</Text>
       </View>
       {loading ? (
         <ActivityIndicator size="large" color="#0000ff" />
+      ) : filteredCalls.length === 0 ? (
+        <Text style={styles.noCategoriesText}>Sorry, no results found! </Text>
       ) : (
         <FlatList
           data={filteredCalls}
@@ -155,6 +181,18 @@ const styles = StyleSheet.create({
   headerText: {
     fontWeight: 'bold',
     fontSize: 16,
+    flex:2,
+    marginLeft:10
+  },
+  headerText1: {
+    fontWeight: 'bold',
+    fontSize: 16,
+    flex:2
+  },
+  headerText2: {
+    fontWeight: 'bold',
+    fontSize: 16,
+    flex:1
   },
   callItem: {
     flexDirection: 'row',
@@ -166,6 +204,14 @@ const styles = StyleSheet.create({
   callText: {
     fontSize: 14,
   },
+  noCategoriesText:{
+    top: 40,
+    textAlign:"center",
+    color: '#000000',
+    fontSize: 20,
+    fontWeight: 'bold',
+    padding: 5,
+  }
 });
 
 export default Call;

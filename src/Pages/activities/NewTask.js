@@ -8,20 +8,21 @@ import {
   TextInput,
   ActivityIndicator,
   ScrollView,
+  Keyboard,
 } from 'react-native';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import CheckBox from 'react-native-check-box';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import axios from 'axios';
-import { useDispatch, useSelector } from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
+import {API} from '../../config/apiConfig';
 
 const NewTask = () => {
-    const dispatch = useDispatch(); // Get dispatch function from useDispatch hook
-    const userData = useSelector(state => state.loggedInUser); 
-  console.log(userData)
-    const navigation = useNavigation();
-    const route = useRoute();
-    const { task } = route.params; 
+  const dispatch = useDispatch(); // Get dispatch function from useDispatch hook
+  const userData = useSelector(state => state.loggedInUser);
+  const navigation = useNavigation();
+  const route = useRoute();
+  const {task} = route.params;
   const [isDatePickerVisibleDue, setDatePickerVisibilityDue] = useState(false);
   const [selectedDateDue, setSelectedDateDue] = useState('Due Date');
   const [isDatePickerVisibleUntil, setDatePickerVisibilityUntil] =
@@ -49,11 +50,13 @@ const NewTask = () => {
   const [desc, setDesc] = useState('');
   const [selectedUserId, setSelectedUserId] = useState(null); // State to hold selected user's userId
   const [selectedUserName, setSelectedUserName] = useState(''); // State to hold selected user's userName
+  const [keyboardSpace, setKeyboardSpace] = useState(0);
+  const [isButtonDisabled, setIsButtonDisabled] = useState(false); // New state for button disabled
 
   useEffect(() => {
-    console.log("task",task)
+    console.log('task', task);
     if (route.params && route.params.task) {
-      const { task } = route.params;
+      const {task} = route.params;
       // Populate state with task details if available
       setTaskName(task.taskName || '');
       setRelatedTo(task.relatedTo || '');
@@ -66,13 +69,33 @@ const NewTask = () => {
       });
     }
   }, [route.params]);
-  
+
   useEffect(() => {
     if (shipFromToClickedUser) {
       getUsers();
     }
   }, [shipFromToClickedUser]);
 
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      'keyboardDidShow',
+      event => {
+        setKeyboardSpace(event.endCoordinates.height);
+      },
+    );
+
+    const keyboardDidHideListener = Keyboard.addListener(
+      'keyboardDidHide',
+      () => {
+        setKeyboardSpace(0);
+      },
+    );
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, []);
 
   const handleGoBack = () => {
     navigation.goBack();
@@ -90,7 +113,7 @@ const NewTask = () => {
 
   const getUsers = () => {
     setLoading(true);
-    const apiUrl = 'https://crm.codeverse.co/erpportal/api/users';
+    const apiUrl = `${global?.userData?.productURL}${API.ADD_USERS}`;
     axios
       .get(apiUrl, {
         headers: {
@@ -105,7 +128,10 @@ const NewTask = () => {
         ) {
           setUsers(response.data.response.users);
           setFilteredUsers(response.data.response.users); // Initialize filtered users
-        console.log("response.data.response.users",)
+          console.log(
+            'response.data.response.users',
+            response.data.response.users,
+          );
         } else {
           console.error('Error fetching users:', response.data);
         }
@@ -122,8 +148,10 @@ const NewTask = () => {
     setSelectedUserOption(user.firstName);
     setSelectedUserId(user.userId); // Set selected user's userId
     setSelectedUserName(user.firstName); // Set selected user's userName
+    console.log('Selected UserName:', user.firstName); // Add this line for debugging
     setShipFromToClickedUser(false); // Close User dropdown after selection (optional)
   };
+
   const handleShipDropdownClick = () => {
     setShipFromToClicked(!shipFromToClicked);
     setShipFromToClickedUser(false); // Close User dropdown if open
@@ -158,9 +186,9 @@ const NewTask = () => {
     setShipFromToClicked(false); // Close main dropdown if open
     setShipFromToClickedUser(false); // Close User dropdown if open
   };
-  const handleSave = () => {
-    addNewTask();
-  };
+  // const handleSave = () => {
+  //   addNewTask();
+  // };
   const handleDateConfirmDue = date => {
     const formattedDate = date.toISOString().split('T')[0]; // Formats date to "YYYY-MM-DD"
     setSelectedDateDue(formattedDate); // Set the state without additional text
@@ -173,52 +201,47 @@ const NewTask = () => {
     hideDatePickerUntil();
   };
 
-  const addNewTask = () => {
+  const handleSave = () => {
+    if (isButtonDisabled) return;
+    setIsButtonDisabled(true);
+
     const requestData = {
-      id: task.id,
-      created_on: null,
+      id: route.params.task.id || 0,
+      created_on: route.params.task.created_on,
       taskName: taskName || null,
       dueDate: selectedDateDue !== 'Due Date' ? selectedDateDue : null,
-      repeatRem: selectedDropdownOption.value,
+      repeatRem: selectedDropdownOption.value, // Send value to backend
       untilDate: selectedDateUntil !== 'Until Date' ? selectedDateUntil : null,
       relatedTo: relatedTo || null,
       desc: desc || null,
       completed: null,
-      priority: null, 
-      assign_to: selectedUserId, 
-      assign_by: userData.userid, 
-      t_company_id: null, 
+      priority: null, // Assuming priority is either 'High' or 'Normal'
+      assign_to: selectedUserId, // Assign selected userId here
+      assign_by: userData.userid,
+      t_company_id: null, // You might need to set this based on your app logic
       unique_id: null,
       status: selectedStatusOption,
-      userName: selectedUserName,
+      userName: selectedUserName, // Assign selected userName here
     };
 
+    console.log('Request Data:', requestData);
+
     axios
-      .post(
-        'https://crm.codeverse.co/erpportal/api/master/addTask',
-        requestData,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${global.userData.token.access_token}`,
-          },
+      .post(global?.userData?.productURL + API.ADD_UPDATE_TASK, requestData, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${global.userData.token.access_token}`,
         },
-      )
+      })
       .then(response => {
         console.log('Task added successfully:', response.data);
-        // Optionally, you can handle success response here
+        navigation.goBack();
       })
       .catch(error => {
-        console.error('Error adding Task:', error);
-        if (error.response) {
-          console.error('Response data:', error.response.data);
-          console.error('Response status:', error.response.status);
-          console.error('Response headers:', error.response.headers);
-        } else if (error.request) {
-          console.error('No response received:', error.request);
-        } else {
-          console.error('Error setting up request:', error.message);
-        }
+        console.error('Error adding task:', error);
+      })
+      .finally(() => {
+        setIsButtonDisabled(false); // Re-enable button after the process completes
       });
   };
 
@@ -253,7 +276,7 @@ const NewTask = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={{flex: 1, backgroundColor: '#fff'}}>
       <View style={styles.header}>
         <TouchableOpacity onPress={handleGoBack}>
           <Image
@@ -262,7 +285,10 @@ const NewTask = () => {
           />
         </TouchableOpacity>
         <Text style={styles.headerText}>New Task</Text>
-        <TouchableOpacity style={styles.addButton} onPress={handleSave}>
+        <TouchableOpacity
+          style={styles.addButton}
+          onPress={handleSave}
+          disabled={isButtonDisabled}>
           <Text style={styles.addButtonText}>SAVE</Text>
         </TouchableOpacity>
       </View>
@@ -365,7 +391,7 @@ const NewTask = () => {
       )}
 
       {shipFromToClicked && (
-        <View style={styles.dropdown}>
+        <View style={styles.dropdownContent1}>
           {dropdownOptions.map(option => (
             <TouchableOpacity
               key={option.value}
@@ -474,7 +500,7 @@ const NewTask = () => {
       </TouchableOpacity>
 
       {shipFromToClickedStatus && (
-        <View style={styles.dropdownContent1}>
+        <View style={styles.dropdownContent}>
           <ScrollView style={styles.scrollView}>
             {statusOptions.map((option, index) => (
               <TouchableOpacity
@@ -505,9 +531,9 @@ const NewTask = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  modalContainer: {
     backgroundColor: '#fff',
+    flex: 1,
   },
   header: {
     flexDirection: 'row',
@@ -587,6 +613,13 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
+  },
+  dropdownContent1: {
+    marginHorizontal: 10,
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 10,
+    elevation: 2,
   },
 });
 

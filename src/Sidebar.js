@@ -212,7 +212,7 @@ const Sidebar = ({ navigation, route }) => {
       <TouchableOpacity style={styles.inventoryhead} onPress={toggleDropdownSecond}>
         <Image
           style={styles.orderimg}
-          source={require('../assets/inventory.png')}
+          source={require('../assets/activity.png')}
         />
         <Text style={styles.ordertxt}>Campaign Management</Text>
         <View style={{ marginLeft: 'auto' }}>

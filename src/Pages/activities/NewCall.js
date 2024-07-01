@@ -9,14 +9,22 @@ import {
   ActivityIndicator,
   ScrollView,
   KeyboardAvoidingView,
+  Keyboard,
 } from 'react-native';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import CheckBox from 'react-native-check-box';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useRoute} from '@react-navigation/native';
 import axios from 'axios';
 import {API} from '../../config/apiConfig';
+import { useSelector } from 'react-redux';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const NewCall = () => {
+  const route = useRoute();
+  const navigation = useNavigation();
+  const callData = route.params?.call;
+  const { call } = route.params; 
+  const callId = route.params?.callId;
   const [isDatePickerVisibleUntil, setDatePickerVisibilityUntil] =useState(false);
   const [selectedDateUntil, setSelectedDateUntil] = useState('Call Start Time');
   const [shipFromToClicked, setShipFromToClicked] = useState(false);
@@ -54,6 +62,55 @@ const NewCall = () => {
   const [relatedTo, setRelatedTo] = useState('');
   const [agenda, setAgenda] = useState('');
   const [customers, setCustomers] = useState([]);
+  const [callDescription, setCallDescription] = useState(callData ? callData.description : '');
+  const [keyboardSpace, setKeyboardSpace] = useState(0);
+  const [initialSelectedCompany, setInitialSelectedCompany] = useState(null);
+  const [isButtonDisabled, setIsButtonDisabled] = useState(false); // New state for button disabled
+
+
+  useEffect(() => {
+    console.log("call",call)
+    if (route.params && route.params.call) {
+      const { call } = route.params;
+      setRelatedTo(call.relatedTo || '');
+      setAgenda(call.agenda || '');
+      setSelectedUserOption(call.userName);
+      setSelectedStatusOption(call.status);
+      setSelectedCustomerOption(call.customer)
+      setSelectedUserName(call.userName);
+      setSelectedCustomerOption(call.customer);
+      setSelectedDropdownOptionTime(call.startTime);
+      setMarkHighPriority(call.markHighPriority);
+      
+      console.log('Selected User Option:', call.userName);
+      console.log('Selected Status Option:', call.status);
+      console.log('Selected Customer Option:', call.customer);
+      console.log('Selected Date Until:', call.startTime);
+
+    }
+    
+  }, [route.params]);
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      'keyboardDidShow',
+      event => {
+        setKeyboardSpace(event.endCoordinates.height);
+      },
+    );
+
+    const keyboardDidHideListener = Keyboard.addListener(
+      'keyboardDidHide',
+      () => {
+        setKeyboardSpace(0);
+      },
+    );
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, []);
 
   const handleShipDropdownClickCallType = () => {
     setShipFromToClickedCallType(!shipFromToClickedCallType);
@@ -82,8 +139,28 @@ const NewCall = () => {
     setShipFromToClickedCustomer(false);
   };
 
+  const selectedCompany = useSelector(state => state.selectedCompany);
+
+  useEffect(() => {
+    const fetchInitialSelectedCompany = async () => {
+      try {
+        const initialCompanyData = await AsyncStorage.getItem('initialSelectedCompany');
+        if (initialCompanyData) {
+          const initialCompany = JSON.parse(initialCompanyData);
+          setInitialSelectedCompany(initialCompany);
+          console.log('Initial Selected Company:', initialCompany);
+        }
+      } catch (error) {
+        console.error('Error fetching initial selected company:', error);
+      }
+    };
+
+    fetchInitialSelectedCompany();
+  }, []);
+
+  const companyId = selectedCompany ? selectedCompany.id : initialSelectedCompany?.id;
+
   const getCustomersDetails = () => {
-    const companyId = 1;
     const apiUrl = `${global?.userData?.productURL}${API.ADD_CUSTOMER_LIST}/${companyId}`;
     setLoadingg(true);
     axios
@@ -109,8 +186,6 @@ const NewCall = () => {
       getUsers();
     }
   }, [shipFromToClickedUser]);
-
-  const navigation = useNavigation();
 
   const handleGoBack = () => {
     navigation.goBack();
@@ -140,7 +215,7 @@ const NewCall = () => {
 
   const getUsers = () => {
     setLoading(true);
-    const apiUrl = 'https://crm.codeverse.co/erpportal/api/users';
+    const apiUrl = `${global?.userData?.productURL}${API.ADD_USERS}`;
     axios
       .get(apiUrl, {
         headers: {
@@ -298,10 +373,10 @@ const NewCall = () => {
     'In Progress',
     'Completed',
   ];
-  const handleSave = () => {
-    console.log('SAVE button pressed');
-    addCall();
-  };
+  // const handleSave = () => {
+  //   console.log('SAVE button pressed');
+  //   addCall();
+  // };
   console.log('selectedCustomerId', selectedCustomerId);
   console.log('selectedCustomerOption', selectedCustomerOption);
   console.log('selectedDropdownOptionCallType', selectedDropdownOptionCallType);
@@ -310,60 +385,56 @@ const NewCall = () => {
   console.log('relatedTo', relatedTo);
   console.log('agenda', agenda);
   console.log('selectedDateUntil', selectedDateUntil);
-  const addCall = () => {
+
+
+const handleSave = () => {
+  if (isButtonDisabled) return;
+  setIsButtonDisabled(true);
+
     const requestData = {
-      id: 0,
+      id: callData ? callData.id : 0,
       customerId: selectedCustomerId || null,
-      startDate:
-        selectedDateUntil !== 'Call Start Time' ? selectedDateUntil : null,
-      startTime: selectedDropdownOptionTime || null,
-      remTime: selectedDropdownOption.value || null,
-      callType: selectedDropdownOptionCallType.value || null,
-      relatedTo: relatedTo || null,
-      agenda: agenda || null,
-      t_company_id: '',
-      customer: selectedCustomerOption || null,
-      duration: '',
-      assignTo: selectedUserId || null,
-      status: selectedStatusOption || null,
-      userName: selectedUserName || null,
-      created_on: '',
+      startDate: selectedDateUntil !== 'Call Start Time' ? selectedDateUntil : callData?.startDate,
+      startTime: selectedDropdownOptionTime || callData?.startTime,
+      remTime: selectedDropdownOption.value || callData?.remTime,
+      callType: selectedDropdownOptionCallType.value || callData?.callType,
+      relatedTo: relatedTo || callData?.relatedTo,
+      agenda: agenda || callData?.agenda,
+      t_company_id: callData?.t_company_id || '',
+      customer: selectedCustomerOption || callData?.customer,
+      duration: callData?.duration || '',
+      assignTo: selectedUserId || callData?.assignTo,
+      status: selectedStatusOption || callData?.status,
+      userName: selectedUserName || callData?.userName,
+      created_on: callData?.created_on || '',
     };
 
     axios
-      .post(
-        'https://crm.codeverse.co/erpportal/api/master/addCall',
-        requestData,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${global.userData.token.access_token}`,
-          },
+    .post(
+      global?.userData?.productURL + API.ADD_NEW_CALL,
+      requestData,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${global.userData.token.access_token}`,
         },
-      )
+      },
+    )
       .then(response => {
         console.log('Call added successfully:', response.data);
+        navigation.goBack();
       })
       .catch(error => {
-        if (error.response) {
-          console.error('Error adding Call:', error.response.data);
-          console.error('Status:', error.response.status);
-          console.error('Headers:', error.response.headers);
-        } else if (error.request) {
-          console.error('No response received:', error.request);
-        } else {
-          console.error('Error setting up the request:', error.message);
-        }
+        console.error('Error adding Call:', error);
+      })
+      .finally(() => {
+        setIsButtonDisabled(false); // Re-enable button after the process completes
       });
   };
 
   return (
-    <KeyboardAvoidingView
-    style={styles.container}
-    behavior={'height'}
-    keyboardVerticalOffset={Platform.select({ ios: 0, android: -500 })}
-  >   
-   <View style={styles.container}>
+    <View style={{flex:1,backgroundColor:"#fff"}}
+     >
       <View style={styles.header}>
         <TouchableOpacity onPress={handleGoBack}>
           <Image
@@ -372,7 +443,7 @@ const NewCall = () => {
           />
         </TouchableOpacity>
         <Text style={styles.headerText}>New Call</Text>
-        <TouchableOpacity style={styles.addButton} onPress={handleSave}>
+        <TouchableOpacity style={styles.addButton} onPress={handleSave}  disabled={isButtonDisabled}>
           <Text style={styles.addButtonText}>SAVE</Text>
         </TouchableOpacity>
       </View>
@@ -393,6 +464,9 @@ const NewCall = () => {
       {loadingg ? (
         <ActivityIndicator size="large" color="#000" style={{marginTop: 20}} />
       ) : (
+        shipFromToClickedCustomer.length === 0 ? (
+          <Text style={styles.noCategoriesText}>Sorry, no results found! </Text>
+        ):
         shipFromToClickedCustomer && (
           <View style={styles.dropdownContent1}>
             <TextInput
@@ -672,13 +746,11 @@ const NewCall = () => {
         onCancel={hideDatePickerUntil}
       />
     </View>
-    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     backgroundColor: '#fff',
   },
   header: {

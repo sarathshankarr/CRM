@@ -27,6 +27,9 @@ export const API = {
   GET_ALL_CALL:'erpportal/api/master/getAllCalls',
   ADD_NEW_TASK:'erpportal/api/master/addTask',
   GET_TASK_BY_ID:'erpportal/api/master/getTask',
+  ADD_NEW_CALL:'erpportal/api/master/addCall',
+  GET_CALL_BY_ID:'erpportal/api/master/getCall',
+  ADD_UPDATE_TASK:'erpportal/api/master/addTask',
   ADD_NEW_CALL:'erpportal/api/master/addCall'
 };
 

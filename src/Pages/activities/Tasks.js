@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigation } from '@react-navigation/native';
+import React, { useState } from 'react';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import {
   StyleSheet,
   Text,
@@ -20,9 +20,11 @@ const Tasks = () => {
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  useEffect(() => {
-    fetchTasks();
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchTasks(); // Fetch tasks when the screen is focused
+    }, [])
+  );
 
   const fetchTasks = () => {
     setLoading(true); // Show loading indicator
@@ -47,7 +49,7 @@ const Tasks = () => {
 
   const fetchTaskById = (taskId) => {
     setLoading(true);
-    const apiUrl = `https://crm.codeverse.co/erpportal/api/master/getTask/${taskId}`;
+    const apiUrl = `${global?.userData?.productURL}${API.GET_TASK_BY_ID}/${taskId}`;
     axios
       .get(apiUrl, {
         headers: {
@@ -137,6 +139,8 @@ const Tasks = () => {
       </View>
       {loading ? (
         <ActivityIndicator size="large" color="#0000ff" />
+      ) : filteredTasks.length === 0 ? (
+        <Text style={styles.noCategoriesText}>Sorry, no results found! </Text>
       ) : (
         <FlatList
           data={filteredTasks}
@@ -229,6 +233,14 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     paddingHorizontal: 5,
   },
+  noCategoriesText:{
+    top: 40,
+    textAlign:"center",
+    color: '#000000',
+    fontSize: 20,
+    fontWeight: 'bold',
+    padding: 5,
+  }
 });
 
 export default Tasks;
