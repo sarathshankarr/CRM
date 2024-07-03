@@ -30,7 +30,8 @@ export const API = {
   ADD_NEW_CALL:'erpportal/api/master/addCall',
   GET_CALL_BY_ID:'erpportal/api/master/getCall',
   ADD_UPDATE_TASK:'erpportal/api/master/addTask',
-  ADD_NEW_CALL:'erpportal/api/master/addCall'
+  ADD_NEW_CALL:'erpportal/api/master/addCall',
+  GET_DISTRIBUTORS_DETAILS:'erpportal/api/distributors'
 };
 
 export const USER_ID = 'adminClientId';
