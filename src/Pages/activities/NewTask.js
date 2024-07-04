@@ -18,7 +18,6 @@ import {useNavigation, useRoute} from '@react-navigation/native';
 import axios from 'axios';
 import {useDispatch, useSelector} from 'react-redux';
 import {API} from '../../config/apiConfig';
-import RadioGroup from 'react-native-radio-buttons-group';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const NewTask = () => {
@@ -482,7 +481,7 @@ const NewTask = () => {
       <TouchableOpacity
         onPress={handleShipDropdownClickCustomer}
         style={styles.dropdownButton}>
-        <Text>{selectedCustomerOption || 'Retailer'}</Text>
+        <Text>{selectedCustomerOption || 'Retailer *'}</Text>
         <Image
           source={require('../../../assets/dropdown.png')}
           style={{width: 20, height: 20}}
@@ -522,7 +521,7 @@ const NewTask = () => {
       <TouchableOpacity
         onPress={handleShipDropdownClickDistributor}
         style={styles.dropdownButton}>
-        <Text>{selectedDistributorOption || 'Distributor'}</Text>
+        <Text>{selectedDistributorOption || 'Distributor *'}</Text>
         <Image
           source={require('../../../assets/dropdown.png')}
           style={{width: 20, height: 20}}
@@ -595,7 +594,7 @@ const NewTask = () => {
         onPress={handleFromDropdownClick}
         style={styles.dropdownButton}>
         <Text style={{}}>
-          {selectedLocation.length > 0 ? `${selectedLocation}` : 'Location'}
+          {selectedLocation.length > 0 ? `${selectedLocation}` : 'Location *'}
         </Text>
         <Image
           source={require('../../../assets/dropdown.png')}

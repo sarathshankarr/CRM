@@ -557,11 +557,11 @@ const NewCall = () => {
       });
   };
   const renderCustomerDetails = () => (
-    <View style={{marginBottom:10}}>
+    <View style={{marginBottom: 10}}>
       <TouchableOpacity
         onPress={handleShipDropdownClickCustomer}
         style={styles.dropdownButton}>
-        <Text>{selectedCustomerOption || 'Retailer'}</Text>
+        <Text>{selectedCustomerOption || 'Retailer *'}</Text>
         <Image
           source={require('../../../assets/dropdown.png')}
           style={{width: 20, height: 20}}
@@ -597,11 +597,11 @@ const NewCall = () => {
   );
 
   const renderDistributorDetails = () => (
-    <View style={{marginBottom:10}}>
+    <View style={{marginBottom: 10}}>
       <TouchableOpacity
         onPress={handleShipDropdownClickDistributor}
         style={styles.dropdownButton}>
-        <Text>{selectedDistributorOption || 'Distributor'}</Text>
+        <Text>{selectedDistributorOption || 'Distributor *'}</Text>
         <Image
           source={require('../../../assets/dropdown.png')}
           style={{width: 20, height: 20}}
@@ -673,7 +673,7 @@ const NewCall = () => {
         onPress={handleFromDropdownClick}
         style={styles.dropdownButton}>
         <Text style={{fontWeight: '600'}}>
-          {selectedLocation.length > 0 ? `${selectedLocation}` : 'Location'}
+          {selectedLocation.length > 0 ? `${selectedLocation}` : 'Location *'}
         </Text>
         <Image
           source={require('../../../assets/dropdown.png')}
@@ -694,6 +694,68 @@ const NewCall = () => {
           </ScrollView>
         </View>
       )}
+     <TouchableOpacity
+        onPress={handleShipDropdownClickUser}
+        style={{
+          height: 50,
+          borderRadius: 10,
+          borderWidth: 0.5,
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          paddingLeft: 15,
+          paddingRight: 15,
+          marginHorizontal: 10,
+          marginTop:10
+        }}>
+        <Text>{selectedUserOption || 'Users'}</Text>
+        <Image
+          source={require('../../../assets/dropdown.png')}
+          style={{width: 20, height: 20}}
+        />
+      </TouchableOpacity>
+
+      {loading ? (
+        <ActivityIndicator size="large" color="#000" style={{marginTop: 20}} />
+      ) : (
+        shipFromToClickedUser && (
+          <View style={styles.dropdownContent1}>
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search by name..."
+              onChangeText={handleSearch}
+            />
+            <ScrollView style={styles.scrollView}>
+              {filteredUsers.map((user, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={styles.dropdownOption}
+                  onPress={() => handleDropdownSelectUser(user)}>
+                  <Text>{user.firstName}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        )
+      )}
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={styles.input}
+          placeholder="Related To *"
+          placeholderTextColor="#000"
+          value={relatedTo}
+          onChangeText={setRelatedTo}
+        />
+      </View>
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={styles.input}
+          placeholder="Call Agenda"
+          placeholderTextColor="#000"
+          value={agenda}
+          onChangeText={setAgenda}
+        />
+      </View>
       <View
         style={{
           flexDirection: 'row',
@@ -814,7 +876,8 @@ const NewCall = () => {
         </ScrollView>
       )}
 
-      <TouchableOpacity
+      
+<TouchableOpacity
         onPress={handleShipDropdownClickCallType}
         style={{
           height: 50,
@@ -848,67 +911,6 @@ const NewCall = () => {
         </ScrollView>
       )}
 
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          placeholder="Related To *"
-          placeholderTextColor="#000"
-          value={relatedTo}
-          onChangeText={setRelatedTo}
-        />
-      </View>
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          placeholder="Call Agenda"
-          placeholderTextColor="#000"
-          value={agenda}
-          onChangeText={setAgenda}
-        />
-      </View>
-      <TouchableOpacity
-        onPress={handleShipDropdownClickUser}
-        style={{
-          height: 50,
-          borderRadius: 10,
-          borderWidth: 0.5,
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          paddingLeft: 15,
-          paddingRight: 15,
-          marginHorizontal: 10,
-        }}>
-        <Text>{selectedUserOption || 'Users'}</Text>
-        <Image
-          source={require('../../../assets/dropdown.png')}
-          style={{width: 20, height: 20}}
-        />
-      </TouchableOpacity>
-
-      {loading ? (
-        <ActivityIndicator size="large" color="#000" style={{marginTop: 20}} />
-      ) : (
-        shipFromToClickedUser && (
-          <View style={styles.dropdownContent1}>
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Search by name..."
-              onChangeText={handleSearch}
-            />
-            <ScrollView style={styles.dropdownScroll}>
-              {filteredUsers.map((user, index) => (
-                <TouchableOpacity
-                  key={index}
-                  style={styles.dropdownOption}
-                  onPress={() => handleDropdownSelectUser(user)}>
-                  <Text>{user.firstName}</Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-          </View>
-        )
-      )}
       {/* Status Dropdown */}
       <TouchableOpacity
         onPress={handleShipDropdownClickStatus}
@@ -932,7 +934,7 @@ const NewCall = () => {
       </TouchableOpacity>
 
       {shipFromToClickedStatus && (
-        <View style={styles.dropdownContent1}>
+        <View style={[styles.dropdownContent, { bottom: 120 }]}>
           <ScrollView style={styles.scrollView}>
             {statusOptions.map((option, index) => (
               <TouchableOpacity
@@ -945,7 +947,7 @@ const NewCall = () => {
           </ScrollView>
         </View>
       )}
-
+      
       <DateTimePickerModal
         isVisible={isDatePickerVisibleUntil}
         mode="date"
@@ -1023,13 +1025,20 @@ const styles = StyleSheet.create({
     height: 25,
   },
   dropdownContent: {
-    width: '100%',
-    maxHeight: 200,
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
-    marginTop: 10,
+    position: 'absolute',
+    zIndex: 1,
+    width: '80%',
+    maxHeight: 150,
+    backgroundColor: 'white',
+    borderWidth: 0.5,
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 2,
   },
 
   searchInput: {
@@ -1063,7 +1072,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 10,
     padding: 10,
-    elevation: 2,
   },
   searchInput: {
     borderWidth: 1,
