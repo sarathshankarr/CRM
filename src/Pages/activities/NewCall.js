@@ -23,6 +23,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const NewCall = () => {
   const route = useRoute();
+  const userData = useSelector(state => state.loggedInUser);
   const navigation = useNavigation();
   const callData = route.params?.call;
   const {call} = route.params;
@@ -157,11 +158,7 @@ const NewCall = () => {
       setSelectedCustomerOption(call.customer);
       setSelectedDropdownOptionTime(call.startTime);
       setMarkHighPriority(call.markHighPriority);
-
-      console.log('Selected User Option:', call.userName);
-      console.log('Selected Status Option:', call.status);
-      console.log('Selected Customer Option:', call.customer);
-      console.log('Selected Date Until:', call.startTime);
+      setSelectedCustomerId(call.customerId);
     }
   }, [route.params]);
 
@@ -208,10 +205,20 @@ const NewCall = () => {
   };
 
   const handleDropdownSelectCustomer = customer => {
-    setSelectedCustomerOption(customer.firstName);
+    setSelectedCustomerOption(customer.firstName); // Set selected customer's first name
     setSelectedCustomerId(customer.customerId); // Set selected customer's ID
-    setShipFromToClickedCustomer(false);
+
+    setShipFromToClickedCustomer(false); // Reset shipFromToClickedCustomer state
+
+    // Logging the selected values
+    console.log('Selected Customer OptionDropdown:', selectedCustomerOption);
+    console.log('Selected Customer IDDropdown:', selectedCustomerId);
   };
+
+  useEffect(() => {
+    console.log('Selected Customer Option:', selectedCustomerOption);
+    console.log('Selected Customer ID:', selectedCustomerId);
+  }, [selectedCustomerOption, selectedCustomerId]);
 
   const selectedCompany = useSelector(state => state.selectedCompany);
 
@@ -273,9 +280,14 @@ const NewCall = () => {
   };
   const handleDropdownSelectDistributor = Distributor => {
     setSelectedDistributorOption(Distributor.firstName);
-    setSelectedDistributorId(Distributor.id); // Set selected customer's ID
+    setSelectedDistributorId(Distributor.id); // Set selected distributor's ID
     setShipFromToClickedDistributor(false);
   };
+
+  useEffect(() => {
+    console.log('selectedDistributorOption:', selectedDistributorOption);
+    console.log('selectedDistributorId:', selectedDistributorId);
+  }, [selectedDistributorOption, selectedDistributorId]);
 
   const getDistributorsDetails = () => {
     const apiUrl = `${global?.userData?.productURL}${API.GET_DISTRIBUTORS_DETAILS}/${companyId}`;
@@ -494,15 +506,6 @@ const NewCall = () => {
   //   console.log('SAVE button pressed');
   //   addCall();
   // };
-  console.log('selectedCustomerId', selectedCustomerId);
-  console.log('selectedCustomerOption', selectedCustomerOption);
-  console.log('selectedDropdownOptionCallType', selectedDropdownOptionCallType);
-  console.log('selectedUserId', selectedUserId);
-  console.log('selectedDropdownOption', selectedDropdownOption);
-  console.log('relatedTo', relatedTo);
-  console.log('agenda', agenda);
-  console.log('selectedDateUntil', selectedDateUntil);
-
   const handleSave = () => {
     if (!relatedTo.trim()) {
       Alert.alert('Alert', 'Please fill in all mandatory fields');
@@ -514,10 +517,19 @@ const NewCall = () => {
 
     const switchStatus = isEnabled; // Assuming isEnabled controls the switch
     const customerType = switchStatus ? 1 : 3; // 1 for Retailer, 3 for Distributor
+    const customerId = switchStatus
+      ? selectedCustomerId
+      : selectedDistributorId;
+    console.log('customerId:', customerId);
+
+    const customeroption = switchStatus
+      ? selectedCustomerOption
+      : selectedDistributorOption;
+    console.log('customeroption:', customeroption);
 
     const requestData = {
       id: callData ? callData.id : 0,
-      customerId: selectedCustomerId || null,
+      customerId: customerId || null,
       startDate:
         selectedDateUntil !== 'Call Start Time'
           ? selectedDateUntil
@@ -528,13 +540,14 @@ const NewCall = () => {
       relatedTo: relatedTo || callData?.relatedTo,
       agenda: agenda || callData?.agenda,
       t_company_id: callData?.t_company_id || '',
-      customer: selectedCustomerOption || callData?.customer,
+      customer: customeroption || callData?.customer,
       duration: callData?.duration || '',
       assignTo: selectedUserId || callData?.assignTo,
       status: selectedStatusOption || callData?.status,
       userName: selectedUserName || callData?.userName,
       created_on: callData?.created_on || '',
       locId: selectedLocationId,
+      assign_by: userData.userId,
       customerType: customerType,
     };
 
@@ -694,7 +707,7 @@ const NewCall = () => {
           </ScrollView>
         </View>
       )}
-     <TouchableOpacity
+      <TouchableOpacity
         onPress={handleShipDropdownClickUser}
         style={{
           height: 50,
@@ -706,7 +719,7 @@ const NewCall = () => {
           paddingLeft: 15,
           paddingRight: 15,
           marginHorizontal: 10,
-          marginTop:10
+          marginTop: 10,
         }}>
         <Text>{selectedUserOption || 'Users'}</Text>
         <Image
@@ -876,8 +889,7 @@ const NewCall = () => {
         </ScrollView>
       )}
 
-      
-<TouchableOpacity
+      <TouchableOpacity
         onPress={handleShipDropdownClickCallType}
         style={{
           height: 50,
@@ -889,6 +901,7 @@ const NewCall = () => {
           paddingLeft: 15,
           paddingRight: 15,
           marginHorizontal: 10,
+          marginTop:10
         }}>
         <Text>{selectedDropdownOptionCallType.label || 'Call Type'}</Text>
         <Image
@@ -924,7 +937,7 @@ const NewCall = () => {
           paddingLeft: 15,
           paddingRight: 15,
           marginHorizontal: 10,
-          marginVertical: 10,
+          marginTop: 20,
         }}>
         <Text>{selectedStatusOption || 'Status'}</Text>
         <Image
@@ -934,7 +947,7 @@ const NewCall = () => {
       </TouchableOpacity>
 
       {shipFromToClickedStatus && (
-        <View style={[styles.dropdownContent, { bottom: 120 }]}>
+        <View style={[styles.dropdownContent, {bottom: 120}]}>
           <ScrollView style={styles.scrollView}>
             {statusOptions.map((option, index) => (
               <TouchableOpacity
@@ -947,7 +960,7 @@ const NewCall = () => {
           </ScrollView>
         </View>
       )}
-      
+
       <DateTimePickerModal
         isVisible={isDatePickerVisibleUntil}
         mode="date"
@@ -1035,7 +1048,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 5,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.2,
     shadowRadius: 2,
     elevation: 2,

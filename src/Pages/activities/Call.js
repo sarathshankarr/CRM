@@ -88,7 +88,6 @@ const Call = () => {
         <View style={styles.searchContainer}>
           <TextInput
             style={styles.searchInput}
-            autoFocus={true}
             placeholder="Search"
             placeholderTextColor="#000"
             value={searchQuery}

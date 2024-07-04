@@ -38,7 +38,7 @@ const Tasks = () => {
       .then(response => {
         setTasks(response.data); // Update tasks state
         setFilteredTasks(response.data); // Initialize filtered tasks with all tasks
-        console.log("fetchTasks",response.data)
+        // console.log("fetchTasks",response.data)
       })
       .catch(error => {
         console.error('Error:', error);

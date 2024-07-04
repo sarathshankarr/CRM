@@ -253,6 +253,8 @@ const NewTask = () => {
       setSelectedUserId(task.assign_to || null);
       setSelectedUserName(task.userName || '');
       setSelectedStatusOption(task.status || '');
+      setSelectedCustomerOption(task.customer)
+      setSelectedCustomerId(task.customerId)
       setSelectedDropdownOption({
         value: task.repeatRem || '',
       });
@@ -402,11 +404,22 @@ const NewTask = () => {
     setIsButtonDisabled(true);
     const switchStatus = isEnabled; // Assuming isEnabled controls the switch
     const customerType = switchStatus ? 1 : 3; // 1 for Retailer, 3 for Distributor
+    
+
+    const customerId = switchStatus
+    ? selectedCustomerId
+    : selectedDistributorId;
+  console.log('customerId:', customerId);
+
+  const customeroption = switchStatus
+  ? selectedCustomerOption
+  : selectedDistributorOption;
+console.log('customeroption:', customeroption);
 
     const requestData = {
       id: route.params.task.id || 0,
-      customerId: selectedCustomerId || null,
-      customer: selectedCustomerOption || task?.customer,
+      customerId: customerId || null,
+      customer: customeroption || task?.customer,
       created_on: route.params.task.created_on,
       taskName: taskName || null,
       dueDate: selectedDateDue !== 'Due Date' ? selectedDateDue : null,
@@ -417,7 +430,7 @@ const NewTask = () => {
       completed: null,
       priority: null,
       assign_to: selectedUserId,
-      assign_by: userData.userid,
+      assign_by: userData.userId,
       t_company_id: null,
       unique_id: null,
       status: selectedStatusOption,
