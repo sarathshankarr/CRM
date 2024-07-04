@@ -594,7 +594,7 @@ const NewTask = () => {
       <TouchableOpacity
         onPress={handleFromDropdownClick}
         style={styles.dropdownButton}>
-        <Text style={{fontWeight: '600'}}>
+        <Text style={{}}>
           {selectedLocation.length > 0 ? `${selectedLocation}` : 'Location'}
         </Text>
         <Image
@@ -616,6 +616,50 @@ const NewTask = () => {
           </ScrollView>
         </View>
       )}
+        <TouchableOpacity
+        onPress={handleShipDropdownClickUser}
+        style={{
+          height: 50,
+          borderRadius: 10,
+          borderWidth: 0.5,
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          paddingLeft: 15,
+          paddingRight: 15,
+          marginHorizontal: 10,
+          marginTop:10
+        }}>
+        <Text>{selectedUserOption || 'Users'}</Text>
+        <Image
+          source={require('../../../assets/dropdown.png')}
+          style={{width: 20, height: 20}}
+        />
+      </TouchableOpacity>
+
+      {loading ? (
+        <ActivityIndicator size="large" color="#000" style={{marginTop: 20}} />
+      ) : (
+        shipFromToClickedUser && (
+          <View style={styles.dropdownContent1}>
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search by name..."
+              onChangeText={handleSearch}
+            />
+            <ScrollView style={styles.scrollView}>
+              {filteredUsers.map((user, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={styles.dropdownOption}
+                  onPress={() => handleDropdownSelectUser(user)}>
+                  <Text>{user.firstName}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        )
+      )}
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
@@ -623,6 +667,25 @@ const NewTask = () => {
           placeholderTextColor="#000"
           value={taskName}
           onChangeText={setTaskName}
+        />
+      </View>
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={styles.input}
+          placeholder="Related To *"
+          placeholderTextColor="#000"
+          value={relatedTo}
+          onChangeText={setRelatedTo}
+        />
+      </View>
+
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={styles.input}
+          placeholder="Description"
+          placeholderTextColor="#000"
+          value={desc}
+          onChangeText={setDesc}
         />
       </View>
 
@@ -710,7 +773,8 @@ const NewTask = () => {
       )}
 
       {shipFromToClicked && (
-        <View style={styles.dropdownContent1}>
+        <View style={[styles.dropdownContent, { bottom: 190 }]}>
+          <ScrollView style={styles.scrollView}>
           {dropdownOptions.map(option => (
             <TouchableOpacity
               key={option.value}
@@ -719,28 +783,11 @@ const NewTask = () => {
               <Text>{option.label}</Text>
             </TouchableOpacity>
           ))}
+          </ScrollView>
         </View>
       )}
 
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          placeholder="Related To *"
-          placeholderTextColor="#000"
-          value={relatedTo}
-          onChangeText={setRelatedTo}
-        />
-      </View>
-
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          placeholder="Description"
-          placeholderTextColor="#000"
-          value={desc}
-          onChangeText={setDesc}
-        />
-      </View>
+     
 
       <View
         style={{
@@ -752,50 +799,7 @@ const NewTask = () => {
         <Text>Mark as High Priority</Text>
       </View>
 
-      <TouchableOpacity
-        onPress={handleShipDropdownClickUser}
-        style={{
-          height: 50,
-          borderRadius: 10,
-          borderWidth: 0.5,
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          paddingLeft: 15,
-          paddingRight: 15,
-          marginHorizontal: 10,
-        }}>
-        <Text>{selectedUserOption || 'Users'}</Text>
-        <Image
-          source={require('../../../assets/dropdown.png')}
-          style={{width: 20, height: 20}}
-        />
-      </TouchableOpacity>
-
-      {loading ? (
-        <ActivityIndicator size="large" color="#000" style={{marginTop: 20}} />
-      ) : (
-        shipFromToClickedUser && (
-          <View style={styles.dropdownContent1}>
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Search by name..."
-              onChangeText={handleSearch}
-            />
-            <ScrollView style={styles.scrollView}>
-              {filteredUsers.map((user, index) => (
-                <TouchableOpacity
-                  key={index}
-                  style={styles.dropdownOption}
-                  onPress={() => handleDropdownSelectUser(user)}>
-                  <Text>{user.firstName}</Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-          </View>
-        )
-      )}
-
+  
       <TouchableOpacity
         onPress={handleShipDropdownClickStatus}
         style={{
@@ -813,12 +817,12 @@ const NewTask = () => {
         <Text>{selectedStatusOption || 'Status'}</Text>
         <Image
           source={require('../../../assets/dropdown.png')}
-          style={{width: 20, height: 20}}
+          style={{ width: 20, height: 20 }}
         />
       </TouchableOpacity>
 
       {shipFromToClickedStatus && (
-        <View style={styles.dropdownContent}>
+        <View style={[styles.dropdownContent, { bottom: 80 }]}>
           <ScrollView style={styles.scrollView}>
             {statusOptions.map((option, index) => (
               <TouchableOpacity
@@ -916,13 +920,20 @@ const styles = StyleSheet.create({
     height: 25,
   },
   dropdownContent: {
-    width: '100%',
-    maxHeight: 200,
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
-    marginTop: 10,
+    position: 'absolute',
+    zIndex: 1,
+    width: '80%',
+    maxHeight: 150,
+    backgroundColor: 'white',
+    borderWidth: 0.5,
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 2,
   },
   searchInput: {
     paddingHorizontal: 10,

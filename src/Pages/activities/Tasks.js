@@ -59,6 +59,7 @@ const Tasks = () => {
       })
       .then(response => {
         navigation.navigate('NewTask', { task: response.data, taskId: taskId }); // Pass taskId along with task details
+        console.log('Fetched task by ID:', response.data);
       })
       .catch(error => {
         console.error('Error fetching task by ID:', error);
