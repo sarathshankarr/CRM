@@ -592,6 +592,7 @@ const NewCall = () => {
               style={styles.searchInput}
               placeholder="Search by name..."
               onChangeText={handleSearchCustomer}
+              placeholderTextColor="#000"
             />
             <ScrollView style={styles.scrollView}>
               {filteredCustomer.map((customer, index) => (
@@ -630,6 +631,7 @@ const NewCall = () => {
               style={styles.searchInput}
               placeholder="Search by name..."
               onChangeText={handleSearchDistributor}
+              placeholderTextColor="#000"
             />
             <ScrollView style={styles.scrollView}>
               {filteredDistributor.map((distributor, index) => (
@@ -737,6 +739,7 @@ const NewCall = () => {
               style={styles.searchInput}
               placeholder="Search by name..."
               onChangeText={handleSearch}
+              placeholderTextColor="#000"
             />
             <ScrollView style={styles.scrollView}>
               {filteredUsers.map((user, index) => (

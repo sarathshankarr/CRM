@@ -511,6 +511,7 @@ console.log('customeroption:', customeroption);
             <TextInput
               style={styles.searchInput}
               placeholder="Search by name..."
+              placeholderTextColor="#000"
               onChangeText={handleSearchCustomer}
             />
             <ScrollView style={styles.scrollView}>
@@ -552,6 +553,7 @@ console.log('customeroption:', customeroption);
               style={styles.searchInput}
               placeholder="Search by name..."
               onChangeText={handleSearchDistributor}
+              placeholderTextColor="#000"
             />
             <ScrollView style={styles.scrollView}>
               {filteredDistributor.map((distributor, index) => (
@@ -658,6 +660,7 @@ console.log('customeroption:', customeroption);
               style={styles.searchInput}
               placeholder="Search by name..."
               onChangeText={handleSearch}
+              placeholderTextColor="#000"
             />
             <ScrollView style={styles.scrollView}>
               {filteredUsers.map((user, index) => (
