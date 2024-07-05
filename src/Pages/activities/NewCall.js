@@ -113,7 +113,7 @@ const NewCall = () => {
     axios
       .get(apiUrl, {
         headers: {
-          Authorization: `Bearer ${global.userData.token.access_token}`,
+          Authorization: `Bearer ${global?.userData?.token?.access_token}`,
         },
       })
       .then(response => {
@@ -251,7 +251,7 @@ const NewCall = () => {
     axios
       .get(apiUrl, {
         headers: {
-          Authorization: `Bearer ${global.userData.token.access_token}`,
+          Authorization: `Bearer ${global?.userData?.token?.access_token}`,
         },
       })
       .then(response => {
@@ -295,7 +295,7 @@ const NewCall = () => {
     axios
       .get(apiUrl, {
         headers: {
-          Authorization: `Bearer ${global.userData.token.access_token}`,
+          Authorization: `Bearer ${global?.userData?.token?.access_token}`,
         },
       })
       .then(response => {
@@ -348,7 +348,7 @@ const NewCall = () => {
     axios
       .get(apiUrl, {
         headers: {
-          Authorization: `Bearer ${global.userData.token.access_token}`,
+          Authorization: `Bearer ${global?.userData?.token?.access_token}`,
         },
       })
       .then(response => {
@@ -555,7 +555,7 @@ const NewCall = () => {
       .post(global?.userData?.productURL + API.ADD_NEW_CALL, requestData, {
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${global.userData.token.access_token}`,
+          Authorization: `Bearer ${global?.userData?.token?.access_token}`,
         },
       })
       .then(response => {
@@ -614,7 +614,7 @@ const NewCall = () => {
       <TouchableOpacity
         onPress={handleShipDropdownClickDistributor}
         style={styles.dropdownButton}>
-        <Text>{selectedDistributorOption || 'Distributor *'}</Text>
+        <Text>{selectedDistributorOption || 'Distributor'}</Text>
         <Image
           source={require('../../../assets/dropdown.png')}
           style={{width: 20, height: 20}}
@@ -686,7 +686,7 @@ const NewCall = () => {
         onPress={handleFromDropdownClick}
         style={styles.dropdownButton}>
         <Text style={{fontWeight: '600'}}>
-          {selectedLocation.length > 0 ? `${selectedLocation}` : 'Location *'}
+          {selectedLocation.length > 0 ? `${selectedLocation}` : 'Location'}
         </Text>
         <Image
           source={require('../../../assets/dropdown.png')}

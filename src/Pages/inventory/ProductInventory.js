@@ -66,7 +66,7 @@ const ProductInventory = () => {
         {
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${global.userData.token.access_token}`,
+            Authorization: `Bearer ${global?.userData?.token?.access_token}`,
           },
         },
       );
@@ -143,7 +143,7 @@ const ProductInventory = () => {
       </View>
 
       <View style={styles.header}>
-        <Text style={{flex:2,textAlign:"start"}}>Style Name</Text>
+        <Text style={{flex:2}}>Style Name</Text>
         <Text style={styles.headerText}>Size</Text>
         <Text style={styles.headerText}>Avail Qty</Text>
       </View>

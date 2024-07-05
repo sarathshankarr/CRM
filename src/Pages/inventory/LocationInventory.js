@@ -67,7 +67,7 @@ const LocationInventory = () => {
         {
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${global.userData.token.access_token}`,
+            Authorization: `Bearer ${global?.userData?.token?.access_token}`,
           },
         },
       );

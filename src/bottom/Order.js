@@ -73,7 +73,7 @@ const Order = () => {
     axios
       .get(apiUrl, {
         headers: {
-          Authorization: `Bearer ${global.userData.token.access_token}`,
+          Authorization: `Bearer ${global?.userData?.token?.access_token}`,
         },
       })
       .then(response => {
@@ -138,20 +138,21 @@ const Order = () => {
           <View style={style.ordheader}>
             <View style={style.orderidd}>
               <Text>OrderId : {item.orderNum}</Text>
+              <Text>ShipQty : {item.shipQty}</Text>
             </View>
             <View style={style.ordshpheader}>
-              <Text>Order Date: {item.orderDate}</Text>
-              <Text>Ship Date: {item.shipDate}</Text>
+              <Text>Order Date : {item.orderDate}</Text>
+              <Text>Ship Date : {item.shipDate}</Text>
             </View>
             <View style={style.custtlheader}>
               <Text style={{flex: 0.9}}>
-                Customer Name: {item.customerName}
+                Customer Name : {item.customerName}
               </Text>
-              <Text>Total Amount: {item.totalAmount}</Text>
+              <Text>Total Amount : {item.totalAmount}</Text>
             </View>
             <View style={style.PackedStatus}>
               <Text style={{fontWeight: 'bold'}}>
-                Packing status: {item.packedStts}
+                Packing status : {item.packedStts}
               </Text>
             </View>
             <View>
@@ -293,8 +294,9 @@ const style = StyleSheet.create({
     marginVertical: 5,
   },
   orderidd: {
-    marginHorizontal: 10,
-    marginVertical: 5,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginHorizontal:10
   },
   PackedStatus: {
     marginHorizontal: 10,

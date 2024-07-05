@@ -106,7 +106,7 @@ const NewTask = () => {
     axios
       .get(apiUrl, {
         headers: {
-          Authorization: `Bearer ${global.userData.token.access_token}`,
+          Authorization: `Bearer ${global?.userData?.token?.access_token}`,
         },
       })
       .then(response => {
@@ -127,7 +127,7 @@ const NewTask = () => {
     axios
       .get(apiUrl, {
         headers: {
-          Authorization: `Bearer ${global.userData.token.access_token}`,
+          Authorization: `Bearer ${global?.userData?.token?.access_token}`,
         },
       })
       .then(response => {
@@ -148,7 +148,7 @@ const NewTask = () => {
     axios
       .get(apiUrl, {
         headers: {
-          Authorization: `Bearer ${global.userData.token.access_token}`,
+          Authorization: `Bearer ${global?.userData?.token?.access_token}`,
         },
       })
       .then(response => {
@@ -308,7 +308,7 @@ const NewTask = () => {
     axios
       .get(apiUrl, {
         headers: {
-          Authorization: `Bearer ${global.userData.token.access_token}`,
+          Authorization: `Bearer ${global?.userData?.token?.access_token}`,
         },
       })
       .then(response => {
@@ -418,7 +418,7 @@ console.log('customeroption:', customeroption);
 
     const requestData = {
       id: route.params.task.id || 0,
-      customerId: customerId || null,
+      customerId: customerId || 0,
       customer: customeroption || task?.customer,
       created_on: route.params.task.created_on,
       taskName: taskName || null,
@@ -436,7 +436,7 @@ console.log('customeroption:', customeroption);
       status: selectedStatusOption,
       userName: selectedUserName,
       locId: selectedLocationId,
-      customerType: customerType,
+      customerType: customerType ||null,
     };
 
     console.log('Request Data:', requestData);
@@ -445,7 +445,7 @@ console.log('customeroption:', customeroption);
       .post(global?.userData?.productURL + API.ADD_UPDATE_TASK, requestData, {
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${global.userData.token.access_token}`,
+          Authorization: `Bearer ${global?.userData?.token?.access_token}`,
         },
       })
       .then(response => {
@@ -494,7 +494,7 @@ console.log('customeroption:', customeroption);
       <TouchableOpacity
         onPress={handleShipDropdownClickCustomer}
         style={styles.dropdownButton}>
-        <Text>{selectedCustomerOption || 'Retailer *'}</Text>
+        <Text>{selectedCustomerOption || 'Retailer'}</Text>
         <Image
           source={require('../../../assets/dropdown.png')}
           style={{width: 20, height: 20}}
@@ -534,7 +534,7 @@ console.log('customeroption:', customeroption);
       <TouchableOpacity
         onPress={handleShipDropdownClickDistributor}
         style={styles.dropdownButton}>
-        <Text>{selectedDistributorOption || 'Distributor *'}</Text>
+        <Text>{selectedDistributorOption || 'Distributor'}</Text>
         <Image
           source={require('../../../assets/dropdown.png')}
           style={{width: 20, height: 20}}
@@ -607,7 +607,7 @@ console.log('customeroption:', customeroption);
         onPress={handleFromDropdownClick}
         style={styles.dropdownButton}>
         <Text style={{}}>
-          {selectedLocation.length > 0 ? `${selectedLocation}` : 'Location *'}
+          {selectedLocation.length > 0 ? `${selectedLocation}` : 'Location'}
         </Text>
         <Image
           source={require('../../../assets/dropdown.png')}

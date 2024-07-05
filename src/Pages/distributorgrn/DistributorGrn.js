@@ -48,7 +48,7 @@ const DistributorGrn = () => {
       const response = await axios.get(apiUrl, {
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${global.userData.token.access_token}`,
+          Authorization: `Bearer ${global?.userData?.token?.access_token}`,
         },
       });
       if (response.data.status.success) {

@@ -1,59 +1,56 @@
-// App.js
 import React, { useEffect } from 'react';
 import { Provider } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import ApiClient from './src/config/apiClient';
+import axios from 'axios';
 import store from './src/redux/store/Store';
 import Routes from './src/navigation/Routes';
-import { NavigationProvider, useNavigationContext } from './src/components/navigationContext/NavigationContext';
 import 'react-native-gesture-handler';
+import { NavigationContainer, useNavigation } from '@react-navigation/native'; 
 
 const App = () => {
-  const navigationRef = useNavigationContext();
+  return (
+    <Provider store={store}>
+      <NavigationContainer> 
+        <MainApp />
+      </NavigationContainer>
+    </Provider>
+  );
+};
+
+const MainApp = () => {
+  const navigation = useNavigation();
 
   useEffect(() => {
-    const interceptor = ApiClient.interceptors.response.use(
+    const interceptor = axios.interceptors.response.use(
       (response) => response,
       async (error) => {
         if (error.response && error.response.status === 401) {
-          try {
-            await AsyncStorage.multiRemove([
-              'userData', 
-              'loggedIn', 
-              'userRole', 
-              'userRoleId', 
-              'loggedInUser', 
-              'selectedCompany'
-            ]);
+          await AsyncStorage.multiRemove([
+            'userdata', 
+            'loggedIn', 
+            'userRole', 
+            'userRoleId', 
+            'loggedInUser', 
+            'selectedCompany'
+          ]);
 
-            if (navigationRef && navigationRef.reset) {
-              navigationRef.reset({
-                index: 0,
-                routes: [{ name: 'Login' }],
-              });
-            } else {
-              console.error('Navigation reset function not available');
-            }
-          } catch (redirectError) {
-            console.error('Redirect to login error:', redirectError);
-          }
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'Login' }],
+          });
+
+          return Promise.reject(error);
         }
         return Promise.reject(error);
       }
     );
 
     return () => {
-      ApiClient.interceptors.response.eject(interceptor);
+      axios.interceptors.response.eject(interceptor);
     };
-  }, [navigationRef]);
+  }, [navigation]);
 
-  return (
-    <Provider store={store}>
-      <NavigationProvider>
-        <Routes />
-      </NavigationProvider>
-    </Provider>
-  );
+  return <Routes />;
 };
 
 export default App;

@@ -145,7 +145,7 @@ const HomeAllProducts = ({ navigation }) => {
   
       const response = await axios.post(apiUrl, requestData, {
         headers: {
-          Authorization: `Bearer ${global.userData.token.access_token}`,
+          Authorization: `Bearer ${global?.userData?.token?.access_token}`,
           'Content-Type': 'application/json'
         },
       });

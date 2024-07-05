@@ -3,7 +3,7 @@ import { API } from '../../config/apiConfig';
 export async function getAllProducts(userDetails, jsonValue) {
   try {
     console.log("userDetails?.productURL+API.ALL_PRODUCTS_DATA", global?.userData?.productURL+ API.ALL_PRODUCTS_DATA);
-    console.log("ttoooo",global.userData.token.access_token)
+    console.log("ttoooo",global?.userData?.token?.access_token)
     console.log('userDetails?.productURL:', global?.userData?.productURL);
 console.log('API.ALL_PRODUCTS_DATA:', API.ALL_PRODUCTS_DATA);
 
@@ -14,7 +14,7 @@ console.log('API.ALL_PRODUCTS_DATA:', API.ALL_PRODUCTS_DATA);
       headers: {
         'Content-Type': 'application/json',
         Accept: 'application/json',
-        Authorization: `Bearer ${global.userData.token.access_token}`,
+        Authorization: `Bearer ${global?.userData?.token?.access_token}`,
       
       },
       
