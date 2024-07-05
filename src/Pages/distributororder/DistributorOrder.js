@@ -67,7 +67,7 @@ const DistributorOrder = () => {
       const response = await axios.get(apiUrl, {
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${global.userData.token.access_token}`,
+          Authorization: `Bearer ${global?.userData?.token?.access_token}`,
         },
       });
       if (response.data.status.success) {
@@ -212,7 +212,7 @@ const DistributorOrder = () => {
       .post(global?.userData?.productURL + API.ADD_GRN_ORDER, requestData, {
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${global.userData.token.access_token}`,
+          Authorization: `Bearer ${global?.userData?.token?.access_token}`,
         },
       })
       .then(response => {

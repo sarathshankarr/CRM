@@ -37,7 +37,7 @@ const PackingOrders = () => {
     axios
       .get(apiUrl, {
         headers: {
-          Authorization: `Bearer ${global.userData.token.access_token}`,
+          Authorization: `Bearer ${global?.userData?.token?.access_token}`,
         },
       })
       .then(response => {
@@ -105,7 +105,7 @@ const PackingOrders = () => {
         {},
         {
           headers: {
-            Authorization: `Bearer ${global.userData.token.access_token}`,
+            Authorization: `Bearer ${global?.userData?.token?.access_token}`,
             'Content-Type': 'application/json',
           },
         },
@@ -144,7 +144,7 @@ const PackingOrders = () => {
         {},
         {
           headers: {
-            Authorization: `Bearer ${global.userData.token.access_token}`,
+            Authorization: `Bearer ${global?.userData?.token?.access_token}`,
             'Content-Type': 'application/json',
           },
         },

@@ -308,7 +308,7 @@ const Cart = () => {
         {
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${global.userData.token.access_token}`,
+            Authorization: `Bearer ${global?.userData?.token?.access_token}`,
           },
         },
       )
@@ -438,7 +438,7 @@ const addDistributorDetails = () => {
     axios
       .get(apiUrl, {
         headers: {
-          Authorization: `Bearer ${global.userData.token.access_token}`,
+          Authorization: `Bearer ${global?.userData?.token?.access_token}`,
         },
       })
       .then(response => {
@@ -476,7 +476,7 @@ const addDistributorDetails = () => {
     axios
       .get(apiUrl, {
         headers: {
-          Authorization: `Bearer ${global.userData.token.access_token}`,
+          Authorization: `Bearer ${global?.userData?.token?.access_token}`,
         },
       })
       .then(response => {
@@ -719,7 +719,7 @@ const addDistributorDetails = () => {
       .post(global?.userData?.productURL + API.ADD_ORDER_DATA, requestData, {
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${global.userData.token.access_token}`,
+          Authorization: `Bearer ${global?.userData?.token?.access_token}`,
         },
       })
       .then(response => {
@@ -1011,7 +1011,7 @@ const addDistributorDetails = () => {
         {
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${global.userData.token.access_token}`,
+            Authorization: `Bearer ${global?.userData?.token?.access_token}`,
           },
         },
       )
@@ -1361,7 +1361,7 @@ const addDistributorDetails = () => {
             <Text style={style.txt}>Total Items: {cartItems.length}</Text>
           </View>
           {cartItems.length === 0 ? (
-            <Text>No items in cart</Text>
+            <Text style={{marginLeft:10}}>No items in cart</Text>
           ) : (
             <View>
               {console.log("cartItems.length===>", cartItems.length)}

@@ -30,7 +30,7 @@ const Call = () => {
     axios
       .get(apiUrl, {
         headers: {
-          Authorization: `Bearer ${global.userData.token.access_token}`,
+          Authorization: `Bearer ${global?.userData?.token?.access_token}`,
         },
       })
       .then(response => {
@@ -57,7 +57,7 @@ const Call = () => {
     axios
       .get(apiUrl, {
         headers: {
-          Authorization: `Bearer ${global.userData.token.access_token}`,
+          Authorization: `Bearer ${global?.userData?.token?.access_token}`,
         },
       })
       .then(response => {
@@ -88,7 +88,6 @@ const Call = () => {
         <View style={styles.searchContainer}>
           <TextInput
             style={styles.searchInput}
-            autoFocus={true}
             placeholder="Search"
             placeholderTextColor="#000"
             value={searchQuery}

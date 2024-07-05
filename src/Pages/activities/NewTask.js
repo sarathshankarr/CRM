@@ -112,7 +112,7 @@ const NewTask = () => {
     axios
       .get(apiUrl, {
         headers: {
-          Authorization: `Bearer ${global.userData.token.access_token}`,
+          Authorization: `Bearer ${global?.userData?.token?.access_token}`,
         },
       })
       .then(response => {
@@ -133,7 +133,7 @@ const NewTask = () => {
     axios
       .get(apiUrl, {
         headers: {
-          Authorization: `Bearer ${global.userData.token.access_token}`,
+          Authorization: `Bearer ${global?.userData?.token?.access_token}`,
         },
       })
       .then(response => {
@@ -154,7 +154,7 @@ const NewTask = () => {
     axios
       .get(apiUrl, {
         headers: {
-          Authorization: `Bearer ${global.userData.token.access_token}`,
+          Authorization: `Bearer ${global?.userData?.token?.access_token}`,
         },
       })
       .then(response => {
@@ -259,6 +259,8 @@ const NewTask = () => {
       setSelectedUserId(task.assign_to || null);
       setSelectedUserName(task.userName || '');
       setSelectedStatusOption(task.status || '');
+      setSelectedCustomerOption(task.customer)
+      setSelectedCustomerId(task.customerId)
       setSelectedDropdownOption({
         value: task.repeatRem || '',
       });
@@ -312,7 +314,7 @@ const NewTask = () => {
     axios
       .get(apiUrl, {
         headers: {
-          Authorization: `Bearer ${global.userData.token.access_token}`,
+          Authorization: `Bearer ${global?.userData?.token?.access_token}`,
         },
       })
       .then(response => {
@@ -408,11 +410,22 @@ const NewTask = () => {
     setIsButtonDisabled(true);
     const switchStatus = isEnabled; // Assuming isEnabled controls the switch
     const customerType = switchStatus ? 1 : 3; // 1 for Retailer, 3 for Distributor
+    
+
+    const customerId = switchStatus
+    ? selectedCustomerId
+    : selectedDistributorId;
+  console.log('customerId:', customerId);
+
+  const customeroption = switchStatus
+  ? selectedCustomerOption
+  : selectedDistributorOption;
+console.log('customeroption:', customeroption);
 
     const requestData = {
       id: route.params.task.id || 0,
-      customerId: selectedCustomerId || null,
-      customer: selectedCustomerOption || task?.customer,
+      customerId: customerId || 0,
+      customer: customeroption || task?.customer,
       created_on: route.params.task.created_on,
       taskName: taskName || null,
       dueDate: selectedDateDue !== 'Due Date' ? selectedDateDue : null,
@@ -423,13 +436,13 @@ const NewTask = () => {
       completed: null,
       priority: null,
       assign_to: selectedUserId,
-      assign_by: userData.userid,
+      assign_by: userData.userId,
       t_company_id: null,
       unique_id: null,
       status: selectedStatusOption,
       userName: selectedUserName,
       locId: selectedLocationId,
-      customerType: customerType,
+      customerType: customerType ||null,
     };
 
     console.log('Request Data:', requestData);
@@ -438,7 +451,7 @@ const NewTask = () => {
       .post(global?.userData?.productURL + API.ADD_UPDATE_TASK, requestData, {
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${global.userData.token.access_token}`,
+          Authorization: `Bearer ${global?.userData?.token?.access_token}`,
         },
       })
       .then(response => {
@@ -487,7 +500,7 @@ const NewTask = () => {
       <TouchableOpacity
         onPress={handleShipDropdownClickCustomer}
         style={styles.dropdownButton}>
-        <Text>{selectedCustomerOption || 'Retailer *'}</Text>
+        <Text>{selectedCustomerOption || 'Retailer'}</Text>
         <Image
           source={require('../../../assets/dropdown.png')}
           style={{width: 20, height: 20}}
@@ -504,6 +517,7 @@ const NewTask = () => {
             <TextInput
               style={styles.searchInput}
               placeholder="Search by name..."
+              placeholderTextColor="#000"
               onChangeText={handleSearchCustomer}
             />
             <ScrollView style={styles.scrollView}>
@@ -527,7 +541,7 @@ const NewTask = () => {
       <TouchableOpacity
         onPress={handleShipDropdownClickDistributor}
         style={styles.dropdownButton}>
-        <Text>{selectedDistributorOption || 'Distributor *'}</Text>
+        <Text>{selectedDistributorOption || 'Distributor'}</Text>
         <Image
           source={require('../../../assets/dropdown.png')}
           style={{width: 20, height: 20}}
@@ -545,6 +559,7 @@ const NewTask = () => {
               style={styles.searchInput}
               placeholder="Search by name..."
               onChangeText={handleSearchDistributor}
+              placeholderTextColor="#000"
             />
             <ScrollView style={styles.scrollView}>
               {filteredDistributor.map((distributor, index) => (
@@ -600,7 +615,7 @@ const NewTask = () => {
         onPress={handleFromDropdownClick}
         style={styles.dropdownButton}>
         <Text style={{}}>
-          {selectedLocation.length > 0 ? `${selectedLocation}` : 'Location *'}
+          {selectedLocation.length > 0 ? `${selectedLocation}` : 'Location'}
         </Text>
         <Image
           source={require('../../../assets/dropdown.png')}
@@ -651,6 +666,7 @@ const NewTask = () => {
               style={styles.searchInput}
               placeholder="Search by name..."
               onChangeText={handleSearch}
+              placeholderTextColor="#000"
             />
             <ScrollView style={styles.scrollView}>
               {filteredUsers.map((user, index) => (

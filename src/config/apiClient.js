@@ -12,8 +12,8 @@ ApiClient.interceptors.request.use(
   async (config) => {
     const newUserData = await AsyncStorage.getItem('userData');
     global.userData = JSON.parse(newUserData);
-    if (global.userData && global.userData.token.access_token) {
-      config.headers.Authorization = `Bearer ${global.userData.token.access_token}`;
+    if (global.userData && global?.userData?.token?.access_token) {
+      config.headers.Authorization = `Bearer ${global?.userData?.token?.access_token}`;
     }
     return config;
   },

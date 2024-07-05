@@ -32,13 +32,13 @@ const Tasks = () => {
     axios
       .get(apiUrl, {
         headers: {
-          Authorization: `Bearer ${global.userData.token.access_token}`,
+          Authorization: `Bearer ${global?.userData?.token?.access_token}`,
         },
       })
       .then(response => {
         setTasks(response.data); // Update tasks state
         setFilteredTasks(response.data); // Initialize filtered tasks with all tasks
-        console.log("fetchTasks",response.data)
+        // console.log("fetchTasks",response.data)
       })
       .catch(error => {
         console.error('Error:', error);
@@ -54,7 +54,7 @@ const Tasks = () => {
     axios
       .get(apiUrl, {
         headers: {
-          Authorization: `Bearer ${global.userData.token.access_token}`,
+          Authorization: `Bearer ${global?.userData?.token?.access_token}`,
         },
       })
       .then(response => {
