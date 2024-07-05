@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Alert,
   FlatList,
@@ -13,8 +13,9 @@ import {
   TouchableOpacity,
   View,
   ActivityIndicator,
+  Switch,
 } from 'react-native';
-import {useDispatch, useSelector} from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   addToPending,
   removeFromCart,
@@ -24,9 +25,9 @@ import {
 } from '../../redux/actions/Actions';
 import Clipboard from '@react-native-clipboard/clipboard';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import ModalComponent from '../../components/ModelComponent';
-import {API} from '../../config/apiConfig';
+import { API } from '../../config/apiConfig';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -47,22 +48,28 @@ const Cart = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [selectedDistributor, setSelectedDistributor] = useState(null);
   const [clicked, setClicked] = useState(false);
   const [customers, setCustomers] = useState([]);
+  const [distributors, setDistributors] = useState([]);
   const [comments, setComments] = useState('');
   const [shipDate, setShipDate] = useState(null);
   const [customerLocations, setCustomerLocations] = useState([]);
+  const [distributorLocations, setDistributorLocations] = useState([]);
   const [fromToClicked, setFromToClicked] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState('');
   const [selectedCustomerId, setSelectedCustomerId] = useState(null);
+  const [selectedDistributorId, setSelectedDistributorId] = useState(null);
   const [shipFromToClicked, setShipFromToClicked] = useState(false);
   const [selectedShipLocation, setSelectedShipLocation] = useState('');
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedCustomerDetails, setSelectedCustomerDetails] = useState(null);
+  const [selectedDistributorDetails, setSelectedDistributorDetails] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [keyboardSpace, setKeyboardSpace] = useState(0);
   const [modalItems, setModalItems] = useState([]);
+  const [isEnabled, setIsEnabled] = useState(false);
 
   const textInputStyle = {
     borderWidth: 1,
@@ -108,6 +115,11 @@ const Cart = () => {
   const filteredCustomers = customers.filter(customer => {
     const fullName = `${customer.firstName} ${customer.lastName}`.toLowerCase();
     return fullName.includes(searchQuery.toLowerCase());
+  });
+
+  const filteredDistributors = distributors.filter(distributor => {
+    const full = `${distributor.firstName} ${distributor.distributorName}`.toLowerCase();
+    return full.includes(searchQuery.toLowerCase());
   });
 
   useEffect(() => {
@@ -202,6 +214,7 @@ const Cart = () => {
       'state',
       'country',
     ];
+    setErrorFields([]);
     const missingFields = mandatoryFields.filter(field => !inputValues[field]);
 
     if (missingFields.length > 0) {
@@ -209,21 +222,21 @@ const Cart = () => {
       Alert.alert('Alert', 'Please fill in all mandatory fields');
       return;
     }
-    
+
     const hasExactlyTenDigits = /^\d{10}$/;
-    if(!hasExactlyTenDigits.test(Number(inputValues?.phoneNumber))){
+    if (!hasExactlyTenDigits.test(Number(inputValues?.phoneNumber))) {
       Alert.alert('Alert', 'Please Provide a valid Phone Number');
       return;
     }
 
-    if(inputValues?.whatsappId.length>0){
-      if(!hasExactlyTenDigits.test(inputValues?.whatsappId)){
+    if (inputValues?.whatsappId?.length > 0) {
+      if (!hasExactlyTenDigits.test(inputValues?.whatsappId)) {
         Alert.alert('Alert', 'Please Provide a valid Whatsapp Number');
         return;
       }
     }
 
-    addCustomerDetails();
+    isEnabled? addCustomerDetails() : addDistributorDetails();
     toggleModal();
   };
 
@@ -318,27 +331,106 @@ const Cart = () => {
       });
   };
 
+const addDistributorDetails = () => {
+    const requestData =   {
+      id: null,
+      distributorName: inputValues.firstName,
+      areaMasterId: 0,
+      areaPincodeId: "",
+      emailId: "",
+      phoneNumber: inputValues.phoneNumber,
+      whatsappId: inputValues.whatsappId,
+      houseNo: "",
+      street: "",
+      locality: "",
+      cityOrTown: inputValues.cityOrTown,
+      state: inputValues.state,
+      stateId: 0,
+      currencyId: 9,
+      country: inputValues.country,
+      pincode: "787654",
+      customerLevel: "",
+      pan: "",
+      gstNo: "",
+      riskId: 0,
+      myItems: "",
+      creditLimit: 0,
+      paymentReminderId: 26,
+      dayId: 0,
+      files: [],
+      remarks: "",
+      transport: 0,
+      mop: "",
+      markupDisc: 0,
+      companyId: "1"
+  }
+  
+    axios
+      .post(
+        global?.userData?.productURL + API.ADD_DISTRIBUTOR_DETAILS,
+        requestData,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${global.userData.token.access_token}`,
+          },
+        },
+      )
+      .then(response => {
+        const newDistributor = response.data.response.distributorList[0];
+        console.log('ADD_DISTRIBUTOR_DETAILS', newDistributor);
+
+        // Update the selected distributor details and ID
+        setSelectedDistributorDetails([newDistributor])
+        setSelectedDistributorId(newDistributor.id);
+
+        // Fetch and set the distributor locations for the new customer
+        getCustomerLocations(newDistributor.id);
+
+        // Close the modal
+        toggleModal();
+      })
+      .catch(error => {
+        console.error('Error adding Distributor:', error);
+      });
+  };
+
   const handleCommentsChange = text => {
     setComments(text);
   };
 
   useEffect(() => {
     if (clicked) {
-      getCustomersDetails();
+      { isEnabled ? getCustomersDetails(): getDistributorsDetails()}
     }
-  }, [clicked]);
+    setSelectedLocation('Billing to');
+    setSelectedShipLocation('Shipping to');
+    setCustomerLocations([])
+
+  }, [clicked, isEnabled]);
 
   const getCustomerLocations = customerId => {
-    const custometType = 1;
+    // const custometType = 1;
+    let customerType;
 
-    console.log('customerId:', customerId);
+    // Toggle logic based on switch status
+    const switchStatus = isEnabled; // Assuming isEnabled controls the switch
+
+    if (switchStatus) {
+      customerType = 1; // Retailer
+    } else {
+      customerType = 3; // Distributor
+    }
+
+    console.log(`Customer Type: ${customerType}`);
+
 
     if (!customerId) {
       console.error('customerId is undefined or null');
       return;
     }
 
-    const apiUrl = `${global?.userData?.productURL}${API.GET_CUSTOMER_LOCATION}/${customerId}/${custometType}/${companyId}`;
+    const apiUrl = `${global?.userData?.productURL}${API.GET_CUSTOMER_LOCATION}/${customerId}/${customerType}/${companyId}`;
     console.log('Fetching customer locations with companyId:', companyId);
 
     console.log('API URL:', apiUrl);
@@ -360,23 +452,27 @@ const Cart = () => {
       });
   };
 
+
   const handleFromDropdownClick = () => {
     setFromToClicked(!fromToClicked);
     if (!fromToClicked) {
-      getCustomerLocations(selectedCustomerId);
+      // getCustomerLocations(selectedCustomerId);
+      !isEnabled ? getCustomerLocations(selectedDistributorId):getCustomerLocations(selectedCustomerId)
     }
   };
-
+  
   const handleShipDropdownClick = () => {
     setShipFromToClicked(!shipFromToClicked);
     if (!shipFromToClicked) {
-      getCustomerLocations(selectedCustomerId);
+      // getCustomerLocations(selectedCustomerId);
+      !isEnabled ? getCustomerLocations(selectedDistributorId):getCustomerLocations(selectedCustomerId)
     }
   };
 
   const getCustomersDetails = () => {
     const apiUrl = `${global?.userData?.productURL}${API.ADD_CUSTOMER_LIST}/${companyId}`;
     setIsLoading(true); // Set loading to true before making the request
+    console.log("customer api===>",apiUrl)
     axios
       .get(apiUrl, {
         headers: {
@@ -386,10 +482,34 @@ const Cart = () => {
       .then(response => {
         setCustomers(response?.data?.response?.customerList || []);
         setIsLoading(false); // Set loading to false after receiving the response
+        console.log("INSIDE CUSTOMERS ===> ", response?.data?.response?.customerList[0])
       })
       .catch(error => {
         console.error('Error:', error);
         setIsLoading(false); // Set loading to false in case of error
+      });
+  };
+
+  const getDistributorsDetails = () => {
+    const apiUrl = `${global?.userData?.productURL}${API.GET_DISTRIBUTORS_DETAILS}/${companyId}`;
+    setIsLoading(true);
+    console.log("distributors api ",  apiUrl)
+    axios
+      .get(apiUrl, {
+        headers: {
+          Authorization: `Bearer ${global.userData.token.access_token}`,
+        },
+      })
+      .then(response => {
+        // const distributorList = response?.data?.response?.distributorList || [];
+        setDistributors(response?.data?.response?.distributorList || []);
+        setIsLoading(false);
+
+        console.log("get Distributors response ===>", response?.data?.response?.distributorList[0])
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        setIsLoading(false);
       });
   };
 
@@ -401,10 +521,10 @@ const Cart = () => {
   };
 
   const handleCustomerSelection = (firstName, lastName, customerId) => {
+    console.log("INSIDE CUST HANDLE ===> ", firstName, lastName, customerId)
     setSelectedCustomer(`${firstName} ${lastName}`);
     setClicked(false);
     setSelectedCustomerId(customerId);
-    // Reset selected location
     setSelectedLocation('');
     setSelectedShipLocation('');
     getCustomerLocations(customerId);
@@ -412,6 +532,20 @@ const Cart = () => {
       customer => customer.customerId === customerId,
     );
     setSelectedCustomerDetails([selectedCustomer]);
+  };
+
+  const handleDistributorSelection = (firstName, lastName, customerId) => {
+    console.log("INSIDE DIST HANDLE ===> ", firstName, lastName, customerId)
+    setSelectedDistributor(`${lastName}`);
+    setClicked(false);
+    setSelectedDistributorId(customerId);
+    setSelectedLocation('');
+    setSelectedShipLocation('');
+    getCustomerLocations(customerId);
+    const selectedDistributor = distributors.find(
+      distributor => distributor.id === customerId,
+    );
+    setSelectedDistributorDetails([selectedDistributor]);
   };
 
   const handleLocationSelection = location => {
@@ -491,8 +625,8 @@ const Cart = () => {
           ? selectedCustomerObj.customerId
           : ''
         : userRole === 'Distributor' || userRole === 'Retailer'
-        ? roleId
-        : '';
+          ? roleId
+          : '';
 
     const currentDate = new Date().toISOString().split('T')[0];
 
@@ -590,7 +724,7 @@ const Cart = () => {
       })
       .then(response => {
         // Handle success response
-        dispatch({type: 'CLEAR_CART'});
+        dispatch({ type: 'CLEAR_CART' });
         navigation.navigate('Home');
       })
       .catch(error => {
@@ -703,7 +837,7 @@ const Cart = () => {
   };
   const copyValueToClipboard = index => {
     const item = cartItems[index];
-    const {styleId, colorId, quantity} = item;
+    const { styleId, colorId, quantity } = item;
 
     // Check if quantity is 0 or falsy
     if (!quantity) {
@@ -758,7 +892,7 @@ const Cart = () => {
     }
     return totalQty.toString();
   };
-  
+
   const calculateTotalItems = (styleId, colorId) => {
     let totalItems = 0;
     for (let item of cartItems) {
@@ -768,7 +902,7 @@ const Cart = () => {
     }
     return totalItems;
   };
-  
+
   const calculateTotalPrice = (styleId, colorId) => {
     let totalPrice = 0;
     for (let item of cartItems) {
@@ -819,7 +953,8 @@ const Cart = () => {
       'state',
       'pincode',
       'country',
-    ];
+    ]
+    setLocationErrorFields([]);
     const missingFields = mandatoryFields.filter(
       field => !locationInputValues[field],
     );
@@ -827,6 +962,12 @@ const Cart = () => {
     if (missingFields.length > 0) {
       setLocationErrorFields(missingFields);
       return; // Do not proceed with saving
+    }
+
+    const hasExactlyTenDigits = /^\d{10}$/;
+    if (!hasExactlyTenDigits.test(Number(locationInputValues.phoneNumber))) {
+      Alert.alert('Alert', 'Please Provide a valid Phone Number');
+      return;
     }
 
     addCustomerLocationDetails();
@@ -844,7 +985,7 @@ const Cart = () => {
       locationCode: '',
       locationDescription: locationInputValues.locationName,
       parentId: 0,
-      customerId: selectedCustomerId,
+      customerId: isEnabled? selectedCustomerId :selectedDistributorId,
       status: 0,
       phoneNumber: locationInputValues.phoneNumber,
       emailId: '',
@@ -855,7 +996,7 @@ const Cart = () => {
       state: locationInputValues.state,
       country: locationInputValues.country,
       pincode: locationInputValues.pincode,
-      customerType: 1,
+      customerType:isEnabled? 1: 3,
       latitude: null,
       longitude: null,
       fullName: null,
@@ -899,21 +1040,34 @@ const Cart = () => {
     console.log('User Roleeeeee:', userRole);
   }, []); // Run only once when component mounts
 
+  const toggleSwitch = () => setIsEnabled(previousState => !previousState);
   return (
     <KeyboardAvoidingView
-      style={{flex: 1, backgroundColor: '#fff'}}
+      style={{ flex: 1, backgroundColor: '#fff' }}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : -500}>
-      <View style={{flex: 1, backgroundColor: '#fff'}}>
-        <View style={{marginVertical: 10, backgroundColor: '#fff'}}>
-          <View style={{marginHorizontal: 10, marginVertical: 2}}>
+      <View style={{ flex: 1, backgroundColor: '#fff' }}>
+        <View style={{ marginVertical: 10, backgroundColor: '#fff' }}>
+          {/* <View style={{marginHorizontal: 10, marginVertical: 2}}>
             <Text style={{color: '#000', fontWeight: 'bold'}}>Customers</Text>
+          </View> */}
+          <View style={style.switchContainer}>
+            <Switch
+              trackColor={{ false: '#767577', true: '#81b0ff' }}
+              thumbColor={isEnabled ? '#f5dd4b' : '#f4f3f4'}
+              ios_backgroundColor="#3e3e3e"
+              onValueChange={toggleSwitch}
+              value={isEnabled}
+            />
+            <Text style={{ fontWeight: 'bold', fontSize: 15 }}>
+              Slide For Retailer
+            </Text>
           </View>
           <View>
             {userRole &&
               userRole.toLowerCase &&
               userRole.toLowerCase() === 'admin' && (
-                <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                   <View>
                     <TouchableOpacity
                       style={{
@@ -929,16 +1083,19 @@ const Cart = () => {
                         paddingRight: 15,
                       }}
                       onPress={handleDropdownClick}>
-                      <Text style={{fontWeight: '600'}}>
-                        {selectedCustomerDetails &&
-                        selectedCustomerDetails.length > 0
+                      <Text style={{ fontWeight: '600' }}>
+                        {isEnabled ? (selectedCustomerDetails &&
+                          selectedCustomerDetails.length > 0
                           ? `${selectedCustomerDetails[0].firstName} ${selectedCustomerDetails[0].lastName}`
-                          : 'Customer'}
+                          : 'Retailer') : (selectedDistributorDetails &&
+                            selectedDistributorDetails.length > 0
+                            ? `${selectedDistributorDetails[0].distributorName}`
+                            : 'Distributor')}
                       </Text>
 
                       <Image
                         source={require('../../../assets/dropdown.png')}
-                        style={{width: 20, height: 20}}
+                        style={{ width: 20, height: 20 }}
                       />
                     </TouchableOpacity>
 
@@ -964,48 +1121,73 @@ const Cart = () => {
                             marginBottom: 10,
                           }}
                           placeholderTextColor="#000"
-                          placeholder="Search Customer"
+                          placeholder="Search"
                           value={searchQuery}
                           onChangeText={text => setSearchQuery(text)}
                         />
-
-                        {filteredCustomers.length === 0 &&
-                        searchQuery.length > 0 ? (
-                          <Text style={style.noCategoriesText}>
-                            Sorry, no results found!
-                          </Text>
-                        ) : (
-                          <FlatList
-                            data={filteredCustomers}
-                            renderItem={({item, index}) => (
-                              <TouchableOpacity
-                                key={index}
-                                style={{
-                                  width: '100%',
-                                  height: 50,
-                                  justifyContent: 'center',
-                                  borderBottomWidth: 0.5,
-                                  borderColor: '#8e8e8e',
-                                }}
-                                onPress={() => {
-                                  handleCustomerSelection(
-                                    item.firstName,
-                                    item.lastName,
-                                    item.customerId,
-                                  );
-                                }}>
-                                <Text
+                        {!isEnabled
+                          ? (filteredDistributors.length === 0)
+                            ? (
+                              <Text style={style.noCategoriesText}>
+                                Sorry, no results found!
+                              </Text>
+                            )
+                            : (
+                              filteredDistributors.map((item, index) => (
+                                <TouchableOpacity
+                                  key={index}
                                   style={{
-                                    fontWeight: '600',
-                                    marginHorizontal: 15,
-                                  }}>
-                                  {item.firstName} {item.lastName}
-                                </Text>
-                              </TouchableOpacity>
-                            )}
-                            keyExtractor={(item, index) => index.toString()}
-                          />
-                        )}
+                                    width: '100%',
+                                    height: 50,
+                                    justifyContent: 'center',
+                                    borderBottomWidth: 0.5,
+                                    borderColor: '#8e8e8e',
+                                  }}
+                                  onPress={() => handleDistributorSelection(item?.firstName, item?.distributorName, item?.id)}
+                                >
+                                  <Text
+                                    style={{
+                                      fontWeight: '600',
+                                      marginHorizontal: 15,
+                                    }}
+                                  >
+                                    {item.firstName}
+                                  </Text>
+                                </TouchableOpacity>
+                              ))
+                            )
+                          : filteredCustomers.length === 0 
+                            ? (
+                              <Text style={style.noCategoriesText}>
+                                Sorry, no results found!
+                              </Text>
+                            )
+                            : (
+                              filteredCustomers.map((item, index) => (
+                                <TouchableOpacity
+                                  key={index}
+                                  style={{
+                                    width: '100%',
+                                    height: 50,
+                                    justifyContent: 'center',
+                                    borderBottomWidth: 0.5,
+                                    borderColor: '#8e8e8e',
+                                  }}
+                                  onPress={() => handleCustomerSelection(item?.firstName, item?.lastName, item?.customerId)}
+                                   
+                                >
+                                  <Text
+                                    style={{
+                                      fontWeight: '600',
+                                      marginHorizontal: 15,
+                                    }}
+                                  >
+                                    {item.firstName} {item.lastName}
+                                  </Text>
+                                </TouchableOpacity>
+                              ))
+                            )
+                        }
                       </View>
                     )}
 
@@ -1042,8 +1224,8 @@ const Cart = () => {
               )}
           </View>
         </View>
-        <View style={{flexDirection: 'row'}}>
-          <View style={{flex: 1}}>
+        <View style={{ flexDirection: 'row' }}>
+          <View style={{ flex: 1 }}>
             <TouchableOpacity
               onPress={handleFromDropdownClick}
               style={{
@@ -1059,14 +1241,14 @@ const Cart = () => {
                 marginLeft: 18,
               }}>
               {/* <Text>{selectedLocation.locationName || 'Billing to'}</Text> */}
-              <Text style={{fontWeight: '600'}}>
+              <Text style={{ fontWeight: '600' }}>
                 {selectedLocation.length > 0
                   ? `${selectedLocation}`
                   : 'Billing to'}
               </Text>
               <Image
                 source={require('../../../assets/dropdown.png')}
-                style={{width: 20, height: 20}}
+                style={{ width: 20, height: 20 }}
               />
             </TouchableOpacity>
             {fromToClicked && (
@@ -1091,7 +1273,7 @@ const Cart = () => {
                         borderBottomWidth: 1,
                         borderBottomColor: '#ccc',
                       }}
-                      onPress={() => handleLocationSelection(location)}>
+                      onPress={() =>  handleLocationSelection(location)}>
                       <Text>{location.locationName}</Text>
                     </TouchableOpacity>
                   ))}
@@ -1100,7 +1282,7 @@ const Cart = () => {
             )}
           </View>
 
-          <View style={{flex: 1}}>
+          <View style={{ flex: 1 }}>
             <TouchableOpacity
               onPress={handleShipDropdownClick}
               style={{
@@ -1116,14 +1298,14 @@ const Cart = () => {
                 marginLeft: 5,
               }}>
               {/* <Text>{selectedShipLocation.locationName || 'Shiping to'}</Text> */}
-              <Text style={{fontWeight: '600'}}>
+              <Text style={{ fontWeight: '600' }}>
                 {selectedShipLocation.length > 0
                   ? `${selectedShipLocation}`
                   : 'Shipping to'}
               </Text>
               <Image
                 source={require('../../../assets/dropdown.png')}
-                style={{width: 20, height: 20}}
+                style={{ width: 20, height: 20 }}
               />
             </TouchableOpacity>
             {shipFromToClicked && (
@@ -1185,145 +1367,145 @@ const Cart = () => {
               {console.log("cartItems.length===>", cartItems.length)}
               {cartItems.map((item, index) => (
                 <View key={`${item.styleId}-${item.colorId}-${item.sizeId}-${index}`}>
-                <View
-                  key={`${item.styleId}-${item.colorId}-${item.sizeId}-${index}`}
-                  style={{marginBottom: 20}}>
-                  {(index === 0 ||
-                    item.styleId !== cartItems[index - 1].styleId ||
-                    item.colorId !== cartItems[index - 1].colorId) && (
-                    <View style={style.itemContainer}>
-                      <View style={style.imgContainer}>
-                        {item.imageUrls && item.imageUrls.length > 0 && (
-                          <Image
-                            source={{uri: item.imageUrls[0]}}
-                            style={{
-                              width: 100,
-                              height: 100,
-                              resizeMode: 'cover',
-                              margin: 5,
-                            }}
-                          />
-                        )}
-                        <View style={{flex: 1}}>
-                          <Text style={{fontSize: 15, fontWeight: 'bold'}}>
-                            {item.styleDesc}
-                          </Text>
-                          <Text style={{fontSize: 15, fontWeight: 'bold'}}>ColorName - {item.colorName}</Text>
+                  <View
+                    key={`${item.styleId}-${item.colorId}-${item.sizeId}-${index}`}
+                    style={{ marginBottom: 20 }}>
+                    {(index === 0 ||
+                      item.styleId !== cartItems[index - 1].styleId ||
+                      item.colorId !== cartItems[index - 1].colorId) && (
+                        <View style={style.itemContainer}>
+                          <View style={style.imgContainer}>
+                            {item.imageUrls && item.imageUrls.length > 0 && (
+                              <Image
+                                source={{ uri: item.imageUrls[0] }}
+                                style={{
+                                  width: 100,
+                                  height: 100,
+                                  resizeMode: 'cover',
+                                  margin: 5,
+                                }}
+                              />
+                            )}
+                            <View style={{ flex: 1 }}>
+                              <Text style={{ fontSize: 15, fontWeight: 'bold' }}>
+                                {item.styleDesc}
+                              </Text>
+                              <Text style={{ fontSize: 15, fontWeight: 'bold' }}>ColorName - {item.colorName}</Text>
+                            </View>
+                            <View style={style.buttonsContainer}>
+                              <TouchableOpacity onPress={() => openModal(item)}>
+                                <Image
+                                  style={style.buttonIcon}
+                                  source={require('../../../assets/edit.png')}
+                                />
+                              </TouchableOpacity>
+                            </View>
+                          </View>
+                          <View style={style.sizehead}>
+                            <View style={{ flex: 0.6 }}>
+                              <Text style={{ marginLeft: 10 }}>SIZE</Text>
+                            </View>
+                            <View style={{ flex: 0.6, marginLeft: 29 }}>
+                              <Text>QUANTITY</Text>
+                            </View>
+                            <View style={{ flex: 0.4, marginLeft: 30 }}>
+                              <Text>PRICE</Text>
+                            </View>
+                            <View style={{ flex: 0.5, marginLeft: 20 }}>
+                              <Text>GROSS PRICE</Text>
+                            </View>
+                            <TouchableOpacity
+                              onPress={() => copyValueToClipboard(index)}>
+                              <Image
+                                style={{ height: 25, width: 25, marginRight: 10 }}
+                                source={require('../../../assets/copy.png')}
+                              />
+                            </TouchableOpacity>
+                          </View>
                         </View>
-                        <View style={style.buttonsContainer}>
-                          <TouchableOpacity onPress={() => openModal(item)}>
-                            <Image
-                              style={style.buttonIcon}
-                              source={require('../../../assets/edit.png')}
-                            />
-                          </TouchableOpacity>
-                        </View>
+                      )}
+                    <View style={style.itemDetails}>
+                      <View style={{ flex: 0.3, marginLeft: 10 }}>
+                        <Text>{item.sizeDesc}</Text>
                       </View>
-                      <View style={style.sizehead}>
-                        <View style={{flex: 0.6}}>
-                          <Text style={{marginLeft: 10}}>SIZE</Text>
-                        </View>
-                        <View style={{flex: 0.6, marginLeft: 29}}>
-                          <Text>QUANTITY</Text>
-                        </View>
-                        <View style={{flex: 0.4, marginLeft: 30}}>
-                          <Text>PRICE</Text>
-                        </View>
-                        <View style={{flex: 0.5, marginLeft: 20}}>
-                          <Text>GROSS PRICE</Text>
-                        </View>
-                        <TouchableOpacity
-                          onPress={() => copyValueToClipboard(index)}>
-                          <Image
-                            style={{height: 25, width: 25, marginRight: 10}}
-                            source={require('../../../assets/copy.png')}
-                          />
-                        </TouchableOpacity>
+                      <TouchableOpacity
+                        onPress={() => handleDecrementQuantityCart(index)}>
+                        <Image
+                          style={{
+                            height: 25,
+                            width: 25,
+                            marginHorizontal: 10,
+                          }}
+                          source={require('../../../assets/sub.jpg')}
+                        />
+                      </TouchableOpacity>
+                      <View style={style.quantityInputContainer}>
+                        <TextInput
+                          placeholderTextColor="#000"
+                          style={textInputStyle}
+                          value={
+                            item.quantity !== undefined
+                              ? item.quantity.toString()
+                              : ''
+                          }
+                          onChangeText={text => handleQuantityChange(index, text)}
+                          keyboardType="numeric" // Optional: Restricts input to numeric keyboard
+                        />
                       </View>
+                      <TouchableOpacity
+                        onPress={() => handleIncrementQuantityCart(index)}>
+                        <Image
+                          style={{
+                            height: 20,
+                            width: 20,
+                            marginHorizontal: 10,
+                          }}
+                          source={require('../../../assets/add.png')}
+                        />
+                      </TouchableOpacity>
+                      <View style={{ flex: 0.3, marginLeft: 20 }}>
+                        <Text>{item.price}</Text>
+                      </View>
+                      <View style={{ flex: 0.3, marginLeft: 20 }}>
+                        <Text>{(Number(item.price) * Number(item.quantity)).toString()}</Text>
+                      </View>
+                      <TouchableOpacity onPress={() => handleRemoveItem(index)}>
+                        <Image
+                          style={style.buttonIcon}
+                          source={require('../../../assets/del.png')}
+                        />
+                      </TouchableOpacity>
                     </View>
+                    <View style={style.separator} />
+                  </View>
+                  {(index === cartItems.length - 1 || (item.styleId !== cartItems[index + 1]?.styleId || item.colorId !== cartItems[index + 1]?.colorId)) && (
+                    <>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 15 }}>
+                        <View style={{ flex: 1 }}>
+                          <Text>Total Qty: {calculateTotalQty(item.styleId, item.colorId)}</Text>
+                        </View>
+                        <View style={{ flex: 1 }}>
+                          <Text>Total Set: {calculateTotalItems(item.styleId, item.colorId)}</Text>
+                        </View>
+                        <View style={{ flex: 1 }}>
+                          <Text>Total Amt: {calculateTotalPrice(item.styleId, item.colorId)}</Text>
+                        </View>
+                      </View>
+                      <View style={style.separatorr} />
+                      <View />
+                    </>
+
                   )}
-                  <View style={style.itemDetails}>
-                    <View style={{flex: 0.3,marginLeft: 10}}>
-                      <Text>{item.sizeDesc}</Text>
-                    </View>
-                    <TouchableOpacity
-                      onPress={() => handleDecrementQuantityCart(index)}>
-                      <Image
-                        style={{
-                          height: 25,
-                          width: 25,
-                          marginHorizontal: 10,
-                        }}
-                        source={require('../../../assets/sub.jpg')}
-                      />
-                    </TouchableOpacity>
-                    <View style={style.quantityInputContainer}>
-                      <TextInput
-                        placeholderTextColor="#000"
-                        style={textInputStyle}
-                        value={
-                          item.quantity !== undefined
-                            ? item.quantity.toString()
-                            : ''
-                        }
-                        onChangeText={text => handleQuantityChange(index, text)}
-                        keyboardType="numeric" // Optional: Restricts input to numeric keyboard
-                      />
-                    </View>
-                    <TouchableOpacity
-                      onPress={() => handleIncrementQuantityCart(index)}>
-                      <Image
-                        style={{
-                          height: 20,
-                          width: 20,
-                          marginHorizontal: 10,
-                        }}
-                        source={require('../../../assets/add.png')}
-                      />
-                    </TouchableOpacity>
-                    <View style={{flex: 0.3, marginLeft: 20}}>
-                      <Text>{item.price}</Text>
-                    </View>
-                    <View style={{flex: 0.3, marginLeft: 20}}>
-                      <Text>{(Number(item.price)*Number(item.quantity)).toString()}</Text>
-                    </View>
-                    <TouchableOpacity onPress={() => handleRemoveItem(index)}>
-                      <Image
-                        style={style.buttonIcon}
-                        source={require('../../../assets/del.png')}
-                      />
-                    </TouchableOpacity>
-                  </View>
-                  <View style={style.separator} />
                 </View>
-                {(index === cartItems.length - 1 || (item.styleId !== cartItems[index + 1]?.styleId || item.colorId !== cartItems[index + 1]?.colorId)) && (
-                <>
-                <View style={{flexDirection: 'row',alignItems: 'center', marginLeft:15}}>
-                  <View style={{flex: 1}}>
-                    <Text>Total Qty: {calculateTotalQty(item.styleId, item.colorId)}</Text>
-                  </View>
-                  <View style={{flex: 1}}>
-                    <Text>Total Set: {calculateTotalItems(item.styleId, item.colorId)}</Text>
-                  </View>
-                  <View style={{flex: 1}}>
-                    <Text>Total Amt: {calculateTotalPrice(item.styleId, item.colorId)}</Text>
-                  </View>
-                </View>
-                <View style={style.separatorr} />
-                <View/>
-                </>
-                
-                 )}
-              </View>
               ))}
             </View>
           )}
-          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
             <TouchableOpacity
               onPress={showDatePicker}
-              style={{flexDirection: 'row', alignItems: 'center'}}>
-              <View style={{paddingVertical: 10}}>
-                <Text style={{marginLeft: 10}}>{selatedDate}</Text>
+              style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <View style={{ paddingVertical: 10 }}>
+                <Text style={{ marginLeft: 10 }}>{selatedDate}</Text>
               </View>
             </TouchableOpacity>
             <TouchableOpacity
@@ -1348,7 +1530,7 @@ const Cart = () => {
             }}></View>
           <View>
             <TextInput
-              style={{marginLeft: 10}}
+              style={{ marginLeft: 10 }}
               placeholder="Enter comments"
               value={comments}
               onChangeText={handleCommentsChange}
@@ -1365,14 +1547,14 @@ const Cart = () => {
 
         <View style={{}}>
           <View style={style.bottomContainer}>
-            <View style={{flex: 1}}>
-              <Text style={{fontWeight:'bold',marginLeft:10}}>Total Qty: {totalQty}</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontWeight: 'bold', marginLeft: 10 }}>Total Qty: {totalQty}</Text>
             </View>
-            <View style={{flex: 1}}>
-              <Text style={{fontWeight:'bold',marginLeft:10}}>Total Set: {totalItems}</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontWeight: 'bold', marginLeft: 10 }}>Total Set: {totalItems}</Text>
             </View>
-            <View style={{flex: 2}}>
-              <Text style={{fontWeight:'bold',marginLeft:15}}>Total Amt: {totalPrice}</Text>
+            <View style={{ flex: 2 }}>
+              <Text style={{ fontWeight: 'bold', marginLeft: 15 }}>Total Amt: {totalPrice}</Text>
             </View>
           </View>
 
@@ -1412,33 +1594,33 @@ const Cart = () => {
             }}>
             <View style={style.modalContainerr}>
               <View style={style.modalContentt}>
-                <Text style={style.modalTitle}>Customer Details</Text>
+                <Text style={style.modalTitle}>{isEnabled ? "Customer Details" : "Distributor Details"}</Text>
 
                 <TextInput
                   style={[
                     style.input,
-                    {color: '#000'},
+                    { color: '#000' },
                     errorFields.includes('firstName')
                       ? style.errorBorder
                       : null,
                   ]}
-                  placeholder="Retailer Name *"
+                  placeholder={isEnabled ? "Retailer Name *" : "Distributor Name *"}
                   placeholderTextColor="#000"
                   onChangeText={text =>
-                    setInputValues({...inputValues, firstName: text})
+                    setInputValues({ ...inputValues, firstName: text })
                   }
                   value={inputValues.firstName}
                 />
                 {errorFields.includes('firstName') && (
                   <Text style={style.errorText}>
-                    Please Enter Retailer Name
+                    {isEnabled ? "Please Enter Retailer Name" : "Please Enter Distributor Name"}
                   </Text>
                 )}
 
                 <TextInput
                   style={[
                     style.input,
-                    {color: '#000'},
+                    { color: '#000' },
                     errorFields.includes('phoneNumber')
                       ? style.errorBorder
                       : null,
@@ -1446,7 +1628,7 @@ const Cart = () => {
                   placeholder="Phone Number *"
                   placeholderTextColor="#000"
                   onChangeText={text =>
-                    setInputValues({...inputValues, phoneNumber: text})
+                    setInputValues({ ...inputValues, phoneNumber: text })
                   }
                 />
                 {errorFields.includes('phoneNumber') && (
@@ -1454,17 +1636,17 @@ const Cart = () => {
                 )}
 
                 <TextInput
-                  style={[style.input, {color: '#000'}]}
+                  style={[style.input, { color: '#000' }]}
                   placeholder="Whatsapp Number"
                   placeholderTextColor="#000"
                   onChangeText={text =>
-                    setInputValues({...inputValues, whatsappId: text})
+                    setInputValues({ ...inputValues, whatsappId: text })
                   }
                 />
                 <TextInput
                   style={[
                     style.input,
-                    {color: '#000'},
+                    { color: '#000' },
                     errorFields.includes('cityOrTown')
                       ? style.errorBorder
                       : null,
@@ -1472,7 +1654,7 @@ const Cart = () => {
                   placeholder="City or Town *"
                   placeholderTextColor="#000"
                   onChangeText={text =>
-                    setInputValues({...inputValues, cityOrTown: text})
+                    setInputValues({ ...inputValues, cityOrTown: text })
                   }
                 />
                 {errorFields.includes('cityOrTown') && (
@@ -1481,13 +1663,13 @@ const Cart = () => {
                 <TextInput
                   style={[
                     style.input,
-                    {color: '#000'},
+                    { color: '#000' },
                     errorFields.includes('state') ? style.errorBorder : null,
                   ]}
                   placeholderTextColor="#000"
                   placeholder="State *"
                   onChangeText={text =>
-                    setInputValues({...inputValues, state: text})
+                    setInputValues({ ...inputValues, state: text })
                   }
                 />
                 {errorFields.includes('state') && (
@@ -1496,13 +1678,13 @@ const Cart = () => {
                 <TextInput
                   style={[
                     style.input,
-                    {color: '#000'},
+                    { color: '#000' },
                     errorFields.includes('country') ? style.errorBorder : null,
                   ]}
                   placeholderTextColor="#000"
                   placeholder="Country *"
                   onChangeText={text =>
-                    setInputValues({...inputValues, country: text})
+                    setInputValues({ ...inputValues, country: text })
                   }
                 />
                 {errorFields.includes('country') && (
@@ -1538,7 +1720,7 @@ const Cart = () => {
                   <TextInput
                     style={[
                       style.input,
-                      {color: '#000'},
+                      { color: '#000' },
                       locationErrorFields.includes('locationName')
                         ? style.errorBorder
                         : null,
@@ -1562,7 +1744,7 @@ const Cart = () => {
                   <TextInput
                     style={[
                       style.input,
-                      {color: '#000'},
+                      { color: '#000' },
                       errorFields.includes('state') ? style.errorBorder : null,
                       locationErrorFields.includes('phoneNumber')
                         ? style.errorBorder
@@ -1583,7 +1765,7 @@ const Cart = () => {
                     </Text>
                   )}
                   <TextInput
-                    style={[style.input, {color: '#000'}]}
+                    style={[style.input, { color: '#000' }]}
                     placeholder="Locality"
                     placeholderTextColor="#000"
                     onChangeText={text =>
@@ -1596,7 +1778,7 @@ const Cart = () => {
                   <TextInput
                     style={[
                       style.input,
-                      {color: '#000'},
+                      { color: '#000' },
                       locationErrorFields.includes('cityOrTown')
                         ? style.errorBorder
                         : null,
@@ -1618,7 +1800,7 @@ const Cart = () => {
                   <TextInput
                     style={[
                       style.input,
-                      {color: '#000'},
+                      { color: '#000' },
                       locationErrorFields.includes('state')
                         ? style.errorBorder
                         : null,
@@ -1638,7 +1820,7 @@ const Cart = () => {
                   <TextInput
                     style={[
                       style.input,
-                      {color: '#000'},
+                      { color: '#000' },
                       locationErrorFields.includes('pincode')
                         ? style.errorBorder
                         : null,
@@ -1658,7 +1840,7 @@ const Cart = () => {
                   <TextInput
                     style={[
                       style.input,
-                      {color: '#000'},
+                      { color: '#000' },
                       locationErrorFields.includes('country')
                         ? style.errorBorder
                         : null,
@@ -1780,7 +1962,7 @@ const style = StyleSheet.create({
     borderBottomWidth: 1,
     borderColor: 'gray',
     marginTop: 4,
-    marginBottom:14,
+    marginBottom: 14,
   },
   modalContainerr: {
     flex: 1,
@@ -1927,6 +2109,13 @@ const style = StyleSheet.create({
     borderColor: '#ccc',
     borderRadius: 5,
     flex: 0.5,
+  },
+  switchContainer: {
+    paddingLeft: 10, // Add padding if you want some space from the left edge
+    marginHorizontal: 10,
+    flexDirection: 'row',
+    marginVertical: 5,
+    alignItems: 'center',
   },
 });
 export default Cart;

@@ -81,6 +81,12 @@ const NewTask = () => {
   const [selectedLocation, setSelectedLocation] = useState('');
   const [selectedLocationId, setSelectedLocationiD] = useState('');
 
+
+  useEffect(()=>{
+    setSelectedLocation('Location *');
+    setCustomerLocations([]);
+  }, [isEnabled])
+
   const getCustomerLocations = () => {
     let customerType;
 
