@@ -236,7 +236,7 @@ const Cart = () => {
       }
     }
 
-    isEnabled? addCustomerDetails() : addDistributorDetails();
+    isEnabled ? addCustomerDetails() : addDistributorDetails();
     toggleModal();
   };
 
@@ -331,8 +331,8 @@ const Cart = () => {
       });
   };
 
-const addDistributorDetails = () => {
-    const requestData =   {
+  const addDistributorDetails = () => {
+    const requestData = {
       id: null,
       distributorName: inputValues.firstName,
       areaMasterId: 0,
@@ -363,8 +363,8 @@ const addDistributorDetails = () => {
       mop: "",
       markupDisc: 0,
       companyId: "1"
-  }
-  
+    }
+
     axios
       .post(
         global?.userData?.productURL + API.ADD_DISTRIBUTOR_DETAILS,
@@ -401,7 +401,7 @@ const addDistributorDetails = () => {
 
   useEffect(() => {
     if (clicked) {
-      { isEnabled ? getCustomersDetails(): getDistributorsDetails()}
+      { isEnabled ? getCustomersDetails() : getDistributorsDetails() }
     }
     setSelectedLocation('Billing to');
     setSelectedShipLocation('Shipping to');
@@ -457,22 +457,22 @@ const addDistributorDetails = () => {
     setFromToClicked(!fromToClicked);
     if (!fromToClicked) {
       // getCustomerLocations(selectedCustomerId);
-      !isEnabled ? getCustomerLocations(selectedDistributorId):getCustomerLocations(selectedCustomerId)
+      !isEnabled ? getCustomerLocations(selectedDistributorId) : getCustomerLocations(selectedCustomerId)
     }
   };
-  
+
   const handleShipDropdownClick = () => {
     setShipFromToClicked(!shipFromToClicked);
     if (!shipFromToClicked) {
       // getCustomerLocations(selectedCustomerId);
-      !isEnabled ? getCustomerLocations(selectedDistributorId):getCustomerLocations(selectedCustomerId)
+      !isEnabled ? getCustomerLocations(selectedDistributorId) : getCustomerLocations(selectedCustomerId)
     }
   };
 
   const getCustomersDetails = () => {
     const apiUrl = `${global?.userData?.productURL}${API.ADD_CUSTOMER_LIST}/${companyId}`;
     setIsLoading(true); // Set loading to true before making the request
-    console.log("customer api===>",apiUrl)
+    console.log("customer api===>", apiUrl)
     axios
       .get(apiUrl, {
         headers: {
@@ -493,7 +493,7 @@ const addDistributorDetails = () => {
   const getDistributorsDetails = () => {
     const apiUrl = `${global?.userData?.productURL}${API.GET_DISTRIBUTORS_DETAILS}/${companyId}`;
     setIsLoading(true);
-    console.log("distributors api ",  apiUrl)
+    console.log("distributors api ", apiUrl)
     axios
       .get(apiUrl, {
         headers: {
@@ -985,7 +985,7 @@ const addDistributorDetails = () => {
       locationCode: '',
       locationDescription: locationInputValues.locationName,
       parentId: 0,
-      customerId: isEnabled? selectedCustomerId :selectedDistributorId,
+      customerId: isEnabled ? selectedCustomerId : selectedDistributorId,
       status: 0,
       phoneNumber: locationInputValues.phoneNumber,
       emailId: '',
@@ -996,7 +996,7 @@ const addDistributorDetails = () => {
       state: locationInputValues.state,
       country: locationInputValues.country,
       pincode: locationInputValues.pincode,
-      customerType:isEnabled? 1: 3,
+      customerType: isEnabled ? 1 : 3,
       latitude: null,
       longitude: null,
       fullName: null,
@@ -1126,14 +1126,15 @@ const addDistributorDetails = () => {
                           onChangeText={text => setSearchQuery(text)}
                         />
                         {!isEnabled
-                          ? (filteredDistributors.length === 0)
+                          ? (filteredDistributors.length === 0 && searchQuery.length > 0)
                             ? (
                               <Text style={style.noCategoriesText}>
                                 Sorry, no results found!
                               </Text>
                             )
                             : (
-                              filteredDistributors.map((item, index) => (
+                              <ScrollView>
+                              {filteredDistributors.map((item, index) => (
                                 <TouchableOpacity
                                   key={index}
                                   style={{
@@ -1154,16 +1155,18 @@ const addDistributorDetails = () => {
                                     {item.firstName}
                                   </Text>
                                 </TouchableOpacity>
-                              ))
+                                ))}
+                              </ScrollView>
                             )
-                          : filteredCustomers.length === 0 
+                          : (filteredCustomers.length === 0 && searchQuery.length > 0)
                             ? (
                               <Text style={style.noCategoriesText}>
                                 Sorry, no results found!
                               </Text>
                             )
                             : (
-                              filteredCustomers.map((item, index) => (
+                              <ScrollView>
+                              {filteredCustomers.map((item, index) => (
                                 <TouchableOpacity
                                   key={index}
                                   style={{
@@ -1174,7 +1177,7 @@ const addDistributorDetails = () => {
                                     borderColor: '#8e8e8e',
                                   }}
                                   onPress={() => handleCustomerSelection(item?.firstName, item?.lastName, item?.customerId)}
-                                   
+
                                 >
                                   <Text
                                     style={{
@@ -1185,7 +1188,8 @@ const addDistributorDetails = () => {
                                     {item.firstName} {item.lastName}
                                   </Text>
                                 </TouchableOpacity>
-                              ))
+                                ))}
+                              </ScrollView>
                             )
                         }
                       </View>
@@ -1273,7 +1277,7 @@ const addDistributorDetails = () => {
                         borderBottomWidth: 1,
                         borderBottomColor: '#ccc',
                       }}
-                      onPress={() =>  handleLocationSelection(location)}>
+                      onPress={() => handleLocationSelection(location)}>
                       <Text>{location.locationName}</Text>
                     </TouchableOpacity>
                   ))}
@@ -1361,7 +1365,7 @@ const addDistributorDetails = () => {
             <Text style={style.txt}>Total Items: {cartItems.length}</Text>
           </View>
           {cartItems.length === 0 ? (
-            <Text style={{marginLeft:10}}>No items in cart</Text>
+            <Text style={{ marginLeft: 10 }}>No items in cart</Text>
           ) : (
             <View>
               {console.log("cartItems.length===>", cartItems.length)}
@@ -2116,6 +2120,9 @@ const style = StyleSheet.create({
     flexDirection: 'row',
     marginVertical: 5,
     alignItems: 'center',
+  },
+  scrollView: {
+    maxHeight: 150,
   },
 });
 export default Cart;
