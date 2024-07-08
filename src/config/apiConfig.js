@@ -13,6 +13,7 @@ export const API = {
   GET_ALL_ORDER: 'erpportal/api/ordermgmt/findAllDisOrders',
   GET_CUSTOMER_LOCATION: 'erpportal/api/location/getLocationsAccCustomer',
   ADD_CUSTOMER_DETAILS: 'erpportal/api/customers/addcustomer',
+  ADD_DISTRIBUTOR_DETAILS: 'erpportal/api/distributors/addDistributor',
   ADD_CUSTOMER_LOCATION: 'erpportal/api/location/addlocation',
   ADD_USERS: 'erpportal/api/users',
   ADD_PRODUCT_INVENTORY: 'erpportal/api/style/cedge/getMainInventory',
