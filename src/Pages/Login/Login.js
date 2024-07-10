@@ -9,6 +9,7 @@ import {
   View,
   ActivityIndicator,
   Keyboard,
+  ScrollView,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {useDispatch} from 'react-redux';
@@ -33,8 +34,58 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false); // State for toggling password visibility
   const [code, setCode] = useState('');
-  const [errorMsg, setErrorMsg]=useState([]);
-  const [isChecked, setIsChecked]=useState(false);
+  const [errorMsg, setErrorMsg] = useState([]);
+  const [isChecked, setIsChecked] = useState(false);
+  const [usernameSuggestions, setUsernameSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
+  useEffect(() => {
+    const loadStoredCredentials = async () => {
+      try {
+        const storedCredentials = await AsyncStorage.getItem('credentials');
+        if (storedCredentials) {
+          setUsernameSuggestions(JSON.parse(storedCredentials));
+        }
+      } catch (error) {
+        console.error('Error loading stored credentials:', error);
+      }
+    };
+    loadStoredCredentials();
+  }, []);
+
+  const handleUsernameChange = async text => {
+    setUsername(text);
+    if (text.length > 0) {
+      try {
+        const storedCredentials = await AsyncStorage.getItem('credentials');
+        const parsedCredentials = storedCredentials
+          ? JSON.parse(storedCredentials)
+          : [];
+        const uniqueCredentials = parsedCredentials.filter(
+          (credential, index, self) =>
+            index === self.findIndex(c => c.username === credential.username),
+        );
+        const filteredSuggestions = uniqueCredentials.filter(credential =>
+          credential.username.toLowerCase().includes(text.toLowerCase()),
+        );
+        setUsernameSuggestions(filteredSuggestions);
+        setShowSuggestions(true);
+      } catch (error) {
+        console.error('Error parsing stored credentials:', error);
+        setUsernameSuggestions([]);
+        setShowSuggestions(false);
+      }
+    } else {
+      setShowSuggestions(false);
+    }
+  };
+
+  const handleSuggestionClick = suggestion => {
+    setUsername(suggestion.username);
+    setPassword(suggestion.password);
+    // setCode(suggestion.code);
+    setShowSuggestions(false);
+  };
 
   useEffect(() => {
     const loadStoredCredentials = async () => {
@@ -47,7 +98,7 @@ const Login = () => {
           setUsername(storedUsername);
           setPassword(storedPassword);
           setCode(storedCode);
-          setIsChecked(true); 
+          setIsChecked(true);
         }
       } catch (error) {
         console.error('Error loading stored credentials:', error);
@@ -79,8 +130,7 @@ const Login = () => {
     }
   };
 
-  const handleEmptyInputs=()=>{
-
+  const handleEmptyInputs = () => {
     setErrorMsg([]);
 
     if (code.trim().length === 0) {
@@ -95,8 +145,7 @@ const Login = () => {
     if (password.trim().length === 0) {
       setErrorMsg(prevErrors => [...prevErrors, 'no_Password']);
     }
-
-  }
+  };
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -106,7 +155,22 @@ const Login = () => {
     navigation.navigate('SignUp');
   };
 
-  const handleLogin = async (productURL) => {
+  const handleLogin = async productURL => {
+    if (!username) {
+      Alert.alert(
+        'crm.codeverse.co.says',
+        'Please enter a username',
+      );
+      return;
+    }
+  
+    if (!password) {
+      Alert.alert(
+        'crm.codeverse.co.says',
+        'Please enter a password',
+      );
+      return;
+    }
     setLoading(true);
     const postData = new URLSearchParams();
     postData.append('username', username);
@@ -120,13 +184,17 @@ const Login = () => {
     };
 
     try {
-      const response = await axios.post( productURL+API.LOGIN, postData.toString(), {
-        headers,
-      });
+      const response = await axios.post(
+        productURL + API.LOGIN,
+        postData.toString(),
+        {
+          headers,
+        },
+      );
       if (isValidString(response.data)) {
-        let data= {token:response.data,productURL:productURL}
+        let data = {token: response.data, productURL: productURL};
         await saveToken(data);
-        await getUsers(response.data,productURL);
+        await getUsers(response.data, productURL);
         navigation.reset({
           index: 0,
           routes: [{name: 'Main'}],
@@ -153,12 +221,17 @@ const Login = () => {
       await AsyncStorage.setItem('userdata', JSON.stringify(data));
       await AsyncStorage.setItem('loggedIn', 'true');
       global.userData = data; // Ensure global userData is updated
-      console.log("globaluserData",global.userData)
+      console.log('globaluserData', global.userData);
       if (isChecked) {
-        await AsyncStorage.setItem('username', username);
-        await AsyncStorage.setItem('password', password);
-        await AsyncStorage.setItem('code', code);
-      }else {
+        const existingCredentials =
+          JSON.parse(await AsyncStorage.getItem('credentials')) || [];
+        const newCredential = {username, password, code};
+        const updatedCredentials = [...existingCredentials, newCredential];
+        await AsyncStorage.setItem(
+          'credentials',
+          JSON.stringify(updatedCredentials),
+        );
+      } else {
         await AsyncStorage.removeItem('username');
         await AsyncStorage.removeItem('password');
         await AsyncStorage.removeItem('code');
@@ -170,13 +243,13 @@ const Login = () => {
 
   const getUsers = async (userData, productURL) => {
     console.log('getUsers userData:', userData);
-    const apiUrl = `${productURL}${API.ADD_USERS}/${userData.userId}`; // Update API URL to include dynamic 
-    console.log("apurl",apiUrl)
+    const apiUrl = `${productURL}${API.ADD_USERS}/${userData.userId}`; // Update API URL to include dynamic
+    console.log('apurl', apiUrl);
     try {
       const response = await axios.get(apiUrl, {
         headers: {Authorization: `Bearer ${userData.access_token}`},
       });
-      const loggedInUser = response.data.response.users[0]; // Since response is expected to have only one user with given 
+      const loggedInUser = response.data.response.users[0]; // Since response is expected to have only one user with given
       if (loggedInUser) {
         // console.log('Logged in user:', loggedInUser);
         dispatch(setLoggedInUser(loggedInUser));
@@ -253,7 +326,11 @@ const Login = () => {
       </View>
       <View style={styles.formContainer}>
         <Text style={styles.title}>Login to Your Account</Text>
-        <View style={[styles.inputContainer, errorMsg?.includes('no_Code') && styles.inputContainerError]}>
+        <View
+          style={[
+            styles.inputContainer,
+            errorMsg?.includes('no_Code') && styles.inputContainerError,
+          ]}>
           <TextInput
             style={styles.input}
             placeholder="Code"
@@ -268,19 +345,22 @@ const Login = () => {
         </View>
 
         {errorMsg?.includes('no_Code') && (
-            <Text style={styles.errorText}>
-                Code is required
-            </Text>
+          <Text style={styles.errorText}>Code is required</Text>
         )}
 
-        <View style={[styles.inputContainer, errorMsg?.includes('no_Username') && styles.inputContainerError]}>
+        <View
+          style={[
+            styles.inputContainer,
+            errorMsg?.includes('no_Username') && styles.inputContainerError,
+          ]}>
           <TextInput
             style={styles.input}
             placeholder="Username"
             placeholderTextColor="#000"
-            onChangeText={text => setUsername(text)}
+            onChangeText={handleUsernameChange}
             value={username}
           />
+
           <Image
             source={require('../../../assets/email.png')}
             style={styles.inputImage}
@@ -288,12 +368,26 @@ const Login = () => {
         </View>
 
         {errorMsg?.includes('no_Username') && (
-            <Text style={styles.errorText}>
-                Username is required
-            </Text>
+          <Text style={styles.errorText}>Username is required</Text>
+        )}
+        {showSuggestions && (
+          <ScrollView style={styles.suggestionsContainer}>
+            {usernameSuggestions.map((suggestion, index) => (
+              <TouchableOpacity
+                key={index}
+                onPress={() => handleSuggestionClick(suggestion)}
+                style={styles.suggestionItem}>
+                <Text>{suggestion.username}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
         )}
 
-        <View style={[styles.inputContainer, errorMsg?.includes('no_Password') && styles.inputContainerError]}>
+        <View
+          style={[
+            styles.inputContainer,
+            errorMsg?.includes('no_Password') && styles.inputContainerError,
+          ]}>
           <TextInput
             style={styles.input}
             placeholder="Password"
@@ -310,13 +404,11 @@ const Login = () => {
           </TouchableOpacity>
         </View>
         {errorMsg?.includes('no_Password') && (
-            <Text style={styles.errorText}>
-                Password is required
-            </Text>
+          <Text style={styles.errorText}>Password is required</Text>
         )}
-        <View style={{flexDirection:'row', alignItems:'center'}}>
-        <CheckBox  onClick={handleCheckBoxToggle}  isChecked={isChecked} />
-        <Text style={{padding:5}}>Remember Me</Text>
+        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+          <CheckBox onClick={handleCheckBoxToggle} isChecked={isChecked} />
+          <Text style={{padding: 5}}>Remember Me</Text>
         </View>
         <View style={styles.rowContainer}>
           {/* <TouchableOpacity onPress={handleForgotPassword}>
@@ -386,16 +478,16 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom:6,
+    marginBottom: 6,
     borderRadius: 5,
     paddingHorizontal: 10,
-    marginVertical:10,
+    marginVertical: 10,
     // backgroundColor: '#D9D9D947',
-    borderWidth: 2,  
+    borderWidth: 2,
     borderColor: '#D9D9D9',
   },
   inputContainerError: {
-    borderColor: 'red',  
+    borderColor: 'red',
   },
 
   formContainer: {
@@ -461,7 +553,21 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: 'red',
-    marginBottom:13,
+    marginBottom: 13,
+  },
+  suggestionsContainer: {
+    top:20,
+    position: 'absolute',
+    left: 20,
+    right: 20,
+    backgroundColor: '#fff',
+    borderColor: '#ccc',
+    borderRadius: 5,
+  },
+  suggestionItem: {
+    padding: 10,
+    borderBottomColor: '#ccc',
+    borderBottomWidth: 1,
   },
 });
 
