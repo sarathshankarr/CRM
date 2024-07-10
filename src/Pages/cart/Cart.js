@@ -561,17 +561,38 @@ const Cart = () => {
   // console.log('selecteditem', selectedItem);
 
   const PlaceAddOrder = () => {
-    if (isSubmitting) return; // Prevent multiple submissions
+    let customerType;
+
+    // Toggle logic based on switch status
+    const switchStatus = isEnabled; // Assuming isEnabled controls the switch
+
+    if (switchStatus) {
+      customerType = 1; // Retailer
+    } else {
+      customerType = 2; // Distributor
+    }
 
     if (isSubmitting) return;
 
-    if (userRole === 'admin') {
+    // if (userRole === 'admin') {
+    //   if (!selectedCustomer || !selectedDistributor) {
+    //     Alert.alert('Alert', 'Please select a customer.');
+    //     return;
+    //   }
+    // } else if (userRole === 'Distributor' || userRole === 'Retailer') {
+    //   // No alert for Distributor or Retailer
+    // }
+
+    if (switchStatus) {
       if (!selectedCustomer) {
         Alert.alert('Alert', 'Please select a customer.');
         return;
       }
-    } else if (userRole === 'Distributor' || userRole === 'Retailer') {
-      // No alert for Distributor or Retailer
+    } else {
+      if (!selectedDistributor) {
+        Alert.alert('Alert', 'Please select a Distributor.');
+        return;
+      }
     }
 
     if (!selectedLocation) {
@@ -648,6 +669,7 @@ const Cart = () => {
     console.log('shippingAddressId:', shippingAddressId);
     console.log('customerId', customerId);
     console.log('cartItems', cartItems);
+    console.log('customerType',customerType)
     const requestData = {
       totalAmount: totalPrice.toString(),
       totalDiscount: '0',
@@ -657,7 +679,7 @@ const Cart = () => {
       totalQty: totalQty.toString(),
       orderStatus: 'Open',
       comments: comments,
-      customerId: userRole === 'admin' ? customerId : roleId, // Use customerId if admin, roleId otherwise
+      customerId: isEnabled ? selectedCustomerId : selectedDistributorId,
       billingAddressId: billingAddressId,
       shippingAddressId: shippingAddressId,
       shipDate: selectedShipDate,
@@ -693,7 +715,7 @@ const Cart = () => {
         poId: 0,
       })),
       comments: comments,
-      customerType: 1,
+      customerType: customerType,
       distributorId: 0,
       invoiceNo: '',
       deliveryNote: '',
