@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   Image,
   StyleSheet,
@@ -7,19 +7,22 @@ import {
   View,
   Modal,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ImagePicker from 'react-native-image-crop-picker';
+import { API } from './config/apiConfig';
+import axios from 'axios';
 
-const Sidebar = ({ navigation, route }) => {
+const Sidebar = ({navigation, route}) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [image, setImage] = useState(require('../assets/profile.png'));
   const [userData, setUserData] = useState(null);
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const [dropdownVisiblee, setDropdownVisiblee] = useState(false); // Add state for second dropdown if needed
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
 
   useEffect(() => {
-    const { params } = route ?? {};
+    const {params} = route ?? {};
     if (params && params.userData) {
       setUserData(params.userData);
     } else {
@@ -40,6 +43,33 @@ const Sidebar = ({ navigation, route }) => {
     if (userToken) {
       setUserData(JSON.parse(userToken));
     }
+  };
+
+  const getUserInActive = () => {
+    if (!userData) return;
+
+    const apiUrl = `${userData.productURL}${API.GET_USER_IN_ACTIVE}/${userData.token.userId}`;
+    axios
+      .get(apiUrl, {
+        headers: {
+          Authorization: `Bearer ${userData.token.access_token}`,
+        },
+      })
+      .then(response => {
+        console.log('Get Inactive User Response:', response.data);
+        if (response.data === true) {
+          // Navigate to login screen
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'Login' }],
+          });
+        } else {
+          console.error('Account not inactive. Could not delete.');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
   };
 
   const toggleDropdown = () => {
@@ -77,11 +107,10 @@ const Sidebar = ({ navigation, route }) => {
   const goToEditProfile = () => {
     navigation.navigate('Profile');
   };
-  const goToActivities= () => {
+
+  const goToActivities = () => {
     navigation.navigate('Activities');
   };
-  
-
 
   const takePhotoFromCamera = () => {
     ImagePicker.openCamera({
@@ -91,7 +120,7 @@ const Sidebar = ({ navigation, route }) => {
       compressImageQuality: 0.7,
     })
       .then(image => {
-        setImage({ uri: image.path });
+        setImage({uri: image.path});
         setModalVisible(false);
       })
       .catch(error => {
@@ -108,7 +137,7 @@ const Sidebar = ({ navigation, route }) => {
       compressImageQuality: 0.7,
     })
       .then(image => {
-        setImage({ uri: image.path });
+        setImage({uri: image.path});
         setModalVisible(false);
       })
       .catch(error => {
@@ -127,8 +156,8 @@ const Sidebar = ({ navigation, route }) => {
       navigation.closeDrawer(); // Close the drawer
       navigation.reset({
         index: 0,
-        routes: [{ name: 'Login' }], 
-    });
+        routes: [{name: 'Login'}],
+      });
     } catch (error) {
       console.error('Error clearing user data:', error);
     }
@@ -187,7 +216,6 @@ const Sidebar = ({ navigation, route }) => {
           />
         </View>
       </TouchableOpacity>
-     
 
       {dropdownVisible && (
         <View style={styles.dropdown}>
@@ -202,23 +230,27 @@ const Sidebar = ({ navigation, route }) => {
           {/* Add more dropdown items here */}
         </View>
       )}
-       <TouchableOpacity onPress={goToDistributorGrn} style={styles.distributorhead}>
+      <TouchableOpacity
+        onPress={goToDistributorGrn}
+        style={styles.distributorhead}>
         <Image
           style={styles.distributorimg}
           source={require('../assets/distributor.png')}
         />
         <Text style={styles.ordertxt}>Distributor GRN</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.inventoryhead} onPress={toggleDropdownSecond}>
+      <TouchableOpacity
+        style={styles.inventoryhead}
+        onPress={toggleDropdownSecond}>
         <Image
           style={styles.orderimg}
           source={require('../assets/activity.png')}
         />
         <Text style={styles.ordertxt}>Campaign Management</Text>
-        <View style={{ marginLeft: 'auto' }}>
+        <View style={{marginLeft: 'auto'}}>
           <Image
             source={require('../assets/dropdown.png')}
-            style={{ width: 20, height: 20 }}
+            style={{width: 20, height: 20}}
           />
         </View>
       </TouchableOpacity>
@@ -270,10 +302,51 @@ const Sidebar = ({ navigation, route }) => {
           />
           <Text style={styles.logouttxt}>Logout</Text>
         </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.orderhead1}
+          onPress={() => setDeleteModalVisible(true)}>
+          <Image
+            style={{height: 25, width: 25}}
+            source={require('../assets/delete.png')}
+          />
+          <Text style={{fontSize: 14, fontWeight: '400', marginLeft: 8}}>
+            Delete Account
+          </Text>
+        </TouchableOpacity>
       </View>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={deleteModalVisible}
+        onRequestClose={() => setDeleteModalVisible(false)}>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Are you sure?</Text>
+            <Text style={styles.modalMessage}>
+              User information will be deleted.
+            </Text>
+            <View style={styles.modalButtonContainer}>
+              <TouchableOpacity
+                style={styles.modalButton1}
+                onPress={() => setDeleteModalVisible(false)}>
+                <Text style={styles.modalButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalButton1, styles.modalDeleteButton]}
+                onPress={() => {
+                  getUserInActive();
+                  setDeleteModalVisible(false);
+                }}>
+                <Text style={styles.modalButtonText}>Delete</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
@@ -330,6 +403,13 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
     marginTop: 20,
   },
+  orderhead1: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 10,
+    marginBottom: 7,
+    justifyContent: 'center',
+  },
   inventoryhead: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -381,6 +461,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: 10,
   },
+  logoutbox1: {
+    borderWidth: 1,
+    borderColor: '#390050',
+    backgroundColor: '#390050',
+    borderRadius: 15,
+    paddingVertical: 5,
+    flexDirection: 'row',
+    marginHorizontal: 30,
+    justifyContent: 'center',
+    marginBottom: 10,
+  },
   logoutimg: {
     height: 20,
     width: 15,
@@ -414,6 +505,30 @@ const styles = StyleSheet.create({
     backgroundColor: 'red',
     borderRadius: 10,
     marginTop: 10,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  modalMessage: {
+    fontSize: 16,
+    marginBottom: 20,
+  },
+  modalButtonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  modalButton1: {
+    flex: 1,
+    paddingVertical: 15,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginHorizontal: 5,
+  },
+
+  modalDeleteButton: {
+    backgroundColor: 'red',
   },
 });
 

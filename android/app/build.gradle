@@ -76,7 +76,7 @@ android {
 
     namespace "com.crm"
     defaultConfig {
-        applicationId "com.crm"
+        applicationId "com.hexacrm"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
