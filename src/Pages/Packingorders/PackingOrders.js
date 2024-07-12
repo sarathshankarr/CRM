@@ -180,6 +180,7 @@ const PackingOrders = () => {
       <View style={styles.orderContainer}>
         <Text style={styles.text}>{item.p_id}</Text>
         <Text style={styles.text1}>{item.totQty}</Text>
+        <Text style={{textAlign: 'center',flex:0.4}}>{item.shipQty}</Text>
         <Text style={styles.text2}>{item.totAmnt}</Text>
         <Text style={styles.text3}>{item.packNo}</Text>
         <Text style={styles.text4}>{item.packUserName}</Text>
@@ -217,9 +218,10 @@ const PackingOrders = () => {
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerText}>ID</Text>
-        <Text style={styles.headerText1}>Total Quantity</Text>
-        <Text style={styles.headerText1}>Total Amount</Text>
-        <Text style={styles.headerText2}>Packing slip no</Text>
+        <Text style={styles.headerText1}>Total Qty</Text>
+        <Text style={{  textAlign: 'center',flex: 0.5,}}>ship Qty</Text>
+        <Text style={styles.headerText5}>Total Amnt</Text>
+        <Text style={styles.headerText2}>Packing Slip No</Text>
         <Text style={styles.headerText3}>Pack By</Text>
         <Text style={styles.headerText4}>Ship By</Text>
       </View>
@@ -250,11 +252,16 @@ const styles = StyleSheet.create({
   },
   headerText1: {
     textAlign: 'center',
-    flex: 1,
+    flex: 0.5,
+  },
+  headerText5: {
+    textAlign: 'center',
+    flex: 0.6,
   },
   headerText2: {
     textAlign: 'center',
-    flex: 1,
+    flex: 0.8,
+    marginLeft:5
   },
   headerText3: {
     textAlign: 'center',
@@ -262,7 +269,7 @@ const styles = StyleSheet.create({
   },
   headerText4: {
     textAlign: 'center',
-    flex: 1,
+    flex: 0.8,
   },
   orderContainer: {
     flexDirection: 'row',
@@ -276,7 +283,7 @@ const styles = StyleSheet.create({
   },
   text1: {
     textAlign: 'center',
-    flex: 1,
+    flex: 0.7,
   },
   text2: {
     textAlign: 'center',
@@ -285,6 +292,7 @@ const styles = StyleSheet.create({
   text3: {
     textAlign: 'center',
     flex: 1,
+  
   },
   text4: {
     textAlign: 'center',

@@ -1414,10 +1414,10 @@ const Cart = () => {
                               />
                             )}
                             <View style={{ flex: 1 }}>
-                              <Text style={{ fontSize: 15, fontWeight: 'bold' }}>
+                              <Text style={{ fontSize: 15, fontWeight: 'bold',marginLeft:5 }}>
                                 {item.styleDesc}
                               </Text>
-                              <Text style={{ fontSize: 15, fontWeight: 'bold' }}>ColorName - {item.colorName}</Text>
+                              <Text style={{ fontSize: 15, fontWeight: 'bold',marginLeft:5 }}>Color Name - {item.colorName}</Text>
                             </View>
                             <View style={style.buttonsContainer}>
                               <TouchableOpacity onPress={() => openModal(item)}>
