@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import axios from 'axios';
 import { API } from '../../config/apiConfig';
+import { formatDateIntoDMY } from '../../Helper/Helper';
 
 const Tasks = () => {
   const navigation = useNavigation();
@@ -38,7 +39,7 @@ const Tasks = () => {
       .then(response => {
         setTasks(response.data); // Update tasks state
         setFilteredTasks(response.data); // Initialize filtered tasks with all tasks
-        // console.log("fetchTasks",response.data)
+        console.log("fetchTasks",response.data[0])
       })
       .catch(error => {
         console.error('Error:', error);
@@ -108,7 +109,9 @@ const Tasks = () => {
       <Text style={styles.taskText}>{item.taskName}</Text>
       <Text style={styles.taskText1}>{item.relatedTo}</Text>
       <Text style={styles.taskText3}>{item.status}</Text>
-      <Text style={styles.taskText}>{truncateText(item.desc, 2)}</Text>
+      <Text style={styles.taskText3}>{item.created_on}</Text>
+      {/* <Text style={styles.taskText3}>{formatDateIntoDMY(item?.untilDate.split('T')[0])}</Text> */}
+      {/* <Text style={styles.taskText}>{truncateText(item.desc, 2)}</Text> */}
     </TouchableOpacity>
   );
 
@@ -137,7 +140,7 @@ const Tasks = () => {
         <Text style={styles.headerText}>Task Name</Text>
         <Text style={styles.headerText}>Related To</Text>
         <Text style={styles.headerText}>Status</Text>
-        <Text style={styles.headerText}>Description</Text>
+        <Text style={styles.headerText}> Date</Text>
       </View>
       {loading ? (
         <ActivityIndicator size="large" color="#0000ff" />
@@ -180,6 +183,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 10,
     fontSize: 16,
+    color:'#000000'
   },
   searchIcon: {
     width: 25,
@@ -201,7 +205,7 @@ const styles = StyleSheet.create({
   listHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: 5,
+    paddingHorizontal: 10,
     paddingVertical: 10,
     backgroundColor: '#f0f0f0',
   },
@@ -209,11 +213,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     flex: 1,
+    paddingHorizontal: 5,
+
   },
   taskItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingVertical: 10,
+    paddingHorizontal: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
   },

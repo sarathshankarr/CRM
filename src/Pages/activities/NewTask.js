@@ -19,6 +19,7 @@ import axios from 'axios';
 import {useDispatch, useSelector} from 'react-redux';
 import {API} from '../../config/apiConfig';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { formatDateIntoDMY } from '../../Helper/Helper';
 
 const NewTask = () => {
   const dispatch = useDispatch(); // Get dispatch function from useDispatch hook
@@ -83,7 +84,7 @@ const NewTask = () => {
 
 
   useEffect(()=>{
-    setSelectedLocation('Location *');
+    setSelectedLocation('Location ');
     setCustomerLocations([]);
   }, [isEnabled])
 
@@ -105,6 +106,8 @@ const NewTask = () => {
       ? selectedCustomerId
       : selectedDistributorId;
     console.log('customerId:', customerId);
+   
+    if(!customerId) return;
 
     const apiUrl = `${global?.userData?.productURL}${API.GET_CUSTOMER_LOCATION}/${customerId}/${customerType}/${companyId}`;
     console.log('Fetching customer locations with companyId:', companyId);
@@ -172,7 +175,7 @@ const NewTask = () => {
   const handleFromDropdownClick = () => {
     setFromToClicked(!fromToClicked);
     if (!fromToClicked) {
-      getCustomerLocations(selectedCustomerId);
+      getCustomerLocations();
     }
   };
   const handleLocationSelection = location => {
@@ -184,7 +187,7 @@ const NewTask = () => {
   const handleShipDropdownClick = () => {
     setShipFromToClicked(!shipFromToClicked);
     if (!shipFromToClicked) {
-      getCustomerLocations(selectedCustomerId);
+      getCustomerLocations();
     }
   };
   useEffect(() => {
@@ -219,7 +222,9 @@ const NewTask = () => {
 
   const handleShipDropdownClickCustomer = () => {
     if (!shipFromToClickedCustomer) {
-      getCustomersDetails();
+      if(customers.length===0){
+        getCustomersDetails();
+      }
     }
     setShipFromToClickedCustomer(!shipFromToClickedCustomer);
   };
@@ -232,7 +237,9 @@ const NewTask = () => {
 
   const handleShipDropdownClickDistributor = () => {
     if (!shipFromToClickedDistributor) {
-      getDistributorsDetails();
+      if(distributor.length===0){
+        getDistributorsDetails();
+      }
     }
     setShipFromToClickedDistributor(!shipFromToClickedDistributor);
   };
@@ -261,17 +268,106 @@ const NewTask = () => {
       setSelectedStatusOption(task.status || '');
       setSelectedCustomerOption(task.customer)
       setSelectedCustomerId(task.customerId)
-      setSelectedDropdownOption({
-        value: task.repeatRem || '',
-      });
+      getdueDate(task.dueDate);
+      getuntilDate(task.untilDate);
+      getTaskRepeatRem(task.repeatRem);
+      task.priority && setMarkHighPriority(true);
+      // task?.customerType && task?.customerType ===1 ? setIsEnabled(true):setIsEnabled(false);
     }
   }, [route.params]);
 
+     useEffect(()=>{
+      console.log('task', task);
+      if (route.params && route.params.task) {
+        const {task} = route.params;
+        getUserRole(task.assign_to);
+         getNameAndLocation(task.customerType, task.customerId, task.locId);
+         console.log("inside useeffect ",selectedCustomerId,  selectedDistributorId)
+       }
+     }, [route.params, selectedCustomerId, selectedDistributorId, users, customers, distributor])
+
+  const getdueDate=(date)=>{
+    if(!date) return;
+    const formattedDate = date.split('T')[0]; // Formats date to "YYYY-MM-DD"
+    setSelectedDateDue(formattedDate);
+  }
+  const getuntilDate=(date)=>{
+    if(!date) return;
+    setShowDropdownRow(true);
+    const formattedDate = date.split('T')[0]; // Formats date to "YYYY-MM-DD"
+    setSelectedDateUntil(formattedDate);
+  }
+
+  const getTaskRepeatRem=(repeatRem)=>{
+    if(!repeatRem) return;
+    setShowDropdownRow(true);
+    setSelectedDropdownOption(dropdownOptions[repeatRem-1]);
+  }
+
+  const getUserRole= async(role)=>{
+    
+    if(users.length===0){
+      await getUsers();
+    }
+
+    let foundItem = await users?.find(item => item.userId === role);
+    console.log("users, role ==> ", users[0], role)
+        if (foundItem) {
+          console.log("founded user role ==> ", foundItem);
+          setSelectedUserOption(foundItem.firstName);
+        }
+  }
+
+  const getNameAndLocation = async (task_customerType, task_customerId, task_locId) => {
+    if (task_customerType && task_customerType === 1) {
+         setIsEnabled(true);
+
+        if (task_customerId) {
+            await setSelectedCustomerId(task_customerId);
+        }
+        if(customers.lenght===0){
+          await getCustomersDetails();
+        }
+        let foundItem = await customers?.find(item => item.customerId === task_customerId);
+        if (foundItem) {
+            setSelectedCustomerOption(foundItem.firstName);
+        }
+    } else {
+         setIsEnabled(false);
+
+        if (task_customerId) {
+            await setSelectedDistributorId(task_customerId);
+        }
+        if(distributor.length===0){
+          await getDistributorsDetails();
+        }
+        let foundItem = await distributor?.find(item => item.id === task_customerId);
+        if (foundItem) {
+            setSelectedDistributorOption(foundItem.firstName);
+        }
+    }
+
+    if(task_locId){
+      await setSelectedLocationiD(task_locId);
+      await getCustomerLocations();
+      let foundItem = await  customerLocations?.find(item => item.locationId === task_locId);
+         if (foundItem) {
+             setSelectedLocation(foundItem.locationName) ;
+          }
+    }
+};
+
   useEffect(() => {
-    if (shipFromToClickedUser) {
+    if(users.length===0){
       getUsers();
     }
-  }, [shipFromToClickedUser]);
+    if(customers.length==0){
+      getCustomersDetails();
+    }
+    if(distributor.length===0){
+      getDistributorsDetails()
+    }
+}, []);
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
@@ -326,8 +422,8 @@ const NewTask = () => {
           setUsers(response.data.response.users);
           setFilteredUsers(response.data.response.users); // Initialize filtered users
           console.log(
-            'response.data.response.users',
-            response.data.response.users,
+            'get users[0]',
+            response.data.response.users[0],
           );
         } else {
           console.error('Error fetching users:', response.data);
@@ -434,7 +530,7 @@ console.log('customeroption:', customeroption);
       relatedTo: relatedTo || null,
       desc: desc || null,
       completed: null,
-      priority: null,
+      priority: markHighPriority?1:0,
       assign_to: selectedUserId,
       assign_by: userData.userId,
       t_company_id: null,
@@ -521,14 +617,27 @@ console.log('customeroption:', customeroption);
               onChangeText={handleSearchCustomer}
             />
             <ScrollView style={styles.scrollView}>
-              {filteredCustomer.map((customer, index) => (
+              {/* {filteredCustomer.map((customer, index) => (
                 <TouchableOpacity
                   key={index}
                   onPress={() => handleDropdownSelectCustomer(customer)}
                   style={styles.dropdownOption}>
                   <Text>{customer.firstName}</Text>
                 </TouchableOpacity>
-              ))}
+              ))} */}
+              {filteredCustomer.length === 0  ? (
+                  <Text style={styles.noCategoriesText}>Sorry, no results found!</Text>
+                ) : (
+                  filteredCustomer.map((customer, index) => (
+                    <TouchableOpacity
+                      key={index}
+                      onPress={() => handleDropdownSelectCustomer(customer)}
+                      style={styles.dropdownOption}
+                    >
+                      <Text>{customer.firstName}</Text>
+                    </TouchableOpacity>
+                  ))
+                )}
             </ScrollView>
           </View>
         )
@@ -562,14 +671,27 @@ console.log('customeroption:', customeroption);
               placeholderTextColor="#000"
             />
             <ScrollView style={styles.scrollView}>
-              {filteredDistributor.map((distributor, index) => (
+              {/* {filteredDistributor.map((distributor, index) => (
                 <TouchableOpacity
                   key={index}
                   onPress={() => handleDropdownSelectDistributor(distributor)}
                   style={styles.dropdownOption}>
                   <Text>{distributor.firstName}</Text>
                 </TouchableOpacity>
-              ))}
+              ))} */}
+              {filteredDistributor.length === 0  ? (
+                  <Text style={styles.noCategoriesText}>Sorry, no results found!</Text>
+                ) : (
+                  filteredDistributor.map((distributor, index) => (
+                    <TouchableOpacity
+                      key={index}
+                      onPress={() => handleDropdownSelectDistributor(distributor)}
+                      style={styles.dropdownOption}
+                    >
+                      <Text>{distributor.firstName}</Text>
+                    </TouchableOpacity>
+                  ))
+                )}
             </ScrollView>
           </View>
         )
@@ -625,14 +747,17 @@ console.log('customeroption:', customeroption);
       {fromToClicked && (
         <View style={styles.dropdownContent1}>
           <ScrollView style={styles.scrollView}>
-            {customerLocations.map(location => (
+            {customerLocations.length===0 ?(
+                <Text style={styles.noCategoriesText}>Sorry, no results found!</Text> 
+             ):(
+            customerLocations.map(location => (
               <TouchableOpacity
                 style={styles.dropdownOption}
                 key={location.locationId}
                 onPress={() => handleLocationSelection(location)}>
                 <Text>{location.locationName}</Text>
               </TouchableOpacity>
-            ))}
+            )))}
           </ScrollView>
         </View>
       )}
@@ -669,14 +794,17 @@ console.log('customeroption:', customeroption);
               placeholderTextColor="#000"
             />
             <ScrollView style={styles.scrollView}>
-              {filteredUsers.map((user, index) => (
+              {filteredUsers.length===0 ?(
+                <Text style={styles.noCategoriesText}>Sorry, no results found!</Text> 
+             ):(
+              filteredUsers.map((user, index) => (
                 <TouchableOpacity
                   key={index}
                   style={styles.dropdownOption}
                   onPress={() => handleDropdownSelectUser(user)}>
                   <Text>{user.firstName}</Text>
                 </TouchableOpacity>
-              ))}
+              )))}
             </ScrollView>
           </View>
         )
@@ -713,7 +841,7 @@ console.log('customeroption:', customeroption);
       <View style={styles.datecontainer}>
         <TouchableOpacity onPress={showDatePickerDue}>
           <View style={{paddingVertical: 10}}>
-            <Text style={{marginLeft: 10}}>{selectedDateDue}</Text>
+            <Text style={{marginLeft: 10}}>{selectedDateDue!=="Due Date"?formatDateIntoDMY(selectedDateDue) : selectedDateDue}</Text>
           </View>
         </TouchableOpacity>
         <TouchableOpacity
@@ -739,7 +867,7 @@ console.log('customeroption:', customeroption);
           marginLeft: 10,
         }}>
         <CheckBox isChecked={showDropdownRow} onClick={handleCheckboxChange} />
-        <Text style={{marginLeft: 5}}>Repeat</Text>
+        <Text style={{marginLeft: 5}}>Repeats</Text>
       </View>
 
       {showDropdownRow && (
@@ -784,7 +912,7 @@ console.log('customeroption:', customeroption);
               paddingRight: 15,
               marginLeft: 5,
             }}>
-            <Text>{selectedDateUntil}</Text>
+            <Text>{selectedDateUntil!=="Until Date"?formatDateIntoDMY(selectedDateUntil) : selectedDateUntil}</Text>
             <Image
               style={styles.dateIcon}
               source={require('../../../assets/date.png')}
@@ -926,6 +1054,7 @@ const styles = StyleSheet.create({
   input: {
     fontSize: 16,
     paddingHorizontal: 10,
+    color:'#000000'
   },
   datecontainer: {
     flexDirection: 'row',
@@ -957,10 +1086,21 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   searchInput: {
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
+    // paddingHorizontal: 10,
+    // paddingVertical: 8,
+    // borderBottomWidth: 1,
+    // borderBottomColor: '#ccc',
+    //------------
+    marginTop: 10,
+    borderRadius: 10,
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
+    marginHorizontal: 10,
+    paddingLeft: 10,
+    marginBottom: 10,
+    color:'#000000'
+
   },
   scrollView: {
     maxHeight: 150,
@@ -972,11 +1112,18 @@ const styles = StyleSheet.create({
     borderBottomColor: '#ccc',
   },
   dropdownContent1: {
-    marginHorizontal: 10,
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 10,
-    elevation: 2,
+    // marginHorizontal: 10,
+    // backgroundColor: '#fff',
+    // borderRadius: 10,
+    // padding: 10,
+    // elevation: 2,
+    //----------------
+       elevation: 5,
+       height: 220,
+       alignSelf: 'center',
+       width: '90%',
+       backgroundColor: '#fff',
+       borderRadius: 10,
   },
   dropdownButton: {
     height: 50,
@@ -988,6 +1135,13 @@ const styles = StyleSheet.create({
     paddingLeft: 15,
     paddingRight: 15,
     marginHorizontal: 10,
+  },
+  noCategoriesText: {
+    textAlign: 'center',
+    marginTop: 20,
+    fontSize: 16,
+    fontWeight: '600',
+    color:'#000000'
   },
 });
 
