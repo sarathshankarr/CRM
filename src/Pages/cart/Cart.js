@@ -1141,6 +1141,7 @@ const Cart = () => {
                             marginHorizontal: 10,
                             paddingLeft: 10,
                             marginBottom: 10,
+                            color:'#000000'
                           }}
                           placeholderTextColor="#000"
                           placeholder="Search"
@@ -1148,7 +1149,7 @@ const Cart = () => {
                           onChangeText={text => setSearchQuery(text)}
                         />
                         {!isEnabled
-                          ? (filteredDistributors.length === 0 && searchQuery.length > 0)
+                          ? (filteredDistributors.length === 0 && !isLoading)
                             ? (
                               <Text style={style.noCategoriesText}>
                                 Sorry, no results found!
@@ -1180,7 +1181,7 @@ const Cart = () => {
                                 ))}
                               </ScrollView>
                             )
-                          : (filteredCustomers.length === 0 && searchQuery.length > 0)
+                          : (filteredCustomers.length === 0 && !isLoading)
                             ? (
                               <Text style={style.noCategoriesText}>
                                 Sorry, no results found!

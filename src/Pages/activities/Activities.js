@@ -1,19 +1,33 @@
 import React from 'react';
 import {
+  Image,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import { useNavigation } from '@react-navigation/native';
 import Tasks from './Tasks';
 import Call from './Call';
 
 const Tab = createMaterialTopTabNavigator();
 
 const CustomTabBar = ({ state, descriptors, navigation }) => {
+
+  const handleGoBack = () => {
+    navigation.goBack();
+  };
   return (
     <View style={styles.tabContainer}>
+       <View style={styles.header}>
+        <TouchableOpacity onPress={handleGoBack} style={styles.backButton}>
+          <Image
+            style={{height: 25, width: 25}}
+            source={require('../../../assets/back_arrow.png')}
+          />
+        </TouchableOpacity>
+      </View>
       {state.routes.map((route, index) => {
         const label = route.name;
         const isFocused = route.key === state.routes[state.index].key;
@@ -33,11 +47,13 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
 };
 
 const Activities = () => {
+    const navigation = useNavigation();
+
   return (
     <View style={styles.container}>
-      <Tab.Navigator tabBar={props => <CustomTabBar {...props} />}>
+      <Tab.Navigator tabBar={props => <CustomTabBar {...props}  navigation={navigation}/>}>
         <Tab.Screen name="Tasks" component={Tasks} />
-        <Tab.Screen name="Call" component={Call} />
+        <Tab.Screen name="Calls" component={Call} />
       </Tab.Navigator>
     </View>
   );
@@ -53,6 +69,12 @@ const styles = StyleSheet.create({
     justifyContent: 'space-evenly',
     borderRadius: 30,
     borderColor: '#000',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    paddingTop: 10,
   },
   tabButton: {
     flex: 1,

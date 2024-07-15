@@ -20,6 +20,7 @@ import axios from 'axios';
 import {API} from '../../config/apiConfig';
 import {useSelector} from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { formatDateIntoDMY } from '../../Helper/Helper';
 
 const NewCall = () => {
   const route = useRoute();
@@ -30,7 +31,7 @@ const NewCall = () => {
   const callId = route.params?.callId;
   const [isDatePickerVisibleUntil, setDatePickerVisibilityUntil] =
     useState(false);
-  const [selectedDateUntil, setSelectedDateUntil] = useState('Call Start Time');
+  const [selectedDateUntil, setSelectedDateUntil] = useState('Call Start Date');
   const [shipFromToClicked, setShipFromToClicked] = useState(false);
   const [shipFromToClickedUser, setShipFromToClickedUser] = useState(false); // State for the User dropdown
   const [shipFromToClickedStatus, setShipFromToClickedStatus] = useState(false); // State for the Status dropdown
@@ -77,10 +78,8 @@ const NewCall = () => {
   const [loadinggg, setLoadinggg] = useState(false);
   const [distributor, setDistributor] = useState([]);
   const [filteredDistributor, setFilterdDistributor] = useState([]);
-  const [shipFromToClickedDistributor, setShipFromToClickedDistributor] =
-    useState(false);
-  const [selectedDistributorOption, setSelectedDistributorOption] =
-    useState(null);
+  const [shipFromToClickedDistributor, setShipFromToClickedDistributor] =useState(false);
+  const [selectedDistributorOption, setSelectedDistributorOption] =useState(null);
   const [selectedDistributorId, setSelectedDistributorId] = useState(null);
 
   const [customerLocations, setCustomerLocations] = useState([]);
@@ -89,7 +88,7 @@ const NewCall = () => {
   const [selectedLocationId, setSelectedLocationiD] = useState('');
 
   useEffect(()=>{
-    setSelectedLocation('Location *');
+    setSelectedLocation('Location ');
     setCustomerLocations([]);
   }, [isEnabled])
 
@@ -110,10 +109,16 @@ const NewCall = () => {
     const customerId = switchStatus
       ? selectedCustomerId
       : selectedDistributorId;
-    console.log('customerId:', customerId);
+      // if(!customerId) return;
 
+    const text=isEnabled?"customerId in getCustomerLocations :===>":"dtributorId in getCustomerLocations :===>"
+    console.log(text, customerId);
+
+    if(!customerId) return;
+    
+    console.log('request body ==> ', customerId, companyId, customerType);
     const apiUrl = `${global?.userData?.productURL}${API.GET_CUSTOMER_LOCATION}/${customerId}/${customerType}/${companyId}`;
-    console.log('Fetching customer locations with companyId:', companyId);
+    console.log('Fetching customer locations with companyId:',  companyId);
 
     axios
       .get(apiUrl, {
@@ -125,17 +130,35 @@ const NewCall = () => {
         setCustomerLocations(response.data);
         console.log('location response', response.data);
       })
-      .catch(error => {
-        console.error('Error:', error);
-        if (error.response && error.response.status === 401) {
-          // Handle unauthorized error
-        }
-      });
-  };
+      // .catch(error => {
+      //   console.error('Error occurred while fetching customer locations:');
+      //   if (error.response) {
+      //     console.log('Response data:', JSON.stringify(error.response.data, null, 2));
+      //     console.log('Response status:', error.response.status);
+      //     console.log('Response headers:', JSON.stringify(error.response.headers, null, 2));
+      //     if (error.response.status === 404) {
+      //       console.log('Resource not found. Please check the endpoint and parameters.');
+      //     } else if (error.response.status === 401) {
+      //       console.log('Unauthorized access. Please check your authentication token.');
+      //     } else {
+      //       console.log('Unexpected error occurred with status:', error.response.status);
+      //     }
+      //   } else {
+      //     console.error('Error message:', error.message);
+      //     console.error('Error config:', JSON.stringify(error.config, null, 2));
+      //   }
+           .catch(error => {
+             console.error('Error:', error);
+             if (error.response && error.response.status === 401) {
+               // Handle unauthorized error
+             }
+           });
+          }
+        // })};
   const handleFromDropdownClick = () => {
     setFromToClicked(!fromToClicked);
     if (!fromToClicked) {
-      getCustomerLocations(selectedCustomerId);
+      getCustomerLocations();
     }
   };
   const handleLocationSelection = location => {
@@ -147,25 +170,100 @@ const NewCall = () => {
   const handleShipDropdownClick = () => {
     setShipFromToClicked(!shipFromToClicked);
     if (!shipFromToClicked) {
-      getCustomerLocations(selectedCustomerId);
+      getCustomerLocations();
     }
   };
   useEffect(() => {
-    console.log('call', call);
     if (route.params && route.params.call) {
       const {call} = route.params;
+      console.log('call===>   ', call);
       setRelatedTo(call.relatedTo || '');
       setAgenda(call.agenda || '');
-      setSelectedUserOption(call.userName);
+      // setSelectedUserOption(call.userName);
       setSelectedStatusOption(call.status);
-      setSelectedCustomerOption(call.customer);
-      setSelectedUserName(call.userName);
-      setSelectedCustomerOption(call.customer);
+      // setSelectedUserName(call.userName);
       setSelectedDropdownOptionTime(call.startTime);
       setMarkHighPriority(call.markHighPriority);
-      setSelectedCustomerId(call.customerId);
+      getDateFromCall(call.startDate);
+      getRemainder(call.remTime);
+      call.callType && setSelectedDropdownOptionCallType(CallType[call.callType-1]);      
     }
   }, [route.params]);
+
+  useEffect(()=>{
+    if (route.params && route.params.call) {
+      const {call} = route.params;
+      getUserRole(call.assignTo);
+      getNameAndLocation(call.customerType, call.customerId, call.locId);
+      console.log("inside useeffect ",selectedCustomerId,  selectedDistributorId)
+    }
+  }, [route.params, selectedCustomerId, selectedDistributorId, users, customers, distributor])
+
+  const getDateFromCall=(date)=>{
+    if(!date) return;
+    const formattedDate = date.split('T')[0]; // Formats date to "YYYY-MM-DD"
+    // console.log("formattedDate== .", formattedDate)
+    setSelectedDateUntil(formattedDate);
+  }
+  const getRemainder =(time)=>{
+    if(!time) return;
+    setShowDropdownRow(true);
+    setSelectedDropdownOption(dropdownOptions[time-1]);
+    
+  }
+
+  const getUserRole= async(role)=>{
+    
+    if(users.length===0){
+      await getUsers();
+    }
+
+    let foundItem = await users?.find(item => item.userId === role);
+    console.log("users, role ==> ", users[0], role)
+        if (foundItem) {
+          console.log("founded user role ==> ", foundItem);
+          setSelectedUserOption(foundItem.firstName);
+        }
+  }
+
+  const getNameAndLocation = async (call_customerType, call_customerId, call_locId) => {
+    if (call_customerType && call_customerType === 1) {
+         setIsEnabled(true);
+
+        if (call_customerId) {
+            await setSelectedCustomerId(call_customerId);
+        }
+        if(customers.lenght===0){
+          await getCustomersDetails();
+        }
+        let foundItem = await customers?.find(item => item.customerId === call_customerId);
+        if (foundItem) {
+            setSelectedCustomerOption(foundItem.firstName);
+        }
+    } else {
+         setIsEnabled(false);
+
+        if (call_customerId) {
+            await setSelectedDistributorId(call_customerId);
+        }
+        if(distributor.length===0){
+          await getDistributorsDetails();
+        }
+        let foundItem = await distributor?.find(item => item.id === call_customerId);
+        if (foundItem) {
+            setSelectedDistributorOption(foundItem.firstName);
+        }
+    }
+
+    if(call_locId){
+      await setSelectedLocationiD(call_locId);
+      await getCustomerLocations();
+      let foundItem = await  customerLocations?.find(item => item.locationId === call_locId);
+         if (foundItem) {
+             setSelectedLocation(foundItem.locationName) ;
+          }
+    }
+};
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
@@ -204,7 +302,9 @@ const NewCall = () => {
 
   const handleShipDropdownClickCustomer = () => {
     if (!shipFromToClickedCustomer) {
-      getCustomersDetails();
+      if(customers.length===0){
+        getCustomersDetails();
+      }
     }
     setShipFromToClickedCustomer(!shipFromToClickedCustomer);
   };
@@ -220,10 +320,10 @@ const NewCall = () => {
     console.log('Selected Customer IDDropdown:', selectedCustomerId);
   };
 
-  useEffect(() => {
-    console.log('Selected Customer Option:', selectedCustomerOption);
-    console.log('Selected Customer ID:', selectedCustomerId);
-  }, [selectedCustomerOption, selectedCustomerId]);
+  // useEffect(() => {
+  //   console.log('Selected Customer Option:', selectedCustomerOption);
+  //   console.log('Selected Customer ID:', selectedCustomerId);
+  // }, [selectedCustomerOption, selectedCustomerId]);
 
   const selectedCompany = useSelector(state => state.selectedCompany);
 
@@ -269,11 +369,15 @@ const NewCall = () => {
         console.error('Error:', error);
         setLoadingg(false);
       });
+
+      console.log("customer LIst ===>",customers)
   };
 
   const handleShipDropdownClickDistributor = () => {
     if (!shipFromToClickedDistributor) {
-      getDistributorsDetails();
+      if(distributor.length===0){
+        getDistributorsDetails();
+      }
     }
     setShipFromToClickedDistributor(!shipFromToClickedDistributor);
   };
@@ -281,7 +385,9 @@ const NewCall = () => {
     const filtered = distributor.filter(distributor =>
       distributor.firstName.toLowerCase().includes(text.toLowerCase()),
     );
-    setShipFromToClickedDistributor(filtered);
+    // setShipFromToClickedDistributor(filtered);
+    setFilterdDistributor(filtered);
+    
   };
   const handleDropdownSelectDistributor = Distributor => {
     setSelectedDistributorOption(Distributor.firstName);
@@ -289,10 +395,10 @@ const NewCall = () => {
     setShipFromToClickedDistributor(false);
   };
 
-  useEffect(() => {
-    console.log('selectedDistributorOption:', selectedDistributorOption);
-    console.log('selectedDistributorId:', selectedDistributorId);
-  }, [selectedDistributorOption, selectedDistributorId]);
+  // useEffect(() => {
+  //   console.log('selectedDistributorOption:', selectedDistributorOption);
+  //   console.log('selectedDistributorId:', selectedDistributorId);
+  // }, [selectedDistributorOption, selectedDistributorId]);
 
   const getDistributorsDetails = () => {
     const apiUrl = `${global?.userData?.productURL}${API.GET_DISTRIBUTORS_DETAILS}/${companyId}`;
@@ -313,13 +419,20 @@ const NewCall = () => {
         console.error('Error:', error);
         setLoadinggg(false);
       });
+      console.log("distributor LIst ===>", distributor )
   };
 
   useEffect(() => {
-    if (shipFromToClickedUser) {
-      getUsers();
-    }
-  }, [shipFromToClickedUser]);
+      if(users.length===0){
+        getUsers();
+      }
+      if(customers.length==0){
+        getCustomersDetails();
+      }
+      if(distributor.length===0){
+        getDistributorsDetails()
+      }
+  }, []);
 
   const handleGoBack = () => {
     navigation.goBack();
@@ -364,10 +477,10 @@ const NewCall = () => {
         ) {
           setUsers(response.data.response.users);
           setFilteredUsers(response.data.response.users); // Initialize filtered users
-          // console.log(
-          //   'response.data.response.users',
-          //   response.data.response.users,
-          // );
+          console.log(
+            'response.data.response.users',
+            response.data.response.users[0],
+          );
         } else {
           console.error('Error fetching users:', response.data);
         }
@@ -489,12 +602,12 @@ const NewCall = () => {
   };
 
   const dropdownOptions = [
+    {label: '5 Mins', value: 5},
+    {label: '10 Mins', value: 10},
     {label: '15 Mins', value: 15},
     {label: '30 Mins', value: 30},
     {label: '1 Hr', value: 1},
     {label: '2 Hr', value: 2},
-    {label: '1 day', value: 1},
-    {label: '2 day', value: 2},
   ];
   const handleDropdownSelect = option => {
     setSelectedDropdownOption(option);
@@ -536,7 +649,7 @@ const NewCall = () => {
       id: callData ? callData.id : 0,
       customerId: customerId || null,
       startDate:
-        selectedDateUntil !== 'Call Start Time'
+        selectedDateUntil !== 'Call Start Date'
           ? selectedDateUntil
           : callData?.startDate,
       startTime: selectedDropdownOptionTime || callData?.startTime,
@@ -556,6 +669,7 @@ const NewCall = () => {
       customerType: customerType,
     };
 
+    console.log("requested Data ===>  ", requestData)
     axios
       .post(global?.userData?.productURL + API.ADD_NEW_CALL, requestData, {
         headers: {
@@ -579,7 +693,7 @@ const NewCall = () => {
       <TouchableOpacity
         onPress={handleShipDropdownClickCustomer}
         style={styles.dropdownButton}>
-        <Text>{selectedCustomerOption || 'Retailer *'}</Text>
+        <Text>{selectedCustomerOption || 'Retailer '}</Text>
         <Image
           source={require('../../../assets/dropdown.png')}
           style={{width: 20, height: 20}}
@@ -600,14 +714,19 @@ const NewCall = () => {
               placeholderTextColor="#000"
             />
             <ScrollView style={styles.scrollView}>
-              {filteredCustomer.map((customer, index) => (
-                <TouchableOpacity
-                  key={index}
-                  onPress={() => handleDropdownSelectCustomer(customer)}
-                  style={styles.dropdownOption}>
-                  <Text>{customer.firstName}</Text>
-                </TouchableOpacity>
-              ))}
+            {filteredCustomer.length === 0  ? (
+                  <Text style={styles.noCategoriesText}>Sorry, no results found!</Text>
+                ) : (
+                  filteredCustomer.map((customer, index) => (
+                    <TouchableOpacity
+                      key={index}
+                      onPress={() => handleDropdownSelectCustomer(customer)}
+                      style={styles.dropdownOption}
+                    >
+                      <Text>{customer.firstName}</Text>
+                    </TouchableOpacity>
+                  ))
+                )}
             </ScrollView>
           </View>
         )
@@ -639,14 +758,26 @@ const NewCall = () => {
               placeholderTextColor="#000"
             />
             <ScrollView style={styles.scrollView}>
-              {filteredDistributor.map((distributor, index) => (
+              {/* {filteredDistributor.map((distributor, index) => (
                 <TouchableOpacity
                   key={index}
                   onPress={() => handleDropdownSelectDistributor(distributor)}
                   style={styles.dropdownOption}>
                   <Text>{distributor.firstName}</Text>
                 </TouchableOpacity>
-              ))}
+              ))} */}
+              {filteredDistributor.length === 0  ? (
+                  <Text style={styles.noCategoriesText}>Sorry, no results found!</Text>
+                ) : (
+                  filteredDistributor.map((distributor, index) => (
+                    <TouchableOpacity
+                      key={index}
+                      onPress={() => handleDropdownSelectDistributor(distributor)}
+                      style={styles.dropdownOption}>
+                      <Text>{distributor.firstName}</Text>
+                    </TouchableOpacity>
+                  ))
+                )}
             </ScrollView>
           </View>
         )
@@ -692,7 +823,7 @@ const NewCall = () => {
       <TouchableOpacity
         onPress={handleFromDropdownClick}
         style={styles.dropdownButton}>
-        <Text style={{fontWeight: '600'}}>
+        <Text style={{}}>
           {selectedLocation.length > 0 ? `${selectedLocation}` : 'Location'}
         </Text>
         <Image
@@ -703,14 +834,19 @@ const NewCall = () => {
       {fromToClicked && (
         <View style={styles.dropdownContent1}>
           <ScrollView style={styles.scrollView}>
-            {customerLocations.map(location => (
+
+            { customerLocations.length===0 ?(
+               <Text style={styles.noCategoriesText}>Sorry, no results found!</Text> 
+            ):
+           ( customerLocations.map(location => (
               <TouchableOpacity
                 style={styles.dropdownOption}
                 key={location.locationId}
                 onPress={() => handleLocationSelection(location)}>
                 <Text>{location.locationName}</Text>
               </TouchableOpacity>
-            ))}
+            )))
+            }
           </ScrollView>
         </View>
       )}
@@ -747,14 +883,17 @@ const NewCall = () => {
               placeholderTextColor="#000"
             />
             <ScrollView style={styles.scrollView}>
-              {filteredUsers.map((user, index) => (
+              {filteredUsers.length===0 ?(
+               <Text style={styles.noCategoriesText}>Sorry, no results found!</Text> 
+            ):(
+              filteredUsers.map((user, index) => (
                 <TouchableOpacity
                   key={index}
                   style={styles.dropdownOption}
                   onPress={() => handleDropdownSelectUser(user)}>
                   <Text>{user.firstName}</Text>
                 </TouchableOpacity>
-              ))}
+              )))}
             </ScrollView>
           </View>
         )
@@ -797,7 +936,7 @@ const NewCall = () => {
             paddingRight: 15,
             marginHorizontal: 10,
           }}>
-          <Text>{selectedDateUntil}</Text>
+          <Text>{selectedDateUntil==="Call Start Date" ?selectedDateUntil: formatDateIntoDMY(selectedDateUntil) }</Text>
           <Image
             style={styles.dateIcon}
             source={require('../../../assets/date.png')}
@@ -817,7 +956,7 @@ const NewCall = () => {
             paddingRight: 15,
             marginHorizontal: 10,
           }}>
-          <Text>{selectedDropdownOptionTime || ''}</Text>
+          <Text>{selectedDropdownOptionTime || 'Call Start Time'}</Text>
           <Image
             source={require('../../../assets/dropdown.png')}
             style={{width: 20, height: 20}}
@@ -873,7 +1012,7 @@ const NewCall = () => {
               paddingLeft: 15,
               paddingRight: 15,
             }}>
-            <Text>{selectedDropdownOption.label || 'before start time'}</Text>
+            <Text>{selectedDropdownOption?.label || 'before start time'}</Text>
             <Image
               source={require('../../../assets/dropdown.png')}
               style={{width: 20, height: 20}}
@@ -887,7 +1026,7 @@ const NewCall = () => {
           <View style={styles.dropdownContent1}>
             {dropdownOptions.map((option, index) => (
               <TouchableOpacity
-                key={option.value}
+                key={option.label}
                 style={styles.dropdownOption}
                 onPress={() => handleDropdownSelect(option)}>
                 <Text>{option.label}</Text>
@@ -1031,6 +1170,7 @@ const styles = StyleSheet.create({
   input: {
     fontSize: 16,
     paddingHorizontal: 10,
+    color:"#000000"
   },
   datecontainer: {
     flexDirection: 'row',
@@ -1062,12 +1202,12 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
 
-  searchInput: {
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
-  },
+  // searchInput: {
+  //   paddingHorizontal: 10,
+  //   paddingVertical: 8,
+  //   borderBottomWidth: 1,
+  //   borderBottomColor: '#ccc',
+  // },
   scrollView: {
     maxHeight: 150,
   },
@@ -1089,18 +1229,47 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
   },
   dropdownContent1: {
-    marginHorizontal: 10,
+    // marginHorizontal: 10,
+    // backgroundColor: '#fff',
+    // borderRadius: 10,
+    // padding: 10,
+    // borderWidth: 0.5,
+    // borderColor: '#ccc',
+    //----------------
+    elevation: 5,
+    height: 220,
+    alignSelf: 'center',
+    width: '90%',
     backgroundColor: '#fff',
     borderRadius: 10,
-    padding: 10,
   },
   searchInput: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    marginBottom: 10,
+    // borderWidth: 1,
+    // borderColor: '#ccc',
+    // borderRadius: 5,
+    // paddingHorizontal: 10,
+    // paddingVertical: 8,
+    // marginBottom: 10,
+    // borderBottomWidth: 1,
+    // borderBottomColor: '#ccc',
+    // color:'#000000',
+    //------------
+       marginTop: 10,
+       borderRadius: 10,
+       height: 40,
+       borderColor: 'gray',
+       borderWidth: 1,
+       marginHorizontal: 10,
+       paddingLeft: 10,
+       marginBottom: 10,
+       color:'#000000'
+  },
+  noCategoriesText: {
+    textAlign: 'center',
+    marginTop: 20,
+    fontSize: 16,
+    fontWeight: '600',
+    color:'#000000'
   },
 });
 

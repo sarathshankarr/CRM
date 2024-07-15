@@ -3,6 +3,7 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View, Image, ActivityIndicator, FlatList } from 'react-native';
 import axios from 'axios';
 import { API } from '../../config/apiConfig';
+import { formatDateIntoDMY } from '../../Helper/Helper';
 
 const Call = () => {
   const navigation = useNavigation();
@@ -36,6 +37,7 @@ const Call = () => {
       .then(response => {
         setCalls(response.data);
         setFilteredCalls(response.data);
+        console.log("All calls ==>" , response.data[0])
       })
       .catch(error => {
         console.error('Error:', error);
@@ -71,17 +73,23 @@ const Call = () => {
       });
   };
 
+  const formatDate=(date)=>{
+    const formattedDate = date.toISOString().split('T')[0];
+    formatDateIntoDMY(formattedDate);
+  }
+
   const renderItem = ({ item }) => (
     <TouchableOpacity
       style={styles.callItem}
       onPress={() => fetchCallById(item.id)}
     >
-      <Text style={{ flex: 2,marginLeft:20 }}>{item.customer}</Text>
-      <Text style={{ flex: 2 }}>{item.relatedTo}</Text>
-      <Text style={{ flex: 1 }}>{item.status}</Text>
+      <Text style={{ flex: 1.3,marginLeft:10 }}>{item.customer}</Text>
+      <Text style={{ flex: 1 }}>{item.relatedTo}</Text>
+      <Text style={{ flex: 0.7 }}>{item.status}</Text>
+      <Text style={{ flex: 0.7 }}>{item.created_on}</Text>
+      {/* <Text style={{ flex: 1 }}>{formatDateIntoDMY(item.startDate.split('T')[0])}</Text> */}
     </TouchableOpacity>
   );
-
   return (
     <View style={styles.container}>
       <View style={styles.content}>
@@ -108,6 +116,7 @@ const Call = () => {
         <Text style={styles.headerText}>Customer</Text>
         <Text style={styles.headerText1}>Related To</Text>
         <Text style={styles.headerText2}>Status</Text>
+        <Text style={styles.headerText1}> Date</Text>
       </View>
       {loading ? (
         <ActivityIndicator size="large" color="#0000ff" />
@@ -150,6 +159,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 10,
     fontSize: 16,
+    color:'#000000'
   },
   searchButton: {
     padding: 10,
@@ -174,24 +184,24 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-evenly',
+    justifyContent: 'space-between',
     marginVertical: 10,
   },
   headerText: {
     fontWeight: 'bold',
     fontSize: 16,
-    flex:2,
+    flex:1.3,
     marginLeft:10
   },
   headerText1: {
     fontWeight: 'bold',
     fontSize: 16,
-    flex:2
+    flex:1
   },
   headerText2: {
     fontWeight: 'bold',
     fontSize: 16,
-    flex:1
+    flex:0.7,
   },
   callItem: {
     flexDirection: 'row',
