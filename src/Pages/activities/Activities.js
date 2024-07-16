@@ -61,8 +61,8 @@ const Activities = () => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1, // Take up entire available space
-    backgroundColor: '#fff', // Red background color for the entire screen
+    flex: 1, 
+    backgroundColor: '#fff', 
   },
   tabContainer: {
     flexDirection: 'row',
@@ -83,8 +83,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   activeTabButton: {
-    borderBottomWidth: 2, // Corrected property name
-    borderBottomColor: '#000', // Added correct color property
+    borderBottomWidth: 2, 
+    borderBottomColor: '#000',
     borderTopLeftRadius: 25,
     borderTopRightRadius: 25,
     borderBottomRightRadius: 25,

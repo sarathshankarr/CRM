@@ -6,9 +6,7 @@ import {
   View,
   Image,
   TextInput,
-  ActivityIndicator,
   ScrollView,
-  KeyboardAvoidingView,
   Keyboard,
   Alert,
   Switch,
@@ -33,15 +31,15 @@ const NewCall = () => {
     useState(false);
   const [selectedDateUntil, setSelectedDateUntil] = useState('Call Start Date');
   const [shipFromToClicked, setShipFromToClicked] = useState(false);
-  const [shipFromToClickedUser, setShipFromToClickedUser] = useState(false); // State for the User dropdown
-  const [shipFromToClickedStatus, setShipFromToClickedStatus] = useState(false); // State for the Status dropdown
+  const [shipFromToClickedUser, setShipFromToClickedUser] = useState(false);
+  const [shipFromToClickedStatus, setShipFromToClickedStatus] = useState(false);
   const [selectedDropdownOption, setSelectedDropdownOption] = useState({
     label: '',
     value: '',
   });
   const [selectedUserOption, setSelectedUserOption] = useState('');
   const [selectedStatusOption, setSelectedStatusOption] = useState('');
-  const [showDropdownRow, setShowDropdownRow] = useState(false); // State to manage visibility of the main dropdown row
+  const [showDropdownRow, setShowDropdownRow] = useState(false);
   const [markHighPriority, setMarkHighPriority] = useState(false);
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
@@ -61,8 +59,8 @@ const NewCall = () => {
       label: '',
       value: '',
     });
-  const [selectedUserId, setSelectedUserId] = useState(null); // State to hold selected user's userId
-  const [selectedUserName, setSelectedUserName] = useState(''); // State to hold selected user's userName
+  const [selectedUserId, setSelectedUserId] = useState(null);
+  const [selectedUserName, setSelectedUserName] = useState('');
   const [selectedCustomerId, setSelectedCustomerId] = useState(null);
   const [relatedTo, setRelatedTo] = useState('');
   const [agenda, setAgenda] = useState('');
@@ -72,7 +70,7 @@ const NewCall = () => {
   );
   const [keyboardSpace, setKeyboardSpace] = useState(0);
   const [initialSelectedCompany, setInitialSelectedCompany] = useState(null);
-  const [isButtonDisabled, setIsButtonDisabled] = useState(false); // New state for button disabled
+  const [isButtonDisabled, setIsButtonDisabled] = useState(false);
   const [isEnabled, setIsEnabled] = useState(false);
   const toggleSwitch = () => setIsEnabled(previousState => !previousState);
   const [loadinggg, setLoadinggg] = useState(false);
@@ -97,8 +95,7 @@ const NewCall = () => {
   const getCustomerLocations = () => {
     let customerType;
 
-    // Toggle logic based on switch status
-    const switchStatus = isEnabled; // Assuming isEnabled controls the switch
+    const switchStatus = isEnabled;
 
     if (switchStatus) {
       customerType = 1; // Retailer
@@ -134,31 +131,13 @@ const NewCall = () => {
         setCustomerLocations(response.data);
         console.log('location response', response.data);
       })
-      // .catch(error => {
-      //   console.error('Error occurred while fetching customer locations:');
-      //   if (error.response) {
-      //     console.log('Response data:', JSON.stringify(error.response.data, null, 2));
-      //     console.log('Response status:', error.response.status);
-      //     console.log('Response headers:', JSON.stringify(error.response.headers, null, 2));
-      //     if (error.response.status === 404) {
-      //       console.log('Resource not found. Please check the endpoint and parameters.');
-      //     } else if (error.response.status === 401) {
-      //       console.log('Unauthorized access. Please check your authentication token.');
-      //     } else {
-      //       console.log('Unexpected error occurred with status:', error.response.status);
-      //     }
-      //   } else {
-      //     console.error('Error message:', error.message);
-      //     console.error('Error config:', JSON.stringify(error.config, null, 2));
-      //   }
       .catch(error => {
         console.error('Error:', error);
         if (error.response && error.response.status === 401) {
-          // Handle unauthorized error
         }
       });
   };
-  // })};
+
   const handleFromDropdownClick = () => {
     setFromToClicked(!fromToClicked);
     if (!fromToClicked) {
@@ -197,8 +176,7 @@ const NewCall = () => {
 
   const getDateFromCall = date => {
     if (!date) return;
-    const formattedDate = date.split('T')[0]; // Formats date to "YYYY-MM-DD"
-    // console.log("formattedDate== .", formattedDate)
+    const formattedDate = date.split('T')[0];
     setSelectedDateUntil(formattedDate);
   };
   const getRemainder = time => {
@@ -336,20 +314,14 @@ const NewCall = () => {
   };
 
   const handleDropdownSelectCustomer = customer => {
-    setSelectedCustomerOption(customer.firstName); // Set selected customer's first name
-    setSelectedCustomerId(customer.customerId); // Set selected customer's ID
+    setSelectedCustomerOption(customer.firstName);
+    setSelectedCustomerId(customer.customerId);
 
-    setShipFromToClickedCustomer(false); // Reset shipFromToClickedCustomer state
+    setShipFromToClickedCustomer(false);
 
-    // Logging the selected values
     console.log('Selected Customer OptionDropdown:', selectedCustomerOption);
     console.log('Selected Customer IDDropdown:', selectedCustomerId);
   };
-
-  // useEffect(() => {
-  //   console.log('Selected Customer Option:', selectedCustomerOption);
-  //   console.log('Selected Customer ID:', selectedCustomerId);
-  // }, [selectedCustomerOption, selectedCustomerId]);
 
   const selectedCompany = useSelector(state => state.selectedCompany);
 
@@ -419,11 +391,6 @@ const NewCall = () => {
     setSelectedDistributorId(Distributor.id); // Set selected distributor's ID
     setShipFromToClickedDistributor(false);
   };
-
-  // useEffect(() => {
-  //   console.log('selectedDistributorOption:', selectedDistributorOption);
-  //   console.log('selectedDistributorId:', selectedDistributorId);
-  // }, [selectedDistributorOption, selectedDistributorId]);
 
   const getDistributorsDetails = () => {
     const apiUrl = `${global?.userData?.productURL}${API.GET_DISTRIBUTORS_DETAILS}/${companyId}`;
@@ -518,8 +485,6 @@ const NewCall = () => {
       });
   };
 
-  // Function to handle selection of user dropdown option
-  // Function to handle selection of user dropdown option
   const handleDropdownSelectUser = user => {
     setSelectedUserOption(user.firstName);
     setSelectedUserId(user.userId); // Set selected user's userId
@@ -527,7 +492,6 @@ const NewCall = () => {
     setShipFromToClickedUser(false); // Close User dropdown after selection (optional)
   };
 
-  // Function to handle selection of status dropdown option
   const handleDropdownSelectStatus = option => {
     setSelectedStatusOption(option);
     setShipFromToClickedStatus(false); // Close Status dropdown after selection (optional)
@@ -645,10 +609,7 @@ const NewCall = () => {
     'In Progress',
     'Completed',
   ];
-  // const handleSave = () => {
-  //   console.log('SAVE button pressed');
-  //   addCall();
-  // };
+
   const handleSave = () => {
     if (!relatedTo.trim()) {
       Alert.alert('Alert', 'Please fill in all mandatory fields');
@@ -773,40 +734,31 @@ const NewCall = () => {
       </TouchableOpacity>
 
       {shipFromToClickedDistributor && (
-          <View style={styles.dropdownContent1}>
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Search by name..."
-              onChangeText={handleSearchDistributor}
-              placeholderTextColor="#000"
-            />
-            <ScrollView style={styles.scrollView}>
-              {/* {filteredDistributor.map((distributor, index) => (
+        <View style={styles.dropdownContent1}>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search by name..."
+            onChangeText={handleSearchDistributor}
+            placeholderTextColor="#000"
+          />
+          <ScrollView style={styles.scrollView}>
+            {filteredDistributor.length === 0 ? (
+              <Text style={styles.noCategoriesText}>
+                Sorry, no results found!
+              </Text>
+            ) : (
+              filteredDistributor.map((distributor, index) => (
                 <TouchableOpacity
                   key={index}
                   onPress={() => handleDropdownSelectDistributor(distributor)}
                   style={styles.dropdownOption}>
                   <Text>{distributor.firstName}</Text>
                 </TouchableOpacity>
-              ))} */}
-              {filteredDistributor.length === 0 ? (
-                <Text style={styles.noCategoriesText}>
-                  Sorry, no results found!
-                </Text>
-              ) : (
-                filteredDistributor.map((distributor, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    onPress={() => handleDropdownSelectDistributor(distributor)}
-                    style={styles.dropdownOption}>
-                    <Text>{distributor.firstName}</Text>
-                  </TouchableOpacity>
-                ))
-              )}
-            </ScrollView>
-          </View>
-        )
-      }
+              ))
+            )}
+          </ScrollView>
+        </View>
+      )}
     </View>
   );
 
@@ -899,34 +851,32 @@ const NewCall = () => {
         />
       </TouchableOpacity>
 
-      {
-        shipFromToClickedUser && (
-          <View style={styles.dropdownContent1}>
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Search by name..."
-              onChangeText={handleSearch}
-              placeholderTextColor="#000"
-            />
-            <ScrollView style={styles.scrollView}>
-              {filteredUsers.length === 0 ? (
-                <Text style={styles.noCategoriesText}>
-                  Sorry, no results found!
-                </Text>
-              ) : (
-                filteredUsers.map((user, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    style={styles.dropdownOption}
-                    onPress={() => handleDropdownSelectUser(user)}>
-                    <Text>{user.firstName}</Text>
-                  </TouchableOpacity>
-                ))
-              )}
-            </ScrollView>
-          </View>
-        )
-      }
+      {shipFromToClickedUser && (
+        <View style={styles.dropdownContent1}>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search by name..."
+            onChangeText={handleSearch}
+            placeholderTextColor="#000"
+          />
+          <ScrollView style={styles.scrollView}>
+            {filteredUsers.length === 0 ? (
+              <Text style={styles.noCategoriesText}>
+                Sorry, no results found!
+              </Text>
+            ) : (
+              filteredUsers.map((user, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={styles.dropdownOption}
+                  onPress={() => handleDropdownSelectUser(user)}>
+                  <Text>{user.firstName}</Text>
+                </TouchableOpacity>
+              ))
+            )}
+          </ScrollView>
+        </View>
+      )}
       <Text style={{marginHorizontal: 10, marginVertical: 5}}>
         Related To *
       </Text>
@@ -1053,7 +1003,9 @@ const NewCall = () => {
         <CheckBox isChecked={showDropdownRow} onClick={handleCheckboxChange} />
         <Text style={{marginLeft: 5}}>Reminder</Text>
       </View>
-      <Text style={{marginHorizontal: 10, marginVertical: 5}}>before start time</Text>
+      <Text style={{marginHorizontal: 10, marginVertical: 5}}>
+        before start time
+      </Text>
       {showDropdownRow && (
         <View
           style={{
@@ -1131,7 +1083,7 @@ const NewCall = () => {
           </View>
         </ScrollView>
       )}
-<Text style={{marginHorizontal: 10, marginVertical: 5}}>Status</Text>      
+      <Text style={{marginHorizontal: 10, marginVertical: 5}}>Status</Text>
       <TouchableOpacity
         onPress={handleShipDropdownClickStatus}
         style={{

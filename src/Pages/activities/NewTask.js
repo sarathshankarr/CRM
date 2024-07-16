@@ -6,7 +6,6 @@ import {
   View,
   Image,
   TextInput,
-  ActivityIndicator,
   ScrollView,
   Keyboard,
   Alert,
@@ -15,7 +14,6 @@ import {
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import CheckBox from 'react-native-check-box';
 import {
-  useFocusEffect,
   useNavigation,
   useRoute,
 } from '@react-navigation/native';
@@ -381,45 +379,6 @@ const NewTask = () => {
     }
   };
 
-  //   const getNameAndLocation = async (task_customerType, task_customerId, task_locId) => {
-  //     if (task_customerType && task_customerType === 1) {
-  //          setIsEnabled(true);
-
-  //         if (task_customerId) {
-  //             await setSelectedCustomerId(task_customerId);
-  //         }
-  //         if(customers.lenght===0){
-  //           await getCustomersDetails();
-  //         }
-  //         let foundItem = await customers?.find(item => item.customerId === task_customerId);
-  //         if (foundItem) {
-  //             setSelectedCustomerOption(foundItem.firstName);
-  //         }
-  //     } else {
-  //          setIsEnabled(false);
-
-  //         if (task_customerId) {
-  //             await setSelectedDistributorId(task_customerId);
-  //         }
-  //         if(distributor.length===0){
-  //           await getDistributorsDetails();
-  //         }
-  //         let foundItem = await distributor?.find(item => item.id === task_customerId);
-  //         if (foundItem) {
-  //             setSelectedDistributorOption(foundItem.firstName);
-  //         }
-  //     }
-
-  //     if(task_locId){
-  //       await setSelectedLocationiD(task_locId);
-  //       await getCustomerLocations();
-  //       let foundItem = await  customerLocations?.find(item => item.locationId === task_locId);
-  //          if (foundItem) {
-  //              setSelectedLocation(foundItem.locationName) ;
-  //           }
-  //     }
-  // };
-
   useEffect(() => {
     if (users.length === 0) {
       getUsers();
@@ -539,9 +498,7 @@ const NewTask = () => {
     setShipFromToClicked(false); // Close main dropdown if open
     setShipFromToClickedUser(false); // Close User dropdown if open
   };
-  // const handleSave = () => {
-  //   addNewTask();
-  // };
+  
   const handleDateConfirmDue = date => {
     const formattedDate = date.toISOString().split('T')[0]; // Formats date to "YYYY-MM-DD"
     setSelectedDateDue(formattedDate); // Set the state without additional text
@@ -675,14 +632,6 @@ const NewTask = () => {
               onChangeText={handleSearchCustomer}
             />
             <ScrollView style={styles.scrollView}>
-              {/* {filteredCustomer.map((customer, index) => (
-                <TouchableOpacity
-                  key={index}
-                  onPress={() => handleDropdownSelectCustomer(customer)}
-                  style={styles.dropdownOption}>
-                  <Text>{customer.firstName}</Text>
-                </TouchableOpacity>
-              ))} */}
               {filteredCustomer.length === 0 ? (
                 <Text style={styles.noCategoriesText}>
                   Sorry, no results found!
@@ -729,14 +678,6 @@ const NewTask = () => {
               placeholderTextColor="#000"
             />
             <ScrollView style={styles.scrollView}>
-              {/* {filteredDistributor.map((distributor, index) => (
-                <TouchableOpacity
-                  key={index}
-                  onPress={() => handleDropdownSelectDistributor(distributor)}
-                  style={styles.dropdownOption}>
-                  <Text>{distributor.firstName}</Text>
-                </TouchableOpacity>
-              ))} */}
               {filteredDistributor.length === 0 ? (
                 <Text style={styles.noCategoriesText}>
                   Sorry, no results found!
@@ -1155,11 +1096,6 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   searchInput: {
-    // paddingHorizontal: 10,
-    // paddingVertical: 8,
-    // borderBottomWidth: 1,
-    // borderBottomColor: '#ccc',
-    //------------
     marginTop: 10,
     borderRadius: 10,
     height: 40,
@@ -1180,12 +1116,6 @@ const styles = StyleSheet.create({
     borderBottomColor: '#ccc',
   },
   dropdownContent1: {
-    // marginHorizontal: 10,
-    // backgroundColor: '#fff',
-    // borderRadius: 10,
-    // padding: 10,
-    // elevation: 2,
-    //----------------
     elevation: 5,
     height: 220,
     alignSelf: 'center',

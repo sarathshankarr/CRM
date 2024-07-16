@@ -1,11 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { StyleSheet, Text, TextInput, TouchableOpacity, View, Image, ActivityIndicator, FlatList } from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import {
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+  Image,
+  ActivityIndicator,
+  FlatList,
+} from 'react-native';
 import axios from 'axios';
-import { API } from '../../config/apiConfig';
-import { formatDateIntoDMY } from '../../Helper/Helper';
+import {API} from '../../config/apiConfig';
+import {formatDateIntoDMY} from '../../Helper/Helper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useSelector } from 'react-redux';
+import {useSelector} from 'react-redux';
 
 const Call = () => {
   const navigation = useNavigation();
@@ -35,11 +44,10 @@ const Call = () => {
     fetchInitialSelectedCompany();
   }, []);
   const companyId = selectedCompany
-  ? selectedCompany.id
-  : initialSelectedCompany?.id;
+    ? selectedCompany.id
+    : initialSelectedCompany?.id;
 
-
-  const handleSearch = (text) => {
+  const handleSearch = text => {
     setSearchQuery(text);
     const filtered = calls.filter(call => {
       const customerName = call.customer ? call.customer.toLowerCase() : '';
@@ -49,10 +57,10 @@ const Call = () => {
   };
 
   const handleAdd = () => {
-    navigation.navigate('NewCall',{ call: {} });
+    navigation.navigate('NewCall', {call: {}});
   };
-  
-  console.log("companyId",companyId)
+
+  console.log('companyId', companyId);
 
   const getAllCalls = () => {
     setLoading(true);
@@ -66,7 +74,7 @@ const Call = () => {
       .then(response => {
         setCalls(response.data);
         setFilteredCalls(response.data);
-        console.log("All calls ==>" , response.data[0])
+        console.log('All calls ==>', response.data[0]);
       })
       .catch(error => {
         console.error('Error:', error);
@@ -76,17 +84,15 @@ const Call = () => {
       });
   };
 
-
   useFocusEffect(
     React.useCallback(() => {
       if (companyId) {
-      getAllCalls(); // Fetch tasks when the screen is focused
+        getAllCalls();
       }
-    }, [companyId])
+    }, [companyId]),
   );
 
-
-  const fetchCallById = (callId) => {
+  const fetchCallById = callId => {
     setLoading(true);
     const apiUrl = `${global?.userData?.productURL}${API.GET_CALL_BY_ID}/${callId}`;
     axios
@@ -96,7 +102,7 @@ const Call = () => {
         },
       })
       .then(response => {
-        navigation.navigate('NewCall', { call: response.data, callId: callId });
+        navigation.navigate('NewCall', {call: response.data, callId: callId});
       })
       .catch(error => {
         console.error('Error fetching call by ID:', error);
@@ -106,20 +112,19 @@ const Call = () => {
       });
   };
 
-  const formatDate=(date)=>{
+  const formatDate = date => {
     const formattedDate = date.toISOString().split('T')[0];
     formatDateIntoDMY(formattedDate);
-  }
+  };
 
-  const renderItem = ({ item }) => (
+  const renderItem = ({item}) => (
     <TouchableOpacity
       style={styles.callItem}
-      onPress={() => fetchCallById(item.id)}
-    >
-      <Text style={{ flex: 1.3,marginLeft:10 }}>{item.customer}</Text>
-      <Text style={{ flex: 1 }}>{item.relatedTo}</Text>
-      <Text style={{ flex: 0.7 }}>{item.status}</Text>
-      <Text style={{ flex: 0.7 }}>{item.created_on}</Text>
+      onPress={() => fetchCallById(item.id)}>
+      <Text style={{flex: 1.3, marginLeft: 10}}>{item.customer}</Text>
+      <Text style={{flex: 1}}>{item.relatedTo}</Text>
+      <Text style={{flex: 0.7}}>{item.status}</Text>
+      <Text style={{flex: 0.7}}>{item.created_on}</Text>
       {/* <Text style={{ flex: 1 }}>{formatDateIntoDMY(item.startDate.split('T')[0])}</Text> */}
     </TouchableOpacity>
   );
@@ -159,7 +164,7 @@ const Call = () => {
         <FlatList
           data={filteredCalls}
           renderItem={renderItem}
-          keyExtractor={(item) => item.id.toString()}
+          keyExtractor={item => item.id.toString()}
         />
       )}
     </View>
@@ -192,7 +197,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 10,
     fontSize: 16,
-    color:'#000000'
+    color: '#000000',
   },
   searchButton: {
     padding: 10,
@@ -223,18 +228,18 @@ const styles = StyleSheet.create({
   headerText: {
     fontWeight: 'bold',
     fontSize: 16,
-    flex:1.3,
-    marginLeft:10
+    flex: 1.3,
+    marginLeft: 10,
   },
   headerText1: {
     fontWeight: 'bold',
     fontSize: 16,
-    flex:1
+    flex: 1,
   },
   headerText2: {
     fontWeight: 'bold',
     fontSize: 16,
-    flex:0.7,
+    flex: 0.7,
   },
   callItem: {
     flexDirection: 'row',
@@ -246,14 +251,14 @@ const styles = StyleSheet.create({
   callText: {
     fontSize: 14,
   },
-  noCategoriesText:{
+  noCategoriesText: {
     top: 40,
-    textAlign:"center",
+    textAlign: 'center',
     color: '#000000',
     fontSize: 20,
     fontWeight: 'bold',
     padding: 5,
-  }
+  },
 });
 
 export default Call;
