@@ -187,11 +187,13 @@ const Order = () => {
   const filteredOrders = orders &&
   Array.isArray(orders) &&
   orders.filter((item) => {
+    if (!item) return false; // Add null check here
     const customerName = item.customerName ? item.customerName.toLowerCase() : '';
     const orderNum = item.orderNum ? item.orderNum.toString().toLowerCase() : '';
     const query = searchQuery.toLowerCase();
     return customerName.includes(query) || orderNum.includes(query);
   });
+
 
   return (
     <View style={{backgroundColor: '#fff', flex: 1}}>

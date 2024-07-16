@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {
   Text,
   View,
@@ -13,11 +13,11 @@ import {
   RefreshControl,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useSelector } from 'react-redux';
-import { API } from '../../config/apiConfig';
+import {useSelector} from 'react-redux';
+import {API} from '../../config/apiConfig';
 import axios from 'axios';
 
-const HomeCategories = ({ navigation }) => {
+const HomeCategories = ({navigation}) => {
   const [selectedDetails, setSelectedDetails] = useState([]);
   const [showSearchInput, setShowSearchInput] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -25,12 +25,14 @@ const HomeCategories = ({ navigation }) => {
   const [initialSelectedCompany, setInitialSelectedCompany] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
 
-  const selectedCompany = useSelector((state) => state.selectedCompany);
+  const selectedCompany = useSelector(state => state.selectedCompany);
 
   useEffect(() => {
     const fetchInitialSelectedCompany = async () => {
       try {
-        const initialCompanyData = await AsyncStorage.getItem('initialSelectedCompany');
+        const initialCompanyData = await AsyncStorage.getItem(
+          'initialSelectedCompany',
+        );
         if (initialCompanyData) {
           const initialCompany = JSON.parse(initialCompanyData);
           setInitialSelectedCompany(initialCompany);
@@ -44,7 +46,9 @@ const HomeCategories = ({ navigation }) => {
     fetchInitialSelectedCompany();
   }, []);
 
-  const companyId = selectedCompany ? selectedCompany.id : initialSelectedCompany?.id;
+  const companyId = selectedCompany
+    ? selectedCompany.id
+    : initialSelectedCompany?.id;
 
   useEffect(() => {
     if (companyId) {
@@ -67,7 +71,7 @@ const HomeCategories = ({ navigation }) => {
     setRefreshing(false);
   }, [companyId]);
 
-  const fetchCategories = async (companyId) => {
+  const fetchCategories = async companyId => {
     setLoading(true);
     const apiUrl = `${global?.userData?.productURL}${API.ALL_CATEGORIES_DATA}`;
     try {
@@ -79,7 +83,9 @@ const HomeCategories = ({ navigation }) => {
       });
 
       // Filter categories based on the companyId
-      const filteredCategories = response.data.filter((category) => category.companyId === companyId);
+      const filteredCategories = response.data.filter(
+        category => category.companyId === companyId,
+      );
       setSelectedDetails(filteredCategories);
     } catch (error) {
       console.error('Error fetching categories:', error);
@@ -96,12 +102,12 @@ const HomeCategories = ({ navigation }) => {
     }
   };
 
-  const onChangeText = (text) => {
+  const onChangeText = text => {
     setSearchQuery(text);
   };
 
-  const renderProductItem = ({ item }) => {
-    const {category, imageUrls } = item;
+  const renderProductItem = ({item}) => {
+    const {category, imageUrls} = item;
 
     return (
       <TouchableOpacity
@@ -115,7 +121,7 @@ const HomeCategories = ({ navigation }) => {
         }}>
         <View style={styles.productImageContainer}>
           {imageUrls && imageUrls.length > 0 ? (
-            <Image style={styles.productImage} source={{ uri: imageUrls[0] }} />
+            <Image style={styles.productImage} source={{uri: imageUrls[0]}} />
           ) : (
             <Image
               style={styles.productImage}
@@ -143,9 +149,12 @@ const HomeCategories = ({ navigation }) => {
     );
   };
 
-  const filteredCategories = selectedDetails &&
-                            Array.isArray(selectedDetails) && 
-                            selectedDetails.filter((item) => item.category.toLowerCase().includes(searchQuery.toLowerCase()));
+  const filteredCategories =
+    selectedDetails &&
+    Array.isArray(selectedDetails) &&
+    selectedDetails.filter(item =>
+      item.category.toLowerCase().includes(searchQuery.toLowerCase()),
+    );
 
   return (
     <View style={styles.container}>
@@ -171,7 +180,9 @@ const HomeCategories = ({ navigation }) => {
               : ''}
           </Text>
         )}
-        <TouchableOpacity style={styles.searchButton} onPress={toggleSearchInput}>
+        <TouchableOpacity
+          style={styles.searchButton}
+          onPress={toggleSearchInput}>
           <Image
             style={styles.image}
             source={
@@ -185,11 +196,11 @@ const HomeCategories = ({ navigation }) => {
 
       {loading ? (
         <ActivityIndicator
-          style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
+          style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}
           size="large"
           color="#390050"
         />
-      ) :filteredCategories.length === 0 ? (
+      ) : filteredCategories.length === 0 ? (
         <Text style={styles.noCategoriesText}>Sorry, no results found! </Text>
       ) : (
         <FlatList
@@ -199,7 +210,11 @@ const HomeCategories = ({ navigation }) => {
           numColumns={2}
           contentContainerStyle={styles.productList}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#000', '#689F38']} />
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={['#000', '#689F38']}
+            />
           }
         />
       )}
@@ -272,14 +287,14 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     padding: 5,
   },
-  noCategoriesText:{
+  noCategoriesText: {
     top: 40,
-    textAlign:"center",
+    textAlign: 'center',
     color: '#000000',
     fontSize: 20,
     fontWeight: 'bold',
     padding: 5,
-  }
+  },
 });
 
 export default HomeCategories;

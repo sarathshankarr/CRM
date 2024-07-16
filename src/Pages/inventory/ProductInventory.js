@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import {API} from '../../config/apiConfig';
 import axios from 'axios';
-import { useSelector } from 'react-redux';
+import {useSelector} from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ProductInventory = () => {
@@ -61,7 +61,7 @@ const ProductInventory = () => {
       const response = await axios.post(
         apiUrl,
         {
-          companyId: companyId
+          companyId: companyId,
         },
         {
           headers: {
@@ -103,7 +103,7 @@ const ProductInventory = () => {
   const renderItem = ({item}) => (
     <View>
       <View style={styles.inventoryItem}>
-        <Text style={{flex:2}}>{item.styleName}</Text>
+        <Text style={{flex: 2}}>{item.styleName}</Text>
         <Text style={styles.itemText}>{item.sizeCode}</Text>
         <Text style={styles.itemText}>{item.availQty}</Text>
       </View>
@@ -128,7 +128,7 @@ const ProductInventory = () => {
         </TouchableOpacity>
         <View style={styles.searchInputContainer}>
           <TextInput
-            style={[styles.searchInput, { color: '#000' }]}
+            style={[styles.searchInput, {color: '#000'}]}
             onChangeText={onChangeText}
             placeholder="Product Inventory"
             placeholderTextColor="#000"
@@ -143,7 +143,7 @@ const ProductInventory = () => {
       </View>
 
       <View style={styles.header}>
-        <Text style={{flex:2}}>Style Name</Text>
+        <Text style={{flex: 2}}>Style Name</Text>
         <Text style={styles.headerText}>Size</Text>
         <Text style={styles.headerText}>Avail Qty</Text>
       </View>
@@ -153,6 +153,9 @@ const ProductInventory = () => {
           size="large"
           color="#390050"
         />
+      ) : (searchQuery && filteredData.length === 0) ||
+        (!searchQuery && inventoryData.length === 0) ? (
+        <Text style={styles.noCategoriesText}>Sorry, no results found!</Text>
       ) : (
         <FlatList
           data={filteredData}
@@ -226,6 +229,14 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'center',
   },
+  noCategoriesText:{
+    top: 40,
+    textAlign:"center",
+    color: '#000000',
+    fontSize: 20,
+    fontWeight: 'bold',
+    padding: 5,
+  }
 });
 
 export default ProductInventory;

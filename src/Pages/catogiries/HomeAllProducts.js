@@ -240,9 +240,9 @@ const HomeAllProducts = ({ navigation }) => {
           size="large"
           color="#390050"
         />
-      ) : searchQuery && filteredProducts.length === 0 ? (
-        <Text style={styles.noCategoriesText}>Sorry, no results found! </Text>
-      ) :  (
+      )  : (searchQuery && filteredProducts.length === 0) || (!searchQuery && selectedDetails.length === 0) ? (
+        <Text style={styles.noCategoriesText}>Sorry, no results found!</Text>
+      ) : (
         <FlatList
           ref={flatListRef}
           data={searchQuery ? filteredProducts : selectedDetails}

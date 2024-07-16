@@ -112,15 +112,19 @@ const Cart = () => {
     dispatch(removeFromCart(index));
   };
 
-  const filteredCustomers = customers.filter(customer => {
-    const fullName = `${customer.firstName} ${customer.lastName}`.toLowerCase();
-    return fullName.includes(searchQuery.toLowerCase());
-  });
+  const filteredCustomers = customers
+    .filter(customer => customer !== null) // Filter out null values
+    .filter(customer => {
+      const fullName = `${customer.firstName} ${customer.lastName}`.toLowerCase();
+      return fullName.includes(searchQuery.toLowerCase());
+    });
 
-  const filteredDistributors = distributors.filter(distributor => {
-    const full = `${distributor.firstName} ${distributor.distributorName}`.toLowerCase();
-    return full.includes(searchQuery.toLowerCase());
-  });
+  const filteredDistributors = distributors
+    .filter(distributor => distributor !== null) // Filter out null values
+    .filter(distributor => {
+      const full = `${distributor.firstName} ${distributor.distributorName}`.toLowerCase();
+      return full.includes(searchQuery.toLowerCase());
+    });
 
   useEffect(() => {
     const fetchInitialSelectedCompany = async () => {

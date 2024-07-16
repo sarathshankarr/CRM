@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useMemo} from 'react';
+import React, {useState, useEffect, useMemo, useCallback} from 'react';
 import {
   StyleSheet,
   Text,
@@ -14,12 +14,16 @@ import {
 } from 'react-native';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import CheckBox from 'react-native-check-box';
-import {useNavigation, useRoute} from '@react-navigation/native';
+import {
+  useFocusEffect,
+  useNavigation,
+  useRoute,
+} from '@react-navigation/native';
 import axios from 'axios';
 import {useDispatch, useSelector} from 'react-redux';
 import {API} from '../../config/apiConfig';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { formatDateIntoDMY } from '../../Helper/Helper';
+import {formatDateIntoDMY} from '../../Helper/Helper';
 
 const NewTask = () => {
   const dispatch = useDispatch(); // Get dispatch function from useDispatch hook
@@ -82,11 +86,10 @@ const NewTask = () => {
   const [selectedLocation, setSelectedLocation] = useState('');
   const [selectedLocationId, setSelectedLocationiD] = useState('');
 
-
-  useEffect(()=>{
-    setSelectedLocation('Location ');
+  useEffect(() => {
+    setSelectedLocation('Select');
     setCustomerLocations([]);
-  }, [isEnabled])
+  }, [isEnabled]);
 
   const getCustomerLocations = () => {
     let customerType;
@@ -106,8 +109,8 @@ const NewTask = () => {
       ? selectedCustomerId
       : selectedDistributorId;
     console.log('customerId:', customerId);
-   
-    if(!customerId) return;
+
+    if (!customerId) return;
 
     const apiUrl = `${global?.userData?.productURL}${API.GET_CUSTOMER_LOCATION}/${customerId}/${customerType}/${companyId}`;
     console.log('Fetching customer locations with companyId:', companyId);
@@ -222,7 +225,7 @@ const NewTask = () => {
 
   const handleShipDropdownClickCustomer = () => {
     if (!shipFromToClickedCustomer) {
-      if(customers.length===0){
+      if (customers.length === 0) {
         getCustomersDetails();
       }
     }
@@ -237,7 +240,7 @@ const NewTask = () => {
 
   const handleShipDropdownClickDistributor = () => {
     if (!shipFromToClickedDistributor) {
-      if(distributor.length===0){
+      if (distributor.length === 0) {
         getDistributorsDetails();
       }
     }
@@ -266,8 +269,8 @@ const NewTask = () => {
       setSelectedUserId(task.assign_to || null);
       setSelectedUserName(task.userName || '');
       setSelectedStatusOption(task.status || '');
-      setSelectedCustomerOption(task.customer)
-      setSelectedCustomerId(task.customerId)
+      setSelectedCustomerOption(task.customer);
+      setSelectedCustomerId(task.customerId);
       getdueDate(task.dueDate);
       getuntilDate(task.untilDate);
       getTaskRepeatRem(task.repeatRem);
@@ -276,98 +279,158 @@ const NewTask = () => {
     }
   }, [route.params]);
 
-     useEffect(()=>{
-      console.log('task', task);
-      if (route.params && route.params.task) {
-        const {task} = route.params;
-        getUserRole(task.assign_to);
-         getNameAndLocation(task.customerType, task.customerId, task.locId);
-         console.log("inside useeffect ",selectedCustomerId,  selectedDistributorId)
-       }
-     }, [route.params, selectedCustomerId, selectedDistributorId, users, customers, distributor])
+  const getNameAndLocation = useCallback(
+    async (
+      call_customerType,
+      call_customerId,
+      call_locId,
+      call_locationName,
+    ) => {
+      if (call_customerType && call_customerType === 1) {
+        setIsEnabled(true);
 
-  const getdueDate=(date)=>{
-    if(!date) return;
+        if (call_customerId) {
+          setSelectedCustomerId(call_customerId);
+        }
+        if (customers.length === 0) {
+          await getCustomersDetails();
+        }
+        let foundItem = customers?.find(
+          item => item.customerId === call_customerId,
+        );
+        if (foundItem) {
+          setSelectedCustomerOption(foundItem.firstName);
+        }
+      } else {
+        setIsEnabled(false);
+
+        if (call_customerId) {
+          setSelectedDistributorId(call_customerId);
+        }
+        if (distributor.length === 0) {
+          await getDistributorsDetails();
+        }
+        let foundItem = distributor?.find(item => item.id === call_customerId);
+        if (foundItem) {
+          setSelectedDistributorOption(foundItem.firstName);
+        }
+      }
+
+      if (call_locId) {
+        setSelectedLocationiD(call_locId);
+        await getCustomerLocations();
+        let foundItem = customerLocations?.find(
+          item => item.locationId === call_locId,
+        );
+        if (foundItem) {
+          setSelectedLocation(foundItem.locationName);
+        }
+      } else if (call_locationName) {
+        setSelectedLocation(call_locationName);
+      }
+    },
+    [customers, distributor, customerLocations],
+  );
+
+  useEffect(() => {
+    if (route.params && route.params.task) {
+      const {task} = route.params;
+      getUserRole(task.assign_to);
+      getNameAndLocation(
+        task.customerType,
+        task.customerId,
+        task.locId,
+        task.locationName,
+      );
+      console.log(
+        'inside useEffect ',
+        selectedCustomerId,
+        selectedDistributorId,
+      );
+    }
+  }, [route.params, users, customers, distributor]);
+
+  const getdueDate = date => {
+    if (!date) return;
     const formattedDate = date.split('T')[0]; // Formats date to "YYYY-MM-DD"
     setSelectedDateDue(formattedDate);
-  }
-  const getuntilDate=(date)=>{
-    if(!date) return;
+  };
+  const getuntilDate = date => {
+    if (!date) return;
     setShowDropdownRow(true);
     const formattedDate = date.split('T')[0]; // Formats date to "YYYY-MM-DD"
     setSelectedDateUntil(formattedDate);
-  }
+  };
 
-  const getTaskRepeatRem=(repeatRem)=>{
-    if(!repeatRem) return;
+  const getTaskRepeatRem = repeatRem => {
+    if (!repeatRem) return;
     setShowDropdownRow(true);
-    setSelectedDropdownOption(dropdownOptions[repeatRem-1]);
-  }
+    setSelectedDropdownOption(dropdownOptions[repeatRem - 1]);
+  };
 
-  const getUserRole= async(role)=>{
-    
-    if(users.length===0){
+  const getUserRole = async role => {
+    if (users.length === 0) {
       await getUsers();
     }
 
     let foundItem = await users?.find(item => item.userId === role);
-    console.log("users, role ==> ", users[0], role)
-        if (foundItem) {
-          console.log("founded user role ==> ", foundItem);
-          setSelectedUserOption(foundItem.firstName);
-        }
-  }
-
-  const getNameAndLocation = async (task_customerType, task_customerId, task_locId) => {
-    if (task_customerType && task_customerType === 1) {
-         setIsEnabled(true);
-
-        if (task_customerId) {
-            await setSelectedCustomerId(task_customerId);
-        }
-        if(customers.lenght===0){
-          await getCustomersDetails();
-        }
-        let foundItem = await customers?.find(item => item.customerId === task_customerId);
-        if (foundItem) {
-            setSelectedCustomerOption(foundItem.firstName);
-        }
-    } else {
-         setIsEnabled(false);
-
-        if (task_customerId) {
-            await setSelectedDistributorId(task_customerId);
-        }
-        if(distributor.length===0){
-          await getDistributorsDetails();
-        }
-        let foundItem = await distributor?.find(item => item.id === task_customerId);
-        if (foundItem) {
-            setSelectedDistributorOption(foundItem.firstName);
-        }
+    console.log('users, role ==> ', users[0], role);
+    if (foundItem) {
+      console.log('founded user role ==> ', foundItem);
+      setSelectedUserOption(foundItem.firstName);
     }
+  };
 
-    if(task_locId){
-      await setSelectedLocationiD(task_locId);
-      await getCustomerLocations();
-      let foundItem = await  customerLocations?.find(item => item.locationId === task_locId);
-         if (foundItem) {
-             setSelectedLocation(foundItem.locationName) ;
-          }
-    }
-};
+  //   const getNameAndLocation = async (task_customerType, task_customerId, task_locId) => {
+  //     if (task_customerType && task_customerType === 1) {
+  //          setIsEnabled(true);
+
+  //         if (task_customerId) {
+  //             await setSelectedCustomerId(task_customerId);
+  //         }
+  //         if(customers.lenght===0){
+  //           await getCustomersDetails();
+  //         }
+  //         let foundItem = await customers?.find(item => item.customerId === task_customerId);
+  //         if (foundItem) {
+  //             setSelectedCustomerOption(foundItem.firstName);
+  //         }
+  //     } else {
+  //          setIsEnabled(false);
+
+  //         if (task_customerId) {
+  //             await setSelectedDistributorId(task_customerId);
+  //         }
+  //         if(distributor.length===0){
+  //           await getDistributorsDetails();
+  //         }
+  //         let foundItem = await distributor?.find(item => item.id === task_customerId);
+  //         if (foundItem) {
+  //             setSelectedDistributorOption(foundItem.firstName);
+  //         }
+  //     }
+
+  //     if(task_locId){
+  //       await setSelectedLocationiD(task_locId);
+  //       await getCustomerLocations();
+  //       let foundItem = await  customerLocations?.find(item => item.locationId === task_locId);
+  //          if (foundItem) {
+  //              setSelectedLocation(foundItem.locationName) ;
+  //           }
+  //     }
+  // };
 
   useEffect(() => {
-    if(users.length===0){
+    if (users.length === 0) {
       getUsers();
     }
-    if(customers.length==0){
+    if (customers.length == 0) {
       getCustomersDetails();
     }
-    if(distributor.length===0){
-      getDistributorsDetails()
+    if (distributor.length === 0) {
+      getDistributorsDetails();
     }
-}, []);
+  }, []);
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
@@ -421,10 +484,7 @@ const NewTask = () => {
         ) {
           setUsers(response.data.response.users);
           setFilteredUsers(response.data.response.users); // Initialize filtered users
-          console.log(
-            'get users[0]',
-            response.data.response.users[0],
-          );
+          console.log('get users[0]', response.data.response.users[0]);
         } else {
           console.error('Error fetching users:', response.data);
         }
@@ -506,17 +566,16 @@ const NewTask = () => {
     setIsButtonDisabled(true);
     const switchStatus = isEnabled; // Assuming isEnabled controls the switch
     const customerType = switchStatus ? 1 : 3; // 1 for Retailer, 3 for Distributor
-    
 
     const customerId = switchStatus
-    ? selectedCustomerId
-    : selectedDistributorId;
-  console.log('customerId:', customerId);
+      ? selectedCustomerId
+      : selectedDistributorId;
+    console.log('customerId:', customerId);
 
-  const customeroption = switchStatus
-  ? selectedCustomerOption
-  : selectedDistributorOption;
-console.log('customeroption:', customeroption);
+    const customeroption = switchStatus
+      ? selectedCustomerOption
+      : selectedDistributorOption;
+    console.log('customeroption:', customeroption);
 
     const requestData = {
       id: route.params.task.id || 0,
@@ -530,7 +589,7 @@ console.log('customeroption:', customeroption);
       relatedTo: relatedTo || null,
       desc: desc || null,
       completed: null,
-      priority: markHighPriority?1:0,
+      priority: markHighPriority ? 1 : 0,
       assign_to: selectedUserId,
       assign_by: userData.userId,
       t_company_id: null,
@@ -538,7 +597,7 @@ console.log('customeroption:', customeroption);
       status: selectedStatusOption,
       userName: selectedUserName,
       locId: selectedLocationId,
-      customerType: customerType ||null,
+      customerType: customerType || null,
     };
 
     console.log('Request Data:', requestData);
@@ -592,20 +651,19 @@ console.log('customeroption:', customeroption);
     }
   };
   const renderCustomerDetails = () => (
-    <View style={{marginBottom:10}}>
+    <View style={{}}>
+      <Text style={{marginHorizontal: 10, marginVertical: 3}}>Retailer</Text>
       <TouchableOpacity
         onPress={handleShipDropdownClickCustomer}
         style={styles.dropdownButton}>
-        <Text>{selectedCustomerOption || 'Retailer'}</Text>
+        <Text>{selectedCustomerOption || 'Select'}</Text>
         <Image
           source={require('../../../assets/dropdown.png')}
           style={{width: 20, height: 20}}
         />
       </TouchableOpacity>
 
-      {loadingg ? (
-        <ActivityIndicator size="large" color="#000" style={{marginTop: 20}} />
-      ) : shipFromToClickedCustomer.length === 0 ? (
+      {shipFromToClickedCustomer.length === 0 ? (
         <Text style={styles.noCategoriesText}>Sorry, no results found!</Text>
       ) : (
         shipFromToClickedCustomer && (
@@ -625,19 +683,20 @@ console.log('customeroption:', customeroption);
                   <Text>{customer.firstName}</Text>
                 </TouchableOpacity>
               ))} */}
-              {filteredCustomer.length === 0  ? (
-                  <Text style={styles.noCategoriesText}>Sorry, no results found!</Text>
-                ) : (
-                  filteredCustomer.map((customer, index) => (
-                    <TouchableOpacity
-                      key={index}
-                      onPress={() => handleDropdownSelectCustomer(customer)}
-                      style={styles.dropdownOption}
-                    >
-                      <Text>{customer.firstName}</Text>
-                    </TouchableOpacity>
-                  ))
-                )}
+              {filteredCustomer.length === 0 ? (
+                <Text style={styles.noCategoriesText}>
+                  Sorry, no results found!
+                </Text>
+              ) : (
+                filteredCustomer.map((customer, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    onPress={() => handleDropdownSelectCustomer(customer)}
+                    style={styles.dropdownOption}>
+                    <Text>{customer.firstName}</Text>
+                  </TouchableOpacity>
+                ))
+              )}
             </ScrollView>
           </View>
         )
@@ -646,20 +705,19 @@ console.log('customeroption:', customeroption);
   );
 
   const renderDistributorDetails = () => (
-    <View style={{marginBottom:10}}>
+    <View style={{marginBottom: 2}}>
+      <Text style={{marginHorizontal: 10, marginVertical: 3}}>Distributor</Text>
       <TouchableOpacity
         onPress={handleShipDropdownClickDistributor}
         style={styles.dropdownButton}>
-        <Text>{selectedDistributorOption || 'Distributor'}</Text>
+        <Text>{selectedDistributorOption || 'Select'}</Text>
         <Image
           source={require('../../../assets/dropdown.png')}
           style={{width: 20, height: 20}}
         />
       </TouchableOpacity>
 
-      {loadinggg ? (
-        <ActivityIndicator size="large" color="#000" style={{marginTop: 20}} />
-      ) : shipFromToClickedDistributor.length === 0 ? (
+      {shipFromToClickedDistributor.length === 0 ? (
         <Text style={styles.noCategoriesText}>Sorry, no results found!</Text>
       ) : (
         shipFromToClickedDistributor && (
@@ -679,19 +737,20 @@ console.log('customeroption:', customeroption);
                   <Text>{distributor.firstName}</Text>
                 </TouchableOpacity>
               ))} */}
-              {filteredDistributor.length === 0  ? (
-                  <Text style={styles.noCategoriesText}>Sorry, no results found!</Text>
-                ) : (
-                  filteredDistributor.map((distributor, index) => (
-                    <TouchableOpacity
-                      key={index}
-                      onPress={() => handleDropdownSelectDistributor(distributor)}
-                      style={styles.dropdownOption}
-                    >
-                      <Text>{distributor.firstName}</Text>
-                    </TouchableOpacity>
-                  ))
-                )}
+              {filteredDistributor.length === 0 ? (
+                <Text style={styles.noCategoriesText}>
+                  Sorry, no results found!
+                </Text>
+              ) : (
+                filteredDistributor.map((distributor, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    onPress={() => handleDropdownSelectDistributor(distributor)}
+                    style={styles.dropdownOption}>
+                    <Text>{distributor.firstName}</Text>
+                  </TouchableOpacity>
+                ))
+              )}
             </ScrollView>
           </View>
         )
@@ -733,6 +792,7 @@ console.log('customeroption:', customeroption);
         </Text>
       </View>
       {isEnabled ? renderCustomerDetails() : renderDistributorDetails()}
+      <Text style={{marginHorizontal: 10, marginVertical: 3}}>Location</Text>
       <TouchableOpacity
         onPress={handleFromDropdownClick}
         style={styles.dropdownButton}>
@@ -747,24 +807,28 @@ console.log('customeroption:', customeroption);
       {fromToClicked && (
         <View style={styles.dropdownContent1}>
           <ScrollView style={styles.scrollView}>
-            {customerLocations.length===0 ?(
-                <Text style={styles.noCategoriesText}>Sorry, no results found!</Text> 
-             ):(
-            customerLocations.map(location => (
-              <TouchableOpacity
-                style={styles.dropdownOption}
-                key={location.locationId}
-                onPress={() => handleLocationSelection(location)}>
-                <Text>{location.locationName}</Text>
-              </TouchableOpacity>
-            )))}
+            {customerLocations.length === 0 ? (
+              <Text style={styles.noCategoriesText}>
+                Sorry, no results found!
+              </Text>
+            ) : (
+              customerLocations.map(location => (
+                <TouchableOpacity
+                  style={styles.dropdownOption}
+                  key={location.locationId}
+                  onPress={() => handleLocationSelection(location)}>
+                  <Text>{location.locationName}</Text>
+                </TouchableOpacity>
+              ))
+            )}
           </ScrollView>
         </View>
       )}
-        <TouchableOpacity
+      <Text style={{marginHorizontal: 10, marginVertical: 3}}>Users</Text>
+      <TouchableOpacity
         onPress={handleShipDropdownClickUser}
         style={{
-          height: 50,
+          height: 35,
           borderRadius: 10,
           borderWidth: 0.5,
           flexDirection: 'row',
@@ -773,30 +837,28 @@ console.log('customeroption:', customeroption);
           paddingLeft: 15,
           paddingRight: 15,
           marginHorizontal: 10,
-          marginTop:10
         }}>
-        <Text>{selectedUserOption || 'Users'}</Text>
+        <Text>{selectedUserOption || 'Select'}</Text>
         <Image
           source={require('../../../assets/dropdown.png')}
           style={{width: 20, height: 20}}
         />
       </TouchableOpacity>
 
-      {loading ? (
-        <ActivityIndicator size="large" color="#000" style={{marginTop: 20}} />
-      ) : (
-        shipFromToClickedUser && (
-          <View style={styles.dropdownContent1}>
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Search by name..."
-              onChangeText={handleSearch}
-              placeholderTextColor="#000"
-            />
-            <ScrollView style={styles.scrollView}>
-              {filteredUsers.length===0 ?(
-                <Text style={styles.noCategoriesText}>Sorry, no results found!</Text> 
-             ):(
+      {shipFromToClickedUser && (
+        <View style={styles.dropdownContent1}>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search by name..."
+            onChangeText={handleSearch}
+            placeholderTextColor="#000"
+          />
+          <ScrollView style={styles.scrollView}>
+            {filteredUsers.length === 0 ? (
+              <Text style={styles.noCategoriesText}>
+                Sorry, no results found!
+              </Text>
+            ) : (
               filteredUsers.map((user, index) => (
                 <TouchableOpacity
                   key={index}
@@ -804,11 +866,12 @@ console.log('customeroption:', customeroption);
                   onPress={() => handleDropdownSelectUser(user)}>
                   <Text>{user.firstName}</Text>
                 </TouchableOpacity>
-              )))}
-            </ScrollView>
-          </View>
-        )
+              ))
+            )}
+          </ScrollView>
+        </View>
       )}
+      <Text style={{marginHorizontal: 10, marginVertical: 3}}>Task Name *</Text>
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
@@ -818,6 +881,10 @@ console.log('customeroption:', customeroption);
           onChangeText={setTaskName}
         />
       </View>
+      <Text style={{marginHorizontal: 10, marginVertical: 3}}>
+        Related To *
+      </Text>
+
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
@@ -827,6 +894,7 @@ console.log('customeroption:', customeroption);
           onChangeText={setRelatedTo}
         />
       </View>
+      <Text style={{marginHorizontal: 10, marginVertical: 3}}>Description</Text>
 
       <View style={styles.inputContainer}>
         <TextInput
@@ -837,11 +905,15 @@ console.log('customeroption:', customeroption);
           onChangeText={setDesc}
         />
       </View>
-
+      <Text style={{marginHorizontal: 10, marginVertical: 3}}>Due Date</Text>
       <View style={styles.datecontainer}>
         <TouchableOpacity onPress={showDatePickerDue}>
-          <View style={{paddingVertical: 10}}>
-            <Text style={{marginLeft: 10}}>{selectedDateDue!=="Due Date"?formatDateIntoDMY(selectedDateDue) : selectedDateDue}</Text>
+          <View style={{paddingVertical: 6}}>
+            <Text style={{marginLeft: 10}}>
+              {selectedDateDue !== 'Due Date'
+                ? formatDateIntoDMY(selectedDateDue)
+                : selectedDateDue}
+            </Text>
           </View>
         </TouchableOpacity>
         <TouchableOpacity
@@ -861,13 +933,12 @@ console.log('customeroption:', customeroption);
       <View
         style={{
           marginHorizontal: 10,
-          marginVertical: 10,
           flexDirection: 'row',
           alignItems: 'center',
           marginLeft: 10,
         }}>
         <CheckBox isChecked={showDropdownRow} onClick={handleCheckboxChange} />
-        <Text style={{marginLeft: 5}}>Repeats</Text>
+        <Text style={{marginLeft: 5, marginVertical: 5}}>Repeats</Text>
       </View>
 
       {showDropdownRow && (
@@ -881,7 +952,7 @@ console.log('customeroption:', customeroption);
             onPress={handleShipDropdownClickk}
             style={{
               flex: 1,
-              height: 50,
+              height: 35,
               borderRadius: 10,
               borderWidth: 0.5,
               flexDirection: 'row',
@@ -891,7 +962,7 @@ console.log('customeroption:', customeroption);
               paddingRight: 15,
               marginRight: 5,
             }}>
-            <Text>{selectedDropdownOption.label || ''}</Text>
+            <Text>{selectedDropdownOption.label || 'Select'}</Text>
             <Image
               source={require('../../../assets/dropdown.png')}
               style={{width: 20, height: 20}}
@@ -902,7 +973,7 @@ console.log('customeroption:', customeroption);
             onPress={showDatePickerUntil}
             style={{
               flex: 1,
-              height: 50,
+              height: 35,
               borderRadius: 10,
               borderWidth: 0.5,
               flexDirection: 'row',
@@ -912,7 +983,11 @@ console.log('customeroption:', customeroption);
               paddingRight: 15,
               marginLeft: 5,
             }}>
-            <Text>{selectedDateUntil!=="Until Date"?formatDateIntoDMY(selectedDateUntil) : selectedDateUntil}</Text>
+            <Text>
+              {selectedDateUntil !== 'Until Date'
+                ? formatDateIntoDMY(selectedDateUntil)
+                : selectedDateUntil}
+            </Text>
             <Image
               style={styles.dateIcon}
               source={require('../../../assets/date.png')}
@@ -922,37 +997,34 @@ console.log('customeroption:', customeroption);
       )}
 
       {shipFromToClicked && (
-        <View style={[styles.dropdownContent, { bottom: 190 }]}>
+        <View style={[styles.dropdownContent, {bottom: 190}]}>
           <ScrollView style={styles.scrollView}>
-          {dropdownOptions.map(option => (
-            <TouchableOpacity
-              key={option.value}
-              onPress={() => handleDropdownSelect(option)}
-              style={styles.dropdownOption}>
-              <Text>{option.label}</Text>
-            </TouchableOpacity>
-          ))}
+            {dropdownOptions.map(option => (
+              <TouchableOpacity
+                key={option.value}
+                onPress={() => handleDropdownSelect(option)}
+                style={styles.dropdownOption}>
+                <Text>{option.label}</Text>
+              </TouchableOpacity>
+            ))}
           </ScrollView>
         </View>
       )}
 
-     
-
       <View
         style={{
           marginHorizontal: 10,
-          marginVertical: 10,
           flexDirection: 'row',
+          marginVertical: 7,
         }}>
         <CheckBox isChecked={markHighPriority} onClick={handleCheckPriority} />
         <Text>Mark as High Priority</Text>
       </View>
 
-  
       <TouchableOpacity
         onPress={handleShipDropdownClickStatus}
         style={{
-          height: 50,
+          height: 35,
           borderRadius: 10,
           borderWidth: 0.5,
           flexDirection: 'row',
@@ -961,17 +1033,17 @@ console.log('customeroption:', customeroption);
           paddingLeft: 15,
           paddingRight: 15,
           marginHorizontal: 10,
-          marginVertical: 10,
+          marginVertical: 1,
         }}>
         <Text>{selectedStatusOption || 'Status'}</Text>
         <Image
           source={require('../../../assets/dropdown.png')}
-          style={{ width: 20, height: 20 }}
+          style={{width: 20, height: 20}}
         />
       </TouchableOpacity>
 
       {shipFromToClickedStatus && (
-        <View style={[styles.dropdownContent, { bottom: 80 }]}>
+        <View style={[styles.dropdownContent, {bottom: 90}]}>
           <ScrollView style={styles.scrollView}>
             {statusOptions.map((option, index) => (
               <TouchableOpacity
@@ -1030,17 +1102,15 @@ const styles = StyleSheet.create({
   },
   section: {
     marginHorizontal: 10,
-    marginTop: 10,
   },
   sectionText: {
     fontSize: 18,
     fontWeight: 'bold',
   },
   switchContainer: {
-    paddingLeft: 10, // Add padding if you want some space from the left edge
-    marginHorizontal: 10,
+    marginHorizontal: 6,
     flexDirection: 'row',
-    marginVertical: 5,
+    marginVertical: 3,
     alignItems: 'center',
   },
   inputContainer: {
@@ -1048,20 +1118,19 @@ const styles = StyleSheet.create({
     borderColor: '#000',
     borderRadius: 5,
     marginHorizontal: 10,
-    marginBottom: 10,
-    marginTop: 10,
+    marginBottom: 3,
+    marginTop: 3,
   },
   input: {
     fontSize: 16,
     paddingHorizontal: 10,
-    color:'#000000'
+    color: '#000000',
   },
   datecontainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginHorizontal: 10,
     marginBottom: 10,
-    marginTop: 10,
     borderWidth: 1,
     borderRadius: 5,
   },
@@ -1080,7 +1149,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 5,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.2,
     shadowRadius: 2,
     elevation: 2,
@@ -1099,8 +1168,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
     paddingLeft: 10,
     marginBottom: 10,
-    color:'#000000'
-
+    color: '#000000',
   },
   scrollView: {
     maxHeight: 150,
@@ -1118,15 +1186,15 @@ const styles = StyleSheet.create({
     // padding: 10,
     // elevation: 2,
     //----------------
-       elevation: 5,
-       height: 220,
-       alignSelf: 'center',
-       width: '90%',
-       backgroundColor: '#fff',
-       borderRadius: 10,
+    elevation: 5,
+    height: 220,
+    alignSelf: 'center',
+    width: '90%',
+    backgroundColor: '#fff',
+    borderRadius: 10,
   },
   dropdownButton: {
-    height: 50,
+    height: 35,
     borderRadius: 10,
     borderWidth: 0.5,
     flexDirection: 'row',
@@ -1141,7 +1209,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     fontSize: 16,
     fontWeight: '600',
-    color:'#000000'
+    color: '#000000',
   },
 });
 

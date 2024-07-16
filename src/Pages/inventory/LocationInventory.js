@@ -158,7 +158,10 @@ const LocationInventory = () => {
           size="large"
           color="#390050"
         />
-      ) : (
+      ) : (searchQuery && filteredData.length === 0) ||
+      (!searchQuery && inventoryData.length === 0) ? (
+      <Text style={styles.noCategoriesText}>Sorry, no results found!</Text>
+    ) : (
         <FlatList
           data={filteredData}
           renderItem={renderItem}
@@ -216,7 +219,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f0f0f0',
   },
   headerText: {
-    flex: 1,
+    flex: 1.2,
     textAlign: 'center',
   },
   headerText1: {
@@ -244,7 +247,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   itemText: {
-    flex: 1,
+    flex: 1.2,
     textAlign: 'center',
   },
   itemText1: {
@@ -264,6 +267,14 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'center',
   },
+  noCategoriesText:{
+    top: 40,
+    textAlign:"center",
+    color: '#000000',
+    fontSize: 20,
+    fontWeight: 'bold',
+    padding: 5,
+  }
 });
 
 export default LocationInventory;

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native'; // Import RefreshControl
+import { StyleSheet, Text, View, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
 import { API } from '../../config/apiConfig';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
@@ -10,8 +10,8 @@ const DistributorGrn = () => {
   const navigation = useNavigation();
   const [initialSelectedCompany, setInitialSelectedCompany] = useState(null);
   const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(false); // State to manage loading state
-  const [refreshing, setRefreshing] = useState(false); // State to manage refresh state
+  const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   const selectedCompany = useSelector(state => state.selectedCompany);
 
@@ -36,14 +36,15 @@ const DistributorGrn = () => {
 
   useEffect(() => {
     if (companyId) {
+      console.log("Fetching data for company ID:", companyId);
       getDistributorGrn();
     }
   }, [companyId]);
 
   const getDistributorGrn = async () => {
-    setLoading(true); // Set loading to true when fetching data
+    setLoading(true);
     const apiUrl = `${global?.userData?.productURL}${API.GET_DISTRIBUTOR_GRN}/${companyId}`;
-    console.log("companyId",companyId)
+    console.log("Fetching Distributor GRN from:", apiUrl);
     try {
       const response = await axios.get(apiUrl, {
         headers: {
@@ -52,20 +53,22 @@ const DistributorGrn = () => {
         },
       });
       if (response.data.status.success) {
-        setOrders(response.data.response.ordersList);
-        // console.log('Orders:', response.data.response.ordersList);
+        const filteredOrders = response.data.response.ordersList.filter(order => order !== null);
+        setOrders(filteredOrders);
+        // console.log('Filtered Orders:', filteredOrders);
       } else {
-        console.error('Failed to fetch orders:', response.data.status);
+        // console.error('Failed to fetch orders:', response.data.status);
       }
     } catch (error) {
-      console.error('Error:', error);
+      // console.error('Error:', error);
     } finally {
-      setLoading(false); // Set loading to false when data fetching is completed
+      setLoading(false);
     }
   };
 
   const onRefresh = async () => {
     setRefreshing(true);
+    console.log("Refreshing data...");
     await getDistributorGrn();
     setRefreshing(false);
   };
@@ -74,15 +77,19 @@ const DistributorGrn = () => {
     navigation.navigate("DistributorOrder", { orderId });
   };
 
-  const renderOrderItem = ({ item }) => (
-    <TouchableOpacity onPress={() => gotoDistributorOrder(item.orderId)} style={styles.orderItem}>
-      <Text style={styles.orderIdText}>{item.orderId}</Text>
-      <Text style={styles.customerText}>{item.customerName}</Text>
-      <Text style={styles.qtyText}>{item.shipQty || 0}</Text>
-      <Text style={styles.statusText}>{item.orderStatus}</Text>
-      <Text style={styles.dateText}>{item.orderDate}</Text>
-    </TouchableOpacity>
-  );
+  const renderOrderItem = ({ item }) => {
+    if (!item) return null;
+
+    return (
+      <TouchableOpacity onPress={() => gotoDistributorOrder(item.orderId)} style={styles.orderItem}>
+        <Text style={styles.orderIdText}>{item.orderId}</Text>
+        <Text style={styles.customerText}>{item.customerName}</Text>
+        <Text style={styles.qtyText}>{item.shipQty || 0}</Text>
+        <Text style={styles.statusText}>{item.orderStatus}</Text>
+        <Text style={styles.dateText}>{item.orderDate}</Text>
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -93,13 +100,15 @@ const DistributorGrn = () => {
         <Text style={styles.statusText}>Status</Text>
         <Text style={styles.dateText}>Order Date</Text>
       </View>
-      {loading ? ( // Render ActivityIndicator when loading is true
+      {loading ? (
         <ActivityIndicator size="large" color="#0000ff" style={styles.activityIndicator} />
+      ) : orders.length === 0 ? (
+        <Text style={styles.noResultsText}>Sorry, no results found!</Text>
       ) : (
         <FlatList
           data={orders}
           renderItem={renderOrderItem}
-          keyExtractor={item => item.orderId.toString()}
+          keyExtractor={(item, index) => item ? item.orderId.toString() : index.toString()}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
@@ -151,6 +160,13 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  noResultsText: {
+    textAlign: 'center',
+    color: '#000000',
+    fontSize: 20,
+    fontWeight: 'bold',
+    padding: 20,
   },
 });
 
