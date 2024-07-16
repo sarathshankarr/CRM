@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import {
   StyleSheet,
@@ -13,6 +13,8 @@ import {
 import axios from 'axios';
 import { API } from '../../config/apiConfig';
 import { formatDateIntoDMY } from '../../Helper/Helper';
+import { useSelector } from 'react-redux';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Tasks = () => {
   const navigation = useNavigation();
@@ -20,16 +22,43 @@ const Tasks = () => {
   const [filteredTasks, setFilteredTasks] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [initialSelectedCompany, setInitialSelectedCompany] = useState(null);
+  const selectedCompany = useSelector(state => state.selectedCompany);
+
+  useEffect(() => {
+    const fetchInitialSelectedCompany = async () => {
+      try {
+        const initialCompanyData = await AsyncStorage.getItem(
+          'initialSelectedCompany',
+        );
+        if (initialCompanyData) {
+          const initialCompany = JSON.parse(initialCompanyData);
+          setInitialSelectedCompany(initialCompany);
+          console.log('Initial Selected Company:', initialCompany);
+        }
+      } catch (error) {
+        console.error('Error fetching initial selected company:', error);
+      }
+    };
+
+    fetchInitialSelectedCompany();
+  }, []);
+  const companyId = selectedCompany
+  ? selectedCompany.id
+  : initialSelectedCompany?.id;
 
   useFocusEffect(
     React.useCallback(() => {
+      if (companyId) {
       fetchTasks(); // Fetch tasks when the screen is focused
-    }, [])
+      }
+    }, [companyId])
   );
+console.log("companyId",companyId)
 
   const fetchTasks = () => {
     setLoading(true); // Show loading indicator
-    const apiUrl = `${global?.userData?.productURL}${API.GET_ALL_TASK}`;
+    const apiUrl = `${global?.userData?.productURL}${API.GET_ALL_TASK}/${companyId}`;
     axios
       .get(apiUrl, {
         headers: {

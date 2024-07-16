@@ -4,6 +4,8 @@ import { StyleSheet, Text, TextInput, TouchableOpacity, View, Image, ActivityInd
 import axios from 'axios';
 import { API } from '../../config/apiConfig';
 import { formatDateIntoDMY } from '../../Helper/Helper';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useSelector } from 'react-redux';
 
 const Call = () => {
   const navigation = useNavigation();
@@ -11,6 +13,31 @@ const Call = () => {
   const [calls, setCalls] = useState([]);
   const [filteredCalls, setFilteredCalls] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [initialSelectedCompany, setInitialSelectedCompany] = useState(null);
+  const selectedCompany = useSelector(state => state.selectedCompany);
+
+  useEffect(() => {
+    const fetchInitialSelectedCompany = async () => {
+      try {
+        const initialCompanyData = await AsyncStorage.getItem(
+          'initialSelectedCompany',
+        );
+        if (initialCompanyData) {
+          const initialCompany = JSON.parse(initialCompanyData);
+          setInitialSelectedCompany(initialCompany);
+          console.log('Initial Selected Company:', initialCompany);
+        }
+      } catch (error) {
+        console.error('Error fetching initial selected company:', error);
+      }
+    };
+
+    fetchInitialSelectedCompany();
+  }, []);
+  const companyId = selectedCompany
+  ? selectedCompany.id
+  : initialSelectedCompany?.id;
+
 
   const handleSearch = (text) => {
     setSearchQuery(text);
@@ -24,10 +51,12 @@ const Call = () => {
   const handleAdd = () => {
     navigation.navigate('NewCall',{ call: {} });
   };
+  
+  console.log("companyId",companyId)
 
   const getAllCalls = () => {
     setLoading(true);
-    const apiUrl = `${global?.userData?.productURL}${API.GET_ALL_CALL}`;
+    const apiUrl = `${global?.userData?.productURL}${API.GET_ALL_CALL}/${companyId}`;
     axios
       .get(apiUrl, {
         headers: {
@@ -50,9 +79,13 @@ const Call = () => {
 
   useFocusEffect(
     React.useCallback(() => {
+      if (companyId) {
       getAllCalls(); // Fetch tasks when the screen is focused
-    }, [])
+      }
+    }, [companyId])
   );
+
+
   const fetchCallById = (callId) => {
     setLoading(true);
     const apiUrl = `${global?.userData?.productURL}${API.GET_CALL_BY_ID}/${callId}`;
