@@ -1,21 +1,27 @@
 import React from 'react';
-import { View, TouchableOpacity, Image, Text, StyleSheet } from 'react-native';
-import { useSelector } from 'react-redux';
-import { useNavigation } from '@react-navigation/native';
+import {View, TouchableOpacity, Image, Text, StyleSheet} from 'react-native';
+import {useSelector} from 'react-redux';
+import {useNavigation} from '@react-navigation/native';
 
-const CommenHeaderHomeScreen = ({ title, showDrawerButton, showMessageIcon, showLocationIcon, showCartIcon }) => {
+const CommenHeaderHomeScreen = ({
+  title,
+  showDrawerButton,
+  showMessageIcon,
+  showLocationIcon,
+  showCartIcon,
+}) => {
   const navigation = useNavigation();
   const cartItems = useSelector(state => state.cartItems);
 
   const goToCart = () => {
-    navigation.navigate("Cart");
-  }
+    navigation.navigate('Cart');
+  };
 
   const cartItemCount = cartItems.length;
 
   return (
     <View style={styles.header}>
-       {showDrawerButton && (
+      {showDrawerButton && (
         <TouchableOpacity onPress={() => navigation.openDrawer()}>
           <Image
             resizeMode="contain"
@@ -33,7 +39,6 @@ const CommenHeaderHomeScreen = ({ title, showDrawerButton, showMessageIcon, show
               style={styles.locationimg}
               source={require('../../assets/location.png')}
             />
-
           </TouchableOpacity>
         )}
         {showMessageIcon && (
@@ -45,7 +50,6 @@ const CommenHeaderHomeScreen = ({ title, showDrawerButton, showMessageIcon, show
           </TouchableOpacity>
         )}
         {showCartIcon && (
-
           <TouchableOpacity style={styles.iconWrapper} onPress={goToCart}>
             <View style={styles.cartContainer}>
               <Image
@@ -70,8 +74,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 10,
-    paddingVertical:10,
-    backgroundColor: "#fff"
+    paddingVertical: 10,
+    backgroundColor: '#fff',
   },
   rightContainer: {
     flexDirection: 'row',

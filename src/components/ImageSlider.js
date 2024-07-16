@@ -1,11 +1,18 @@
-import React, { useRef } from 'react';
-import { StyleSheet, View, ScrollView, Animated, Dimensions, Image } from 'react-native';
+import React, {useRef} from 'react';
+import {
+  StyleSheet,
+  View,
+  ScrollView,
+  Animated,
+  Dimensions,
+  Image,
+} from 'react-native';
 
-const { width, height } = Dimensions.get('window');
+const {width, height} = Dimensions.get('window');
 const cardWidth = width - 20;
 const cardMargin = (width - cardWidth) / 2;
 
-const ImageSlider = ({ imageUrls }) => {
+const ImageSlider = ({imageUrls}) => {
   const animate = useRef(new Animated.Value(0)).current;
 
   return (
@@ -16,13 +23,12 @@ const ImageSlider = ({ imageUrls }) => {
         showsHorizontalScrollIndicator={false}
         decelerationRate="fast"
         onScroll={Animated.event(
-          [{ nativeEvent: { contentOffset: { x: animate } } }],
-          { useNativeDriver: false }
-        )}
-      >
+          [{nativeEvent: {contentOffset: {x: animate}}}],
+          {useNativeDriver: false},
+        )}>
         {imageUrls.map((url, index) => (
           <View key={index} style={styles.card}>
-            <Image source={{ uri: url }} style={styles.image} />
+            <Image source={{uri: url}} style={styles.image} />
           </View>
         ))}
       </ScrollView>
@@ -39,7 +45,7 @@ const ImageSlider = ({ imageUrls }) => {
               <Animated.View
                 style={[
                   styles.animatedDot,
-                  { transform: [{ translateX: translateX }] },
+                  {transform: [{translateX: translateX}]},
                 ]}
               />
             </View>

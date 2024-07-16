@@ -31,9 +31,8 @@ const Order = () => {
   const selectedCompany = useSelector(state => state.selectedCompany);
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
-      // Reset search when component is focused
       setSearchQuery('');
-      setShowSearchInput(false); // Hide search input when component is focused
+      setShowSearchInput(false);
     });
     return unsubscribe;
   }, [navigation]);
@@ -67,9 +66,10 @@ const Order = () => {
   }, [companyId]);
 
   const getAllOrders = () => {
-    setLoading(true); // Show loading indicator
-    const apiUrl = `${global?.userData?.productURL}${API.GET_ALL_ORDER}/${0}/${companyId}`;
-    // console.log('companyId', companyId);
+    setLoading(true);
+    const apiUrl = `${global?.userData?.productURL}${
+      API.GET_ALL_ORDER
+    }/${0}/${companyId}`;
     axios
       .get(apiUrl, {
         headers: {
@@ -77,14 +77,13 @@ const Order = () => {
         },
       })
       .then(response => {
-        // console.log(response.data); // Log the response data to see its structure
         setOrders(response.data.response.ordersList);
       })
       .catch(error => {
         console.error('Error:', error);
       })
       .finally(() => {
-        setLoading(false); // Hide loading indicator
+        setLoading(false);
       });
   };
 
@@ -125,10 +124,8 @@ const Order = () => {
     }
   };
 
-  
-
   const renderItem = ({item}) => {
-    if (!item) return null; // Add null check here
+    if (!item) return null;
 
     return (
       <View style={style.container}>
@@ -177,38 +174,39 @@ const Order = () => {
     );
   };
 
-
-  // const filteredOrders = orders &&
-  // Array.isArray(orders) &&
-  // orders.filter((item) => 
-  //   item.customerName.toLowerCase().includes(searchQuery.toLowerCase())
-  // );
-
-  const filteredOrders = orders &&
-  Array.isArray(orders) &&
-  orders.filter((item) => {
-    if (!item) return false; // Add null check here
-    const customerName = item.customerName ? item.customerName.toLowerCase() : '';
-    const orderNum = item.orderNum ? item.orderNum.toString().toLowerCase() : '';
-    const query = searchQuery.toLowerCase();
-    return customerName.includes(query) || orderNum.includes(query);
-  });
-
+  const filteredOrders =
+    orders &&
+    Array.isArray(orders) &&
+    orders.filter(item => {
+      if (!item) return false;
+      const customerName = item.customerName
+        ? item.customerName.toLowerCase()
+        : '';
+      const orderNum = item.orderNum
+        ? item.orderNum.toString().toLowerCase()
+        : '';
+      const query = searchQuery.toLowerCase();
+      return customerName.includes(query) || orderNum.includes(query);
+    });
 
   return (
     <View style={{backgroundColor: '#fff', flex: 1}}>
-     
       <View style={style.searchContainer}>
-          <TextInput
-            style={[style.searchInput, searchQuery.length > 0 && style.searchInputActive]}
-            autoFocus={false}
-            value={searchQuery}
-            onChangeText={text => setSearchQuery(text)}
-            placeholder="Search"
-            placeholderTextColor="#000"
-          />
-        
-        <TouchableOpacity style={style.searchButton} onPress={toggleSearchInput}>
+        <TextInput
+          style={[
+            style.searchInput,
+            searchQuery.length > 0 && style.searchInputActive,
+          ]}
+          autoFocus={false}
+          value={searchQuery}
+          onChangeText={text => setSearchQuery(text)}
+          placeholder="Search"
+          placeholderTextColor="#000"
+        />
+
+        <TouchableOpacity
+          style={style.searchButton}
+          onPress={toggleSearchInput}>
           <Image
             style={style.image}
             source={
@@ -227,9 +225,9 @@ const Order = () => {
         />
       ) : filteredOrders.length === 0 ? (
         <Text style={style.noCategoriesText}>Sorry, no results found! </Text>
-      ) :(
+      ) : (
         <FlatList
-          data={filteredOrders} //  filtered orders instead of all orders
+          data={filteredOrders}
           renderItem={renderItem}
           keyExtractor={(item, index) =>
             item && item.orderId ? item.orderId.toString() : index.toString()
@@ -238,9 +236,9 @@ const Order = () => {
           onEndReachedThreshold={0.1}
           refreshing={refreshingOrders}
           onRefresh={() => {
-            setRefreshingOrders(true); // Set refreshing flag to true
-            setPageNo(1); // Reset page number
-            setRefreshingOrders(false); // Reset refreshing flag after fetching new data
+            setRefreshingOrders(true);
+            setPageNo(1);
+            setRefreshingOrders(false);
           }}
         />
       )}
@@ -262,11 +260,13 @@ const Order = () => {
                 </Text>
                 <Text>Total Amount : {selectedOrder.totalAmount}</Text>
               </View>
-              <View style={{marginLeft:10}}>
+              <View style={{marginLeft: 10}}>
                 <Text style={{}}>
                   Packing status : {selectedOrder.packedStts}
                 </Text>
-                <Text style={{marginTop:5}}>Status : {selectedOrder.orderStatus} </Text>
+                <Text style={{marginTop: 5}}>
+                  Status : {selectedOrder.orderStatus}{' '}
+                </Text>
               </View>
               <TouchableOpacity
                 style={style.closeButton}
@@ -298,7 +298,7 @@ const style = StyleSheet.create({
   orderidd: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginHorizontal:10
+    marginHorizontal: 10,
   },
   PackedStatus: {
     marginHorizontal: 10,
@@ -347,7 +347,7 @@ const style = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     marginTop: 5,
-    marginBottom:10,
+    marginBottom: 10,
   },
   searchInput: {
     flex: 1,
@@ -366,14 +366,14 @@ const style = StyleSheet.create({
     height: 30,
     width: 30,
   },
-  noCategoriesText:{
+  noCategoriesText: {
     top: 40,
-    textAlign:"center",
+    textAlign: 'center',
     color: '#000000',
     fontSize: 20,
     fontWeight: 'bold',
     padding: 5,
-  }
+  },
 });
 
 export default Order;

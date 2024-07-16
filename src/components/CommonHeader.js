@@ -1,15 +1,21 @@
 import React from 'react';
-import { View, TouchableOpacity, Image, Text, StyleSheet } from 'react-native';
-import { useSelector } from 'react-redux';
-import { useNavigation } from '@react-navigation/native';
+import {View, TouchableOpacity, Image, Text, StyleSheet} from 'react-native';
+import {useSelector} from 'react-redux';
+import {useNavigation} from '@react-navigation/native';
 
-const CommonHeader = ({ title, showDrawerButton, showMessageIcon, showLocationIcon, showCartIcon }) => {
+const CommonHeader = ({
+  title,
+  showDrawerButton,
+  showMessageIcon,
+  showLocationIcon,
+  showCartIcon,
+}) => {
   const navigation = useNavigation();
   const cartItems = useSelector(state => state.cartItems);
 
   const goToCart = () => {
-    navigation.navigate("Cart");
-  }
+    navigation.navigate('Cart');
+  };
 
   const cartItemCount = cartItems.length;
 
@@ -41,7 +47,6 @@ const CommonHeader = ({ title, showDrawerButton, showMessageIcon, showLocationIc
               style={styles.locationimg}
               source={require('../../assets/location.png')}
             />
-
           </TouchableOpacity>
         )}
         {showMessageIcon && (
@@ -53,7 +58,6 @@ const CommonHeader = ({ title, showDrawerButton, showMessageIcon, showLocationIc
           </TouchableOpacity>
         )}
         {showCartIcon && (
-
           <TouchableOpacity style={styles.iconWrapper} onPress={goToCart}>
             <View style={styles.cartContainer}>
               <Image
@@ -78,8 +82,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 10,
-    paddingVertical:10,
-    backgroundColor: "#fff"
+    paddingVertical: 10,
+    backgroundColor: '#fff',
   },
   rightContainer: {
     flexDirection: 'row',

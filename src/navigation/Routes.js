@@ -19,7 +19,6 @@ import CommenHeaderHomeScreen from '../components/CommenHeaderHomeScreen';
 import PackingOrders from '../Pages/Packingorders/PackingOrders';
 import DistributorGrn from '../Pages/distributorgrn/DistributorGrn';
 import DistributorOrder from '../Pages/distributororder/DistributorOrder';
-import {NavigationProvider} from '../components/navigationContext/NavigationContext';
 import ModalScreen from '../components/ModalScreen';
 import Activities from '../Pages/activities/Activities';
 import NewTask from '../Pages/activities/NewTask';
@@ -149,11 +148,6 @@ const Routes = () => {
       <Stack.Screen
         name="DistributorOrder"
         component={DistributorOrder}
-        options={{headerShown: false}}
-      />
-      <Stack.Screen
-        name="NavigationProvider"
-        component={NavigationProvider}
         options={{headerShown: false}}
       />
       <Stack.Screen

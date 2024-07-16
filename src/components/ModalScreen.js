@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
   Modal,
   StyleSheet,
@@ -9,10 +9,10 @@ import {
   ScrollView,
   Image,
 } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
-import { updateCartItem } from '../redux/actions/Actions';
+import {useDispatch, useSelector} from 'react-redux';
+import {updateCartItem} from '../redux/actions/Actions';
 
-const ModalScreen = ({ modalVisible, closeModal, selectedItem, modalItems }) => {
+const ModalScreen = ({modalVisible, closeModal, selectedItem, modalItems}) => {
   const dispatch = useDispatch();
 
   const handleQuantityChange = (index, text) => {
@@ -25,9 +25,9 @@ const ModalScreen = ({ modalVisible, closeModal, selectedItem, modalItems }) => 
   };
 
   const handleSaveItem = () => {
-    console.log('Saving changes:', modalItems); // Log modalItems before dispatch
-    modalItems.forEach((item) => {
-      dispatch(updateCartItem(item)); // Dispatch update action here
+    console.log('Saving changes:', modalItems);
+    modalItems.forEach(item => {
+      dispatch(updateCartItem(item));
     });
     closeModal();
   };
@@ -42,20 +42,20 @@ const ModalScreen = ({ modalVisible, closeModal, selectedItem, modalItems }) => 
         <View style={styles.addqtyhead}>
           <TouchableOpacity onPress={closeModal}>
             <Image
-              style={{ height: 30, width: 30, tintColor: 'white' }}
+              style={{height: 30, width: 30, tintColor: 'white'}}
               source={require('../../assets/back_arrow.png')}
             />
           </TouchableOpacity>
           <Text style={styles.addqtytxt}>Add Quantity</Text>
         </View>
         <View style={styles.sizehead}>
-          <View style={{ flex: 0.7 }}>
-            <Text style={{ marginLeft: 10 }}>COLOR/SIZE</Text>
+          <View style={{flex: 0.7}}>
+            <Text style={{marginLeft: 10}}>COLOR/SIZE</Text>
           </View>
-          <View style={{ flex: 0.5 }}>
+          <View style={{flex: 0.5}}>
             <Text>QUANTITY</Text>
           </View>
-          <View style={{ flex: 0.4 }}>
+          <View style={{flex: 0.4}}>
             <Text>PRICE</Text>
           </View>
         </View>
@@ -67,8 +67,6 @@ const ModalScreen = ({ modalVisible, closeModal, selectedItem, modalItems }) => 
                   Color Name: {selectedItem.colorName}
                 </Text>
               </View>
-
-              {/* Display sizes and quantities */}
               <View>
                 {modalItems.map((item, index) => (
                   <View key={index} style={styles.rowContainer}>
@@ -81,9 +79,7 @@ const ModalScreen = ({ modalVisible, closeModal, selectedItem, modalItems }) => 
                         keyboardType="numeric"
                         placeholder="Quantity"
                         value={item.quantity.toString()}
-                        onChangeText={(text) =>
-                          handleQuantityChange(index, text)
-                        }
+                        onChangeText={text => handleQuantityChange(index, text)}
                       />
                     </View>
                     <View style={styles.priceContainer}>
@@ -101,7 +97,7 @@ const ModalScreen = ({ modalVisible, closeModal, selectedItem, modalItems }) => 
                   marginBottom: 30,
                 }}>
                 <TouchableOpacity
-                  onPress={closeModal} // Discard changes and close modal
+                  onPress={closeModal}
                   style={{
                     borderWidth: 1,
                     borderColor: '#000',
@@ -111,12 +107,12 @@ const ModalScreen = ({ modalVisible, closeModal, selectedItem, modalItems }) => 
                     paddingHorizontal: 35,
                     borderRadius: 5,
                   }}>
-                  <Text style={{ color: 'white', fontWeight: 'bold' }}>
+                  <Text style={{color: 'white', fontWeight: 'bold'}}>
                     CANCEL
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  onPress={handleSaveItem} // Save changes and close modal
+                  onPress={handleSaveItem}
                   style={{
                     borderWidth: 1,
                     borderColor: '#000',
@@ -126,9 +122,7 @@ const ModalScreen = ({ modalVisible, closeModal, selectedItem, modalItems }) => 
                     paddingHorizontal: 35,
                     borderRadius: 5,
                   }}>
-                  <Text style={{ color: 'white', fontWeight: 'bold' }}>
-                    SAVE
-                  </Text>
+                  <Text style={{color: 'white', fontWeight: 'bold'}}>SAVE</Text>
                 </TouchableOpacity>
               </View>
             </View>

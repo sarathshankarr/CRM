@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, Image } from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {View, Text, TouchableOpacity, Image} from 'react-native';
 import axios from 'axios';
-import { API } from '../config/apiConfig';
+import {API} from '../config/apiConfig';
 
 const CustomDropDown = () => {
   const [clicked, setClicked] = useState(false);
@@ -15,7 +15,7 @@ const CustomDropDown = () => {
   }, [clicked]);
 
   const getCustomersDetails = () => {
-    const companyId = 1; // Company ID
+    const companyId = 1;
     const apiUrl = `${global?.userData?.productURL}${API.ADD_CUSTOMER_LIST}/${companyId}`;
     axios
       .get(apiUrl, {
@@ -56,10 +56,12 @@ const CustomDropDown = () => {
           paddingRight: 15,
         }}
         onPress={handleDropdownClick}>
-        <Text style={{ fontWeight: '600' }}>{selectedCustomer || 'Customer'}</Text>
+        <Text style={{fontWeight: '600'}}>
+          {selectedCustomer || 'Customer'}
+        </Text>
         <Image
           source={require('../../assets/dropdown.png')}
-          style={{ width: 20, height: 20 }}
+          style={{width: 20, height: 20}}
         />
       </TouchableOpacity>
       {clicked && (
@@ -86,7 +88,7 @@ const CustomDropDown = () => {
                 handleCustomerSelection(item.firstName, item.lastName);
                 console.log(item);
               }}>
-              <Text style={{ fontWeight: '600', marginHorizontal: 15 }}>
+              <Text style={{fontWeight: '600', marginHorizontal: 15}}>
                 {item.firstName} {item.lastName}
               </Text>
               {/* <Text>{item.phoneNumber}</Text> */}

@@ -1,4 +1,4 @@
-import React, {useState, useEffect,useCallback} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {
   Text,
   View,
@@ -8,30 +8,28 @@ import {
   TouchableOpacity,
   TextInput,
   ActivityIndicator,
-  BackHandler,
-  Alert,
   RefreshControl,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {getAllCategories} from '../utils/serviceApi/serviceAPIComponent';
-import { useSelector } from 'react-redux';
+import {useSelector} from 'react-redux';
 import axios from 'axios';
-import { API } from '../config/apiConfig';
+import {API} from '../config/apiConfig';
 
-const Categories = ({ navigation }) => {
+const Categories = ({navigation}) => {
   const [selectedDetails, setSelectedDetails] = useState([]);
   const [showSearchInput, setShowSearchInput] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [initialSelectedCompany, setInitialSelectedCompany] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
-
-  const selectedCompany = useSelector((state) => state.selectedCompany);
+  const selectedCompany = useSelector(state => state.selectedCompany);
 
   useEffect(() => {
     const fetchInitialSelectedCompany = async () => {
       try {
-        const initialCompanyData = await AsyncStorage.getItem('initialSelectedCompany');
+        const initialCompanyData = await AsyncStorage.getItem(
+          'initialSelectedCompany',
+        );
         if (initialCompanyData) {
           const initialCompany = JSON.parse(initialCompanyData);
           setInitialSelectedCompany(initialCompany);
@@ -45,7 +43,9 @@ const Categories = ({ navigation }) => {
     fetchInitialSelectedCompany();
   }, []);
 
-  const companyId = selectedCompany ? selectedCompany.id : initialSelectedCompany?.id;
+  const companyId = selectedCompany
+    ? selectedCompany.id
+    : initialSelectedCompany?.id;
 
   useEffect(() => {
     if (companyId) {
@@ -55,9 +55,8 @@ const Categories = ({ navigation }) => {
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
-      // Reset search when component is focused
       setSearchQuery('');
-      setShowSearchInput(false); // Hide search input when component is focused
+      setShowSearchInput(false);
     });
     return unsubscribe;
   }, [navigation]);
@@ -68,10 +67,9 @@ const Categories = ({ navigation }) => {
     setRefreshing(false);
   }, [companyId]);
 
-  const fetchCategories = async (companyId) => {
+  const fetchCategories = async companyId => {
     setLoading(true);
     const apiUrl = `${global?.userData?.productURL}${API.ALL_CATEGORIES_DATA}`;
-
     try {
       const response = await axios.get(apiUrl, {
         headers: {
@@ -79,13 +77,12 @@ const Categories = ({ navigation }) => {
           Authorization: `Bearer ${global?.userData?.token?.access_token}`,
         },
       });
-
-      // Filter categories based on the companyId
-      const filteredCategories = response.data.filter((category) => category.companyId === companyId);
+      const filteredCategories = response.data.filter(
+        category => category.companyId === companyId,
+      );
       setSelectedDetails(filteredCategories);
     } catch (error) {
       console.error('Error fetching categories:', error);
-      // Handle the error here, possibly set selectedDetails to an empty array or display an error message
     } finally {
       setLoading(false);
     }
@@ -98,12 +95,12 @@ const Categories = ({ navigation }) => {
     }
   };
 
-  const onChangeText = (text) => {
+  const onChangeText = text => {
     setSearchQuery(text);
   };
 
-  const renderProductItem = ({ item }) => {
-    const {category, imageUrls } = item;
+  const renderProductItem = ({item}) => {
+    const {category, imageUrls} = item;
 
     return (
       <TouchableOpacity
@@ -112,12 +109,12 @@ const Categories = ({ navigation }) => {
           navigation.navigate('AllCategoriesListed', {
             item,
             categoryId: item.categoryId,
-            categoryDesc: category, // Pass the category description
+            categoryDesc: category,
           });
         }}>
         <View style={styles.productImageContainer}>
           {imageUrls && imageUrls.length > 0 ? (
-            <Image style={styles.productImage} source={{ uri: imageUrls[0] }} />
+            <Image style={styles.productImage} source={{uri: imageUrls[0]}} />
           ) : (
             <Image
               style={styles.productImage}
@@ -133,7 +130,7 @@ const Categories = ({ navigation }) => {
             <Text
               style={[
                 styles.productName,
-                 {
+                {
                   backgroundColor: 'rgba(0, 0, 0, 0.3)',
                 },
               ]}>
@@ -145,9 +142,12 @@ const Categories = ({ navigation }) => {
     );
   };
 
-  const filteredCategories = selectedDetails &&
-                            Array.isArray(selectedDetails) && 
-                            selectedDetails.filter((item) => item.category.toLowerCase().includes(searchQuery.toLowerCase()));
+  const filteredCategories =
+    selectedDetails &&
+    Array.isArray(selectedDetails) &&
+    selectedDetails.filter(item =>
+      item.category.toLowerCase().includes(searchQuery.toLowerCase()),
+    );
 
   return (
     <View style={styles.container}>
@@ -159,7 +159,7 @@ const Categories = ({ navigation }) => {
               searchQuery.length > 0 && styles.searchInputActive,
             ]}
             autoFocus={true}
-            value={searchQuery} // Set value to the search query
+            value={searchQuery}
             onChangeText={onChangeText}
             placeholder="Search"
             placeholderTextColor="#000"
@@ -173,7 +173,9 @@ const Categories = ({ navigation }) => {
               : ''}
           </Text>
         )}
-        <TouchableOpacity style={styles.searchButton} onPress={toggleSearchInput}>
+        <TouchableOpacity
+          style={styles.searchButton}
+          onPress={toggleSearchInput}>
           <Image
             style={styles.image}
             source={
@@ -187,11 +189,11 @@ const Categories = ({ navigation }) => {
 
       {loading ? (
         <ActivityIndicator
-          style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
+          style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}
           size="large"
           color="#390050"
         />
-      ) :filteredCategories.length === 0 ? (
+      ) : filteredCategories.length === 0 ? (
         <Text style={styles.noCategoriesText}>Sorry, no results found! </Text>
       ) : (
         <FlatList
@@ -201,7 +203,11 @@ const Categories = ({ navigation }) => {
           numColumns={2}
           contentContainerStyle={styles.productList}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#000', '#689F38']} />
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={['#000', '#689F38']}
+            />
           }
         />
       )}
@@ -263,7 +269,7 @@ const styles = StyleSheet.create({
     height: 200,
     resizeMode: 'cover',
   },
-  productImagee:{
+  productImagee: {
     width: '100%',
     height: 300,
     resizeMode: 'cover',
@@ -284,14 +290,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#fff',
   },
-  noCategoriesText:{
+  noCategoriesText: {
     top: 40,
-    textAlign:"center",
+    textAlign: 'center',
     color: '#000000',
     fontSize: 20,
     fontWeight: 'bold',
     padding: 5,
-  }
+  },
 });
 
 export default Categories;
