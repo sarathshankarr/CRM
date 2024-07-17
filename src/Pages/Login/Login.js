@@ -124,6 +124,8 @@ const Login = () => {
       setLoading(false);
       if (error.response && error.response.status === 400) {
         Alert.alert('Invalid Code', 'Please enter a valid customer code.');
+      } else if (error.response && error.response.status === 502) {
+        Alert.alert('Alert', 'Woof! There seems to be a problem. Please try after sometime.');
       } else {
         Alert.alert('Alert', 'please Enter the code.');
       }
