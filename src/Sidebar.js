@@ -219,12 +219,20 @@ const Sidebar = ({navigation, route}) => {
 
       {dropdownVisible && (
         <View style={styles.dropdown}>
-          <TouchableOpacity
+          <TouchableOpacity style={styles.inventoryhead}
             onPress={() => goToProductInventory('Product Inventory')}>
+               <Image
+          style={styles.prodimg}
+          source={require('../assets/product-management.png')}
+        />
             <Text style={styles.dropdownItem}>Product Inventory</Text>
           </TouchableOpacity>
-          <TouchableOpacity
+          <TouchableOpacity style={styles.inventoryhead}
             onPress={() => goToLocationInventory('Location Wise Inventory')}>
+                  <Image
+          style={styles.prodimg}
+          source={require('../assets/locationinv.png')}
+        />
             <Text style={styles.dropdownItemm}>Location Wise Inventory</Text>
           </TouchableOpacity>
           {/* Add more dropdown items here */}
@@ -256,7 +264,11 @@ const Sidebar = ({navigation, route}) => {
       </TouchableOpacity>
       {dropdownVisiblee && (
         <View style={styles.dropdown}>
-          <TouchableOpacity onPress={goToActivities}>
+          <TouchableOpacity style={styles.inventoryhead} onPress={goToActivities}>
+          <Image
+          style={styles.prodimg}
+          source={require('../assets/acticityone.png')}
+        />
             <Text style={styles.dropdownItem}>Activities</Text>
           </TouchableOpacity>
           {/* Add more dropdown items here */}
@@ -426,6 +438,11 @@ const styles = StyleSheet.create({
     height: 30,
     width: 30,
   },
+  prodimg:{
+    height: 30,
+    width: 30,
+    marginLeft:2
+  },
   distributorimg: {
     height: 35,
     width: 35,
@@ -436,12 +453,12 @@ const styles = StyleSheet.create({
   },
   dropdownItem: {
     fontSize: 16,
-    marginHorizontal: 30,
-    marginTop: 15,
+    marginHorizontal: 10,
+    marginTop: 10,
   },
   dropdownItemm: {
     fontSize: 16,
-    marginHorizontal: 30,
+    marginHorizontal: 10,
     marginTop: 15,
   },
   logoutContainer: {

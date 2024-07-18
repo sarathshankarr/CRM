@@ -23,6 +23,7 @@ import ModalScreen from '../components/ModalScreen';
 import Activities from '../Pages/activities/Activities';
 import NewTask from '../Pages/activities/NewTask';
 import NewCall from '../Pages/activities/NewCall';
+import CustomCheckBox from '../components/CheckBox';
 
 const Stack = createNativeStackNavigator();
 
@@ -170,6 +171,12 @@ const Routes = () => {
         component={NewCall}
         options={{headerShown: false}}
       />
+       <Stack.Screen
+        name="CustomCheckBox"
+        component={CustomCheckBox}
+        options={{headerShown: false}}
+      />
+
     </Stack.Navigator>
   );
 };

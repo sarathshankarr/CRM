@@ -24,7 +24,7 @@ import {
   USER_PASSWORD,
 } from '../../config/apiConfig';
 import {setLoggedInUser, setUserRole} from '../../redux/actions/Actions';
-import CheckBox from 'react-native-check-box';
+import CustomCheckBox from '../../components/CheckBox';
 
 const Login = () => {
   const navigation = useNavigation();
@@ -409,7 +409,8 @@ const Login = () => {
           <Text style={styles.errorText}>Password is required</Text>
         )}
         <View style={{flexDirection: 'row', alignItems: 'center'}}>
-          <CheckBox onClick={handleCheckBoxToggle} isChecked={isChecked} />
+          {/* <CheckBox onClick={handleCheckBoxToggle} isChecked={isChecked} /> */}
+          <CustomCheckBox isChecked={isChecked} onToggle={handleCheckBoxToggle} />
           <Text style={{padding: 5}}>Remember Me</Text>
         </View>
         <View style={styles.rowContainer}>

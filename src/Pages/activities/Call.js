@@ -124,7 +124,7 @@ const Call = () => {
       <Text style={{flex: 1.3, marginLeft: 10}}>{item.customer}</Text>
       <Text style={{flex: 1}}>{item.relatedTo}</Text>
       <Text style={{flex: 0.7}}>{item.status}</Text>
-      <Text style={{flex: 0.7}}>{item.created_on}</Text>
+      <Text style={{flex: 0.7,marginRight:5}}>{item.created_on}</Text>
       {/* <Text style={{ flex: 1 }}>{formatDateIntoDMY(item.startDate.split('T')[0])}</Text> */}
     </TouchableOpacity>
   );
@@ -228,18 +228,17 @@ const styles = StyleSheet.create({
   headerText: {
     fontWeight: 'bold',
     fontSize: 16,
-    flex: 1.3,
     marginLeft: 10,
   },
   headerText1: {
     fontWeight: 'bold',
     fontSize: 16,
-    flex: 1,
+    marginRight:10
   },
   headerText2: {
     fontWeight: 'bold',
     fontSize: 16,
-    flex: 0.7,
+  
   },
   callItem: {
     flexDirection: 'row',

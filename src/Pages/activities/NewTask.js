@@ -12,7 +12,7 @@ import {
   Switch,
 } from 'react-native';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
-import CheckBox from 'react-native-check-box';
+// import CheckBox from 'react-native-check-box';
 import {
   useNavigation,
   useRoute,
@@ -22,6 +22,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import {API} from '../../config/apiConfig';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {formatDateIntoDMY} from '../../Helper/Helper';
+import CustomCheckBox from '../../components/CheckBox';
 
 const NewTask = () => {
   const dispatch = useDispatch(); // Get dispatch function from useDispatch hook
@@ -541,15 +542,14 @@ const NewTask = () => {
       created_on: route.params.task.created_on,
       taskName: taskName || null,
       dueDate: selectedDateDue !== 'Due Date' ? selectedDateDue : null,
-      repeatRem: selectedDropdownOption.value,
-      untilDate: selectedDateUntil !== 'Until Date' ? selectedDateUntil : null,
-      relatedTo: relatedTo || null,
+      repeatRem: showDropdownRow ? selectedDropdownOption.value :null,
+      untilDate: showDropdownRow ? (selectedDateUntil !== 'Until Date' ? selectedDateUntil : null) : null,      relatedTo: relatedTo || null,
       desc: desc || null,
       completed: null,
       priority: markHighPriority ? 1 : 0,
       assign_to: selectedUserId,
       assign_by: userData.userId,
-      t_company_id: null,
+      t_company_id: companyId,
       unique_id: null,
       status: selectedStatusOption,
       userName: selectedUserName,
@@ -878,8 +878,9 @@ const NewTask = () => {
           alignItems: 'center',
           marginLeft: 10,
         }}>
-        <CheckBox isChecked={showDropdownRow} onClick={handleCheckboxChange} />
-        <Text style={{marginLeft: 5, marginVertical: 5}}>Repeats</Text>
+         <CustomCheckBox isChecked={showDropdownRow} onToggle={handleCheckboxChange} />
+        {/* <CheckBox isChecked={showDropdownRow} onClick={handleCheckboxChange} /> */}
+        <Text style={{marginLeft: 5, marginVertical: 5}}>Repeat</Text>
       </View>
 
       {showDropdownRow && (
@@ -958,7 +959,8 @@ const NewTask = () => {
           flexDirection: 'row',
           marginVertical: 7,
         }}>
-        <CheckBox isChecked={markHighPriority} onClick={handleCheckPriority} />
+        <CustomCheckBox isChecked={markHighPriority} onToggle={handleCheckPriority} />
+        {/* <CheckBox isChecked={markHighPriority} onClick={handleCheckPriority} /> */}
         <Text>Mark as High Priority</Text>
       </View>
 

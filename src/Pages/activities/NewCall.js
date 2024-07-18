@@ -12,13 +12,14 @@ import {
   Switch,
 } from 'react-native';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
-import CheckBox from 'react-native-check-box';
+// import CheckBox from 'react-native-check-box';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import axios from 'axios';
 import {API} from '../../config/apiConfig';
 import {useSelector} from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {formatDateIntoDMY} from '../../Helper/Helper';
+import CustomCheckBox from '../../components/CheckBox';
 
 const NewCall = () => {
   const route = useRoute();
@@ -639,11 +640,11 @@ const NewCall = () => {
           ? selectedDateUntil
           : callData?.startDate,
       startTime: selectedDropdownOptionTime || callData?.startTime,
-      remTime: selectedDropdownOption.value || callData?.remTime,
+      remTime: showDropdownRow ? selectedDropdownOption.value || callData?.remTime : null,
       callType: selectedDropdownOptionCallType.value || callData?.callType,
       relatedTo: relatedTo || callData?.relatedTo,
       agenda: agenda || callData?.agenda,
-      t_company_id: callData?.t_company_id || '',
+      t_company_id:companyId,
       customer: customeroption || callData?.customer,
       duration: callData?.duration || '',
       assignTo: selectedUserId || callData?.assignTo,
@@ -1000,8 +1001,9 @@ const NewCall = () => {
           alignItems: 'center',
           marginLeft: 10,
         }}>
-        <CheckBox isChecked={showDropdownRow} onClick={handleCheckboxChange} />
-        <Text style={{marginLeft: 5}}>Reminder</Text>
+       <CustomCheckBox isChecked={showDropdownRow} onToggle={handleCheckboxChange} />
+        {/* <CheckBox isChecked={showDropdownRow} onClick={handleCheckboxChange} /> */}
+        <Text style={{marginLeft: 5}}>Remainder</Text>
       </View>
       <Text style={{marginHorizontal: 10, marginVertical: 5}}>
         before start time

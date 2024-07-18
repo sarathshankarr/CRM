@@ -14,7 +14,8 @@ import {useSelector} from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {API} from '../../config/apiConfig';
-import CheckBox from 'react-native-check-box';
+// import CheckBox from 'react-native-check-box';
+import CustomCheckBox from '../../components/CheckBox';
 
 const DistributorOrder = () => {
   const navigation = useNavigation();
@@ -321,7 +322,8 @@ const DistributorOrder = () => {
             }}>
             Qty
           </Text>
-          <CheckBox onClick={handleCheckBoxToggle} isChecked={isChecked} />
+          <CustomCheckBox isChecked={isChecked} onToggle={handleCheckBoxToggle} />
+          {/* <CheckBox onClick={handleCheckBoxToggle} isChecked={isChecked} /> */}
         </View>
         <Text style={[styles.orderDetailsText, {flex: 1}]}>Price</Text>
         <Text style={[styles.orderDetailsText, {flex: 1}]}>GST</Text>

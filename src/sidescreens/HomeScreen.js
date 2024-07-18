@@ -1,6 +1,6 @@
 import React from 'react';
-import {View, TouchableOpacity, Image, StyleSheet} from 'react-native';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import { View, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Categories from '../bottom/Categories';
 import Order from '../bottom/Order';
 import CommonHeader from '../components/CommonHeader';
@@ -8,11 +8,11 @@ import Home from '../bottom/Home';
 
 const Bottom = createBottomTabNavigator();
 
-const HomeScreen = ({navigation}) => {
+const HomeScreen = ({ navigation }) => {
   return (
     <Bottom.Navigator
-      screenOptions={({route}) => ({
-        tabBarIcon: ({color, size}) => {
+      screenOptions={({ route }) => ({
+        tabBarIcon: ({ color, size, focused }) => {
           let icon;
           if (route.name === 'Home') {
             icon = require('../../assets/store.png');
@@ -22,19 +22,22 @@ const HomeScreen = ({navigation}) => {
             icon = require('../../assets/order-1.png');
           }
           return (
-            <Image
-              source={icon}
-              style={{height: 24, width: 24, tintColor: color}}
-            />
+            <View style={[styles.tabIconContainer, focused && styles.selectedTab]}>
+              <Image
+                source={icon}
+                style={{ height: 24, width: 24, tintColor: color }}
+              />
+            </View>
           );
         },
         headerShown: true,
         headerTitle: route.name,
-        header: ({navigation}) => {
+        header: ({ navigation, route }) => {
           const showDrawerButton = !['Login', 'Main', 'Cart'].includes(
             route.name,
           );
-          return (
+          const showHeader = route.name !== 'Home';
+          return showHeader ? (
             <CommonHeader
               navigation={navigation}
               title={route.name}
@@ -43,28 +46,44 @@ const HomeScreen = ({navigation}) => {
               showCartIcon={true}
               showLocationIcon={true}
             />
-          );
+          ) : null;
         },
         tabBarActiveTintColor: '#390050',
         tabBarInactiveTintColor: 'gray',
+        // tabBarStyle: {
+        //   backgroundColor: 'gary', // Change this to the desired background color
+        // },
       })}>
       <Bottom.Screen
         name="Home"
         component={Home}
-        options={{headerTitle: 'Home',headerShown:false}}
+        options={{ headerTitle: 'Home', headerShown: false }}
       />
       <Bottom.Screen
         name="Categories"
         component={Categories}
-        options={{headerTitle: 'Categories'}}
+        options={{ headerTitle: 'Categories' }}
       />
       <Bottom.Screen
         name="Order"
         component={Order}
-        options={{headerTitle: 'Order'}}
+        options={{ headerTitle: 'Order' }}
       />
     </Bottom.Navigator>
   );
 };
+
+const styles = StyleSheet.create({
+  tabIconContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: '100%',
+  },
+  selectedTab: {
+    borderTopWidth: 4,
+    borderTopColor: 'black',
+    width: '70%',
+  },
+});
 
 export default HomeScreen;
